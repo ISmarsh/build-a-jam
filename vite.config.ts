@@ -5,6 +5,9 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Base path for GitHub Pages deployment
+  // Change this to '/' if deploying to custom domain or root
+  base: '/build-a-jam/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
