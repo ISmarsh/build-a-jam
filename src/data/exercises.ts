@@ -7,7 +7,7 @@
  * - Later we can move this to a backend API or local storage
  */
 
-import { Exercise } from '../types';
+import type { Exercise } from '../types';
 
 export const exercises: Exercise[] = [
   {

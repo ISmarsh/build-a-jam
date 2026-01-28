@@ -32,7 +32,6 @@ import { useState } from 'react';
 import ExerciseList from './components/ExerciseList';
 import TagFilter from './components/TagFilter';
 import { exercises } from './data/exercises';
-import './App.css';
 
 function App() {
   // STATE: useState hook - this is like a class property in Angular
@@ -68,15 +67,15 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Build-a-Jam</h1>
-        <p className="subtitle">
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <header className="text-center mb-12 pb-8 border-b-2 border-indigo-500">
+        <h1 className="text-5xl font-bold mb-2 text-indigo-500">Build-a-Jam</h1>
+        <p className="text-gray-400 text-lg">
           Improv Exercise Repository - Find the perfect warm-up for your jam!
         </p>
       </header>
 
-      <main className="app-main">
+      <main className="flex flex-col gap-8">
         {/* Child component receives state as props */}
         <TagFilter
           availableTags={availableTags}
@@ -84,8 +83,8 @@ function App() {
           onTagToggle={handleTagToggle} // Pass callback down
         />
 
-        <div className="results-section">
-          <h2>
+        <div>
+          <h2 className="mb-6 text-2xl font-semibold text-white">
             Exercises
             {selectedTags.length > 0 && ` (${filteredExercises.length})`}
           </h2>

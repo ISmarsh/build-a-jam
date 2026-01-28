@@ -19,7 +19,7 @@
  *    Similar to Angular, just import and use like <ExerciseCard />
  */
 
-import { Exercise } from '../types';
+import type { Exercise } from '../types';
 import ExerciseCard from './ExerciseCard';
 
 interface ExerciseListProps {
@@ -30,14 +30,14 @@ function ExerciseList({ exercises }: ExerciseListProps) {
   // Early return pattern - like *ngIf but at component level
   if (exercises.length === 0) {
     return (
-      <div className="empty-state">
+      <div className="text-center py-12 text-gray-400 text-lg">
         <p>No exercises found. Try adjusting your filters.</p>
       </div>
     );
   }
 
   return (
-    <div className="exercise-list">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {/* Map over array to render list - like *ngFor */}
       {exercises.map((exercise) => (
         // Key is REQUIRED - React uses it to track which items changed
