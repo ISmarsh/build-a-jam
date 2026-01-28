@@ -133,6 +133,27 @@ Exercises typically have:
 - Categories/playlists (teaches data organization)
 - Import/export exercises (teaches file handling)
 
+## Scraped Data & Licensing
+
+Exercise data in `src/data/learnimprov-exercises.json` is scraped from
+[learnimprov.com](https://www.learnimprov.com/) and licensed under
+**[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**.
+
+When working with this data you **must**:
+- **Preserve attribution** — keep the `attribution` block in the JSON intact.
+  Every exercise also carries a `sourceUrl` back to its original page.
+- **Note changes** — if you edit, rewrite, or summarise a description, that
+  counts as an adaptation. Add a note (e.g. `"modified": true`) so downstream
+  consumers know the text has been changed.
+- **ShareAlike** — any file that contains adapted material must remain under
+  CC BY-SA 4.0 (or a compatible licence). Do not re-licence scraped content
+  under a more restrictive terms.
+- **Keep `LICENSE-DATA`** — the repo-level `LICENSE-DATA` file documents these
+  obligations. Do not remove it.
+
+See `scripts/scrape-learnimprov.mjs` for the scraper and `LICENSE-DATA` for
+the full licence notice.
+
 ## Things to Avoid
 
 - Don't add complex state management too early
