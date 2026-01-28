@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# Build-a-Jam
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A repository and tool for selecting improv warm-ups and exercises based on tags like "connection", "structure", "heightening", and more.
 
-Currently, two official plugins are available:
+## About
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Build-a-Jam helps improv performers and teachers find the perfect warm-up exercises for their jam sessions. Browse exercises by tags, filter by specific skills you want to practice, and build the ideal warm-up routine.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **CSS** - Styling
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Browse improv exercises with detailed descriptions
+- Filter exercises by tags (connection, structure, heightening, energy, focus, listening)
+- Responsive design for mobile and desktop
+- Fast development with Vite HMR (Hot Module Replacement)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 20+ and npm
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open [http://localhost:5173](http://localhost:5173) to view the app.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Available Scripts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
 ```
+
+## Project Structure
+
+```
+src/
+├── components/          # React components
+│   ├── ExerciseCard.tsx    # Individual exercise display
+│   ├── ExerciseList.tsx    # List of exercises
+│   └── TagFilter.tsx       # Tag filtering UI
+├── data/
+│   └── exercises.ts     # Exercise data
+├── types.ts            # TypeScript type definitions
+├── App.tsx             # Main app component
+└── main.tsx            # Entry point
+```
+
+## Learning Resource
+
+This project serves as a learning tool for transitioning from Angular to React. The codebase includes extensive comments comparing Angular patterns to React equivalents.
+
+## Roadmap
+
+- [ ] Add new exercises form
+- [ ] Search functionality
+- [ ] Favorites/bookmarking
+- [ ] Local storage persistence
+- [ ] Exercise duration calculator
+- [ ] Random exercise selector
+- [ ] Categories/collections
+
+## Contributing
+
+This is a personal learning project, but suggestions and ideas are welcome!
+
+## License
+
+MIT
