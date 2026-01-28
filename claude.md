@@ -151,8 +151,14 @@ When working with this data you **must**:
 - **Keep `LICENSE-DATA`** — the repo-level `LICENSE-DATA` file documents these
   obligations. Do not remove it.
 
-See `scripts/scrape-learnimprov.mjs` for the scraper and `LICENSE-DATA` for
-the full licence notice.
+Exercise data in `src/data/improvencyclopedia-exercises.json` is scraped from
+[improvencyclopedia.org](https://improvencyclopedia.org/). No specific license
+was found on the site. Each exercise entry includes a `sourceUrl` linking back
+to the original page for attribution. If a license is later identified, update
+`LICENSE-DATA` and the `attribution` block in the JSON accordingly.
+
+See `scripts/scrape-learnimprov.mjs`, `scripts/scrape-improvencyclopedia.mjs`,
+and `LICENSE-DATA` for details.
 
 ## Things to Avoid
 

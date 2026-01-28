@@ -21,5 +21,19 @@ Under the terms of this license:
   - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
     measures that legally restrict others from doing anything the license permits.
 
-This notice applies specifically to the scraped exercise data. The Build-a-Jam
+---
+
+improvencyclopedia.org — Attribution Notice
+
+The improv exercise data in src/data/improvencyclopedia-exercises.json is sourced
+from improvencyclopedia.org (https://improvencyclopedia.org/). No specific license
+was found on the site. Each exercise entry includes a sourceUrl linking back to the
+original page on improvencyclopedia.org for attribution.
+
+If a license is later identified for improvencyclopedia.org content, this file
+should be updated accordingly.
+
+---
+
+These notices apply specifically to the scraped exercise data. The Build-a-Jam
 application code itself is under its own license (see LICENSE if present).
