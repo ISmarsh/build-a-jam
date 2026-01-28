@@ -1,0 +1,25 @@
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+
+The improv exercise data in src/data/learnimprov-exercises.json is sourced from
+learnimprov.com (https://www.learnimprov.com/) and is licensed under the Creative
+Commons Attribution-ShareAlike 4.0 International License.
+
+To view a copy of this license, visit:
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+Under the terms of this license:
+
+  - ATTRIBUTION: You must give appropriate credit to learnimprov.com, provide a
+    link to the license, and indicate if changes were made. You may do so in any
+    reasonable manner, but not in any way that suggests learnimprov.com endorses
+    you or your use.
+
+  - SHAREALIKE: If you remix, transform, or build upon the scraped material, you
+    must distribute your contributions under the same CC BY-SA 4.0 license (or a
+    compatible license).
+
+  - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
+    measures that legally restrict others from doing anything the license permits.
+
+This notice applies specifically to the scraped exercise data. The Build-a-Jam
+application code itself is under its own license (see LICENSE if present).

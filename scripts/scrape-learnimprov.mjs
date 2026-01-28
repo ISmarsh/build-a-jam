@@ -4,6 +4,14 @@
  * Scrapes improv exercises from learnimprov.com and outputs JSON
  * matching the Exercise interface used in Build-a-Jam.
  *
+ * The content on learnimprov.com is licensed under the Creative Commons
+ * Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+ * See: https://creativecommons.org/licenses/by-sa/4.0/
+ *
+ * This script embeds the required attribution metadata in the output JSON.
+ * Any adaptations of the scraped data must also be shared under CC BY-SA 4.0
+ * or a compatible license.
+ *
  * Usage:
  *   npm run scrape
  *   # or directly:
@@ -245,9 +253,26 @@ async function main() {
     tags: [...new Set(ex.tags)],
   }));
 
+  // Wrap in an object with CC BY-SA 4.0 attribution metadata
+  const output = {
+    attribution: {
+      source: "learnimprov.com",
+      sourceUrl: "https://www.learnimprov.com/",
+      license: "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)",
+      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+      note:
+        "This data was scraped from learnimprov.com. Descriptions have been " +
+        "adapted for use in Build-a-Jam. Under CC BY-SA 4.0, you must give " +
+        "appropriate credit, link to the license, and indicate if changes " +
+        "were made. Any adaptations must be shared under the same license.",
+      scrapedAt: new Date().toISOString(),
+    },
+    exercises,
+  };
+
   // Write output
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, JSON.stringify(exercises, null, 2) + "\n");
+  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
 
   console.log(`\nDone! Wrote ${exercises.length} exercises to:`);
   console.log(`  ${OUTPUT_PATH}`);
