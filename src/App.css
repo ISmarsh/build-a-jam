@@ -1,0 +1,177 @@
+/**
+ * Build-a-Jam Styles
+ *
+ * LEARNING NOTE:
+ * React has many CSS approaches:
+ * 1. Plain CSS files (like this) - similar to Angular styleUrls
+ * 2. CSS Modules - scoped styles per component
+ * 3. CSS-in-JS - styled-components, emotion
+ * 4. Tailwind CSS - utility classes
+ *
+ * For learning, plain CSS is fine!
+ */
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #646cff;
+}
+
+.app-header h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: #646cff;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Tag Filter Styles */
+.tag-filter {
+  background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.tag-filter h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+.tag-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag-button {
+  padding: 0.5rem 1rem;
+  border: 2px solid #646cff;
+  background: transparent;
+  color: #646cff;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.tag-button:hover {
+  background: #646cff22;
+  transform: translateY(-2px);
+}
+
+.tag-button.active {
+  background: #646cff;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-count {
+  color: #aaa;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Results Section */
+.results-section h2 {
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+/* Exercise List */
+.exercise-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+/* Exercise Card */
+.exercise-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.exercise-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.3);
+  border-color: #646cff;
+}
+
+.exercise-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #646cff;
+  font-size: 1.3rem;
+}
+
+.exercise-card .description {
+  color: #ddd;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.exercise-card .duration {
+  color: #aaa;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+
+.exercise-card .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.exercise-card .tag {
+  background: #333;
+  color: #646cff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  border: 1px solid #444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+
+  .app-header h1 {
+    font-size: 2rem;
+  }
+
+  .exercise-list {
+    grid-template-columns: 1fr;
+  }
+}
