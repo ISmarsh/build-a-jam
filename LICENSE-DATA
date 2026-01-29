@@ -35,5 +35,41 @@ should be updated accordingly.
 
 ---
 
+improwiki.com — CC BY-SA 3.0 DE
+
+The improv exercise data in src/data/improwiki-exercises.json is sourced from
+improwiki.com (https://improwiki.com/en) and is licensed under the Creative
+Commons Attribution-ShareAlike 3.0 Germany License.
+
+To view a copy of this license, visit:
+  https://creativecommons.org/licenses/by-sa/3.0/de/deed.en
+
+Under the terms of this license:
+
+  - ATTRIBUTION: You must give appropriate credit to improwiki.com, provide a
+    link to the license, and indicate if changes were made.
+
+  - SHAREALIKE: If you remix, transform, or build upon the scraped material, you
+    must distribute your contributions under CC BY-SA 3.0 DE or a compatible
+    license (such as CC BY-SA 4.0).
+
+  - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
+    measures that legally restrict others from doing anything the license permits.
+
+---
+
+ImprovDB — Attribution Notice
+
+The improv exercise data in src/data/improvdb-exercises.json is imported from the
+ImprovDB open-source repository (https://github.com/aberonni/improvdb) by Dom
+Gemoli. The project describes itself as "open source and free to use" but no
+explicit LICENSE file was found in the repository. Each exercise entry includes a
+sourceUrl linking back to improvdb.com for attribution.
+
+If a license is later identified for ImprovDB content, this file should be
+updated accordingly.
+
+---
+
 These notices apply specifically to the scraped exercise data. The Build-a-Jam
 application code itself is under its own license (see LICENSE if present).

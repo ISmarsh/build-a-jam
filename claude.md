@@ -151,14 +151,35 @@ When working with this data you **must**:
 - **Keep `LICENSE-DATA`** — the repo-level `LICENSE-DATA` file documents these
   obligations. Do not remove it.
 
+Exercise data in `src/data/improwiki-exercises.json` is scraped from
+[improwiki.com](https://improwiki.com/en) and licensed under
+**[CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en)**.
+The same rules above (preserve attribution, note changes, ShareAlike) apply.
+CC BY-SA 3.0 DE is forward-compatible with CC BY-SA 4.0.
+
 Exercise data in `src/data/improvencyclopedia-exercises.json` is scraped from
 [improvencyclopedia.org](https://improvencyclopedia.org/). No specific license
 was found on the site. Each exercise entry includes a `sourceUrl` linking back
 to the original page for attribution. If a license is later identified, update
 `LICENSE-DATA` and the `attribution` block in the JSON accordingly.
 
-See `scripts/scrape-learnimprov.mjs`, `scripts/scrape-improvencyclopedia.mjs`,
-and `LICENSE-DATA` for details.
+Exercise data in `src/data/improvdb-exercises.json` is imported from the
+[ImprovDB](https://improvdb.com/) open-source repository
+([GitHub](https://github.com/aberonni/improvdb)) by Dom Gemoli. The project
+describes itself as "open source and free to use" but no explicit LICENSE file
+was found. Each entry includes a `sourceUrl` back to improvdb.com. If a license
+is later identified, update `LICENSE-DATA` and the JSON `attribution` block.
+
+### Scraper scripts
+
+| Script | Command | Source |
+|---|---|---|
+| `scripts/scrape-learnimprov.mjs` | `npm run scrape` | learnimprov.com |
+| `scripts/scrape-improvencyclopedia.mjs` | `npm run scrape:encyclopedia` | improvencyclopedia.org |
+| `scripts/scrape-improwiki.mjs` | `npm run scrape:improwiki` | improwiki.com |
+| `scripts/import-improvdb.mjs` | `npm run scrape:improvdb` | ImprovDB (GitHub) |
+
+See `LICENSE-DATA` for full licensing details per source.
 
 ## Things to Avoid
 
