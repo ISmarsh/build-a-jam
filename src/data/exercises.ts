@@ -11,49 +11,49 @@ import type { Exercise } from '../types';
 
 export const exercises: Exercise[] = [
   {
-    id: '1',
+    id: 'builtin:yes-and-circle',
     name: 'Yes, And Circle',
     description: 'Players stand in a circle. One person makes a statement, the next person says "Yes, and..." and adds to the statement. Continue around the circle.',
     tags: ['warmup', 'connection', 'listening', 'heightening'],
   },
   {
-    id: '2',
+    id: 'builtin:zip-zap-zop',
     name: 'Zip Zap Zop',
     description: 'Players stand in a circle and pass energy by pointing and saying "Zip", "Zap", or "Zop" in sequence while making eye contact.',
     tags: ['warmup', 'energy', 'focus', 'connection'],
   },
   {
-    id: '3',
+    id: 'builtin:object-work',
     name: 'Object Work',
     description: 'Practice creating and manipulating invisible objects with detail and specificity. Focus on weight, size, texture, and function.',
     tags: ['scene', 'structure', 'focus'],
   },
   {
-    id: '4',
+    id: 'builtin:emotional-party',
     name: 'Emotional Party',
     description: 'One person is the host. Guests arrive one at a time with different emotional states. The host tries to guess the emotion.',
     tags: ['game', 'heightening', 'energy', 'connection'],
   },
   {
-    id: '5',
+    id: 'builtin:scene-painting',
     name: 'Scene Painting',
     description: 'Two players face the audience. The first describes a location in detail. Both players then step into the scene they created.',
     tags: ['scene', 'structure', 'listening', 'heightening'],
   },
   {
-    id: '6',
+    id: 'builtin:one-word-story',
     name: 'One Word Story',
     description: 'The group tells a story together, with each person contributing exactly one word at a time.',
     tags: ['game', 'listening', 'connection', 'structure'],
   },
   {
-    id: '7',
+    id: 'builtin:energy-ball',
     name: 'Energy Ball',
     description: 'Pass an imaginary ball of energy around the circle. Change the size, speed, and quality of the energy.',
     tags: ['warmup', 'energy', 'focus', 'connection'],
   },
   {
-    id: '8',
+    id: 'builtin:status-walks',
     name: 'Status Walks',
     description: 'Walk around the space embodying different status levels (1 being lowest, 10 being highest). Notice how your body changes.',
     tags: ['scene', 'structure', 'energy', 'focus'],

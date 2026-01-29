@@ -54,7 +54,7 @@ function sleep(ms) {
 }
 
 function slugToId(slug) {
-  return slug.replace(/^\/|\/$/g, "").replace(/\//g, "-");
+  return "learnimprov:" + slug.replace(/^\/|\/$/g, "").replace(/\//g, "-");
 }
 
 /**

@@ -141,8 +141,10 @@ how an actual improv practice session works.
 
 See `src/types.ts` for the full type definitions. Key types:
 
-- **`Exercise`** — library item: name, tags, description. No duration
-  (that's context-dependent).
+- **`Exercise`** — library item: name, tags, description, optional
+  `alternativeNames`. No duration (that's context-dependent). IDs are
+  prefixed by source (e.g. `learnimprov:zip-zap-zop`, `improvdb:42`,
+  `builtin:yes-and-circle`).
 - **`SessionExercise`** — an exercise placed in a session queue with a
   duration and order.
 - **`Session`** — ordered list of `SessionExercise` items. Can be a one-off

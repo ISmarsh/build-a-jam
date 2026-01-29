@@ -20,7 +20,7 @@ export interface Exercise {
   name: string;
   tags: string[];
   description: string;
-  notes?: string;                // tips, variations, or teaching points
+  alternativeNames?: string[];   // other names this exercise goes by
   sourceUrl?: string;            // attribution link back to origin site
 }
 

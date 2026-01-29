@@ -47,7 +47,7 @@ function sleep(ms) {
  * Turn a game filename like "Alphabet_Game.html" into a kebab-case id.
  */
 function filenameToId(filename) {
-  return filename
+  return "improvencyclopedia:" + filename
     .replace(/\.html$/, "")
     .replace(/_/g, "-")
     .toLowerCase();

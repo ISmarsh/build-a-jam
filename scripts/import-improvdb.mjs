@@ -131,13 +131,42 @@ function transformResource(resource) {
   const sourceUrl = `${IMPROVDB_BASE}/resource/${resource.id}`;
 
   return {
-    id: resource.id,
+    id: "improvdb:" + resource.id,
     name: resource.title,
     description: stripMarkdown(resource.description),
     tags: allTags,
-    alternativeNames: resource.alternativeNames || undefined,
+    alternativeNames: resource.alternativeNames?.length
+      ? resource.alternativeNames
+      : undefined,
     sourceUrl,
   };
+}
+
+/**
+ * Extract tag definitions from the seed data's categories array.
+ * Each category has { name, description } — we normalise the name to
+ * lowercase to match the tags we emit on exercises.
+ */
+function extractTagDefinitions(seedData) {
+  const defs = {};
+
+  // ImprovDB seed data has a top-level "categories" array
+  const categories = seedData.categories || [];
+  for (const cat of categories) {
+    if (cat.name) {
+      const tag = cat.name.toLowerCase();
+      if (cat.description) {
+        defs[tag] = cat.description;
+      }
+    }
+  }
+
+  // Also add the type-derived tags with short descriptions
+  defs["exercise"] = defs["exercise"] || "General improv exercise or drill";
+  defs["short-form"] = defs["short-form"] || "Short-form improv game";
+  defs["long-form"] = defs["long-form"] || "Long-form improv format";
+
+  return defs;
 }
 
 // ---------------------------------------------------------------------------
@@ -172,6 +201,12 @@ async function main() {
 
   const exercises = published.map(transformResource);
 
+  // Extract tag definitions from the categories in the seed data
+  const tagDefinitions = extractTagDefinitions(seedData);
+  console.log(
+    `  Extracted ${Object.keys(tagDefinitions).length} tag definitions.\n`,
+  );
+
   // Build output with attribution
   const output = {
     attribution: {
@@ -187,6 +222,7 @@ async function main() {
         "improvdb.com for attribution.",
       scrapedAt: new Date().toISOString(),
     },
+    tagDefinitions,
     exercises,
   };
 

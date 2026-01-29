@@ -51,7 +51,7 @@ function sleep(ms) {
 }
 
 function pathToId(path) {
-  return path
+  return "improwiki:" + path
     .replace(/^\/en\/wiki\/improv\//, "")
     .replace(/^\/en\//, "")
     .replace(/\//g, "-")
