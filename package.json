@@ -8,10 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "scrape": "node scripts/scrape-learnimprov.mjs",
-    "scrape:encyclopedia": "node scripts/scrape-improvencyclopedia.mjs",
-    "scrape:improwiki": "node scripts/scrape-improwiki.mjs",
-    "scrape:improvdb": "node scripts/import-improvdb.mjs"
+    "scrape": "node scripts/scrape-all.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",

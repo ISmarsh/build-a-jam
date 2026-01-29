@@ -172,12 +172,15 @@ is later identified, update `LICENSE-DATA` and the JSON `attribution` block.
 
 ### Scraper scripts
 
-| Script | Command | Source |
+Run `npm run scrape` to execute all scrapers via `scripts/scrape-all.mjs`.
+Individual scrapers can also be run directly with `node scripts/<name>.mjs`.
+
+| Script | Source | Output |
 |---|---|---|
-| `scripts/scrape-learnimprov.mjs` | `npm run scrape` | learnimprov.com |
-| `scripts/scrape-improvencyclopedia.mjs` | `npm run scrape:encyclopedia` | improvencyclopedia.org |
-| `scripts/scrape-improwiki.mjs` | `npm run scrape:improwiki` | improwiki.com |
-| `scripts/import-improvdb.mjs` | `npm run scrape:improvdb` | ImprovDB (GitHub) |
+| `scrape-learnimprov.mjs` | learnimprov.com | `learnimprov-exercises.json` |
+| `scrape-improvencyclopedia.mjs` | improvencyclopedia.org | `improvencyclopedia-exercises.json` |
+| `scrape-improwiki.mjs` | improwiki.com | `improwiki-exercises.json` |
+| `import-improvdb.mjs` | ImprovDB (GitHub) | `improvdb-exercises.json` |
 
 See `LICENSE-DATA` for full licensing details per source.
 
