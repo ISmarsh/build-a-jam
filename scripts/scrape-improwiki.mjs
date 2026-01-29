@@ -259,7 +259,8 @@ async function main() {
 
       exerciseMap.set(link.path, {
         id: pathToId(link.path),
-        title: parsed.title,
+        name: parsed.title,
+        category: index.defaultTag === "exercise" ? "other" : "game",
         description: parsed.description,
         tags: allTags,
         sourceUrl: pageUrl,

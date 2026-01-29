@@ -109,7 +109,54 @@ src/
 - **Show alternatives** - mention different ways to solve problems
 - **Encourage experimentation** - suggest modifications user could try
 
+### Application flow
+
+The app follows a three-stage **Prep → Session → Notes** structure that mirrors
+how an actual improv practice session works.
+
+**1. Prep Screen**
+- Browse/filter exercises by category (warmup, scene, game, other) and tags
+- Build a session by adding exercises to a queue
+- Set duration for each exercise in the queue (duration lives on
+  `SessionExercise`, not on `Exercise` — the same exercise can be 5 min or 15
+  min depending on context)
+- See total session time estimate
+- Option to save/load session templates for recurring practices
+
+**2. Session Screen**
+- Current exercise name and instructions displayed prominently
+- Timer counting down (or up, depending on preference)
+- "Next Exercise" button to progress through the queue
+- Progress indicator (e.g. "3 of 7 exercises")
+- Pause/resume functionality
+- Optional: quick notes field to jot observations mid-exercise
+
+**3. Notes Screen**
+- List of exercises that were run
+- Free-text area for post-session reflections (what worked, what didn't)
+- Optional: star rating or checkboxes for "worked well" / "need to revisit"
+- Save notes for future reference
+
+### Data model
+
+See `src/types.ts` for the full type definitions. Key types:
+
+- **`Exercise`** — library item: name, category, tags, description. No
+  duration (that's context-dependent).
+- **`SessionExercise`** — an exercise placed in a session queue with a
+  duration and order.
+- **`Session`** — ordered list of `SessionExercise` items. Can be a one-off
+  plan or a reusable template (`isTemplate`).
+- **`CompletedSession`** — what actually happened, with post-session notes.
+
 ### Improv exercise context
+
+Exercise categories:
+- **warmup** — ice breakers, energy builders, group focus
+- **scene** — scene work, environment, object work, characters
+- **game** — short-form games, handles, performance structures
+- **other** — anything that doesn't fit neatly above
+
 Common tags for exercises:
 - **connection** - Building ensemble, group awareness
 - **structure** - Scene structure, narrative, game
@@ -118,20 +165,15 @@ Common tags for exercises:
 - **focus** - Concentration, object work
 - **listening** - Agreement, "yes and", paying attention
 
-Exercises typically have:
-- Title, description
-- Duration (5-20 minutes usually)
-- Multiple tags
-- Sometimes participant count, difficulty, etc.
-
 ### Future feature ideas
-- Add exercise form (teaches forms, controlled components)
+- Session builder (teaches forms, controlled components, drag-and-drop)
 - Search bar (teaches filtering, debouncing)
 - Favorites (teaches localStorage, useEffect)
 - Random selector (fun utility feature)
-- Exercise timer (teaches useEffect, intervals)
-- Categories/playlists (teaches data organization)
+- Session timer (teaches useEffect, intervals)
+- Templates/playlists (teaches data organization)
 - Import/export exercises (teaches file handling)
+- Post-session notes (teaches forms, persistence)
 
 ## Scraped Data & Licensing
 

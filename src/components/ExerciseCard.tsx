@@ -39,17 +39,10 @@ function ExerciseCard({ exercise }: ExerciseCardProps) {
   return (
     <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:border-indigo-500 bg-gray-800 border-gray-700">
       <CardHeader>
-        <CardTitle className="text-indigo-500">{exercise.title}</CardTitle>
+        <CardTitle className="text-indigo-500">{exercise.name}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-gray-300 leading-relaxed">{exercise.description}</p>
-
-        {/* Conditional rendering - like *ngIf in Angular */}
-        {exercise.duration && (
-          <p className="text-gray-400 text-sm italic">
-            Duration: {exercise.duration} minutes
-          </p>
-        )}
 
         {/* List rendering with Badge component */}
         <div className="flex flex-wrap gap-2">

@@ -237,7 +237,8 @@ async function main() {
 
       exerciseMap.set(link.slug, {
         id: slugToId(link.slug),
-        title: parsed.title,
+        name: parsed.title,
+        category: category.tag === "warm-up" ? "warmup" : "other",
         description: parsed.description,
         tags: [category.tag, ...parsed.derivedTags],
         sourceUrl: link.url,
