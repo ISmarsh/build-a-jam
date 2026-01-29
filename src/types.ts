@@ -18,14 +18,11 @@
 export interface Exercise {
   id: string;
   name: string;
-  category: ExerciseCategory;
   tags: string[];
   description: string;
   notes?: string;                // tips, variations, or teaching points
   sourceUrl?: string;            // attribution link back to origin site
 }
-
-export type ExerciseCategory = 'warmup' | 'scene' | 'game' | 'other';
 
 // ---------------------------------------------------------------------------
 // Session Planning & Execution

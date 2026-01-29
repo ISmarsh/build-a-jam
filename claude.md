@@ -115,7 +115,7 @@ The app follows a three-stage **Prep → Session → Notes** structure that mirr
 how an actual improv practice session works.
 
 **1. Prep Screen**
-- Browse/filter exercises by category (warmup, scene, game, other) and tags
+- Browse/filter exercises by tags
 - Build a session by adding exercises to a queue
 - Set duration for each exercise in the queue (duration lives on
   `SessionExercise`, not on `Exercise` — the same exercise can be 5 min or 15
@@ -141,8 +141,8 @@ how an actual improv practice session works.
 
 See `src/types.ts` for the full type definitions. Key types:
 
-- **`Exercise`** — library item: name, category, tags, description. No
-  duration (that's context-dependent).
+- **`Exercise`** — library item: name, tags, description. No duration
+  (that's context-dependent).
 - **`SessionExercise`** — an exercise placed in a session queue with a
   duration and order.
 - **`Session`** — ordered list of `SessionExercise` items. Can be a one-off
@@ -151,13 +151,11 @@ See `src/types.ts` for the full type definitions. Key types:
 
 ### Improv exercise context
 
-Exercise categories:
-- **warmup** — ice breakers, energy builders, group focus
-- **scene** — scene work, environment, object work, characters
-- **game** — short-form games, handles, performance structures
-- **other** — anything that doesn't fit neatly above
-
 Common tags for exercises:
+- **warmup** - Ice breakers, energy builders, group focus
+- **scene** - Scene work, environment, object work, characters
+- **game** - Short-form games, handles, performance structures
+- **exercise** - General exercises, drills
 - **connection** - Building ensemble, group awareness
 - **structure** - Scene structure, narrative, game
 - **heightening** - Escalating patterns, raising stakes

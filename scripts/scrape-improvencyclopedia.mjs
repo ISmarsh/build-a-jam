@@ -269,7 +269,6 @@ async function main() {
     exercises.push({
       id: filenameToId(game.filename),
       name: parsed.title,
-      category: "other",
       description: parsed.description,
       tags: allTags,
       sourceUrl: game.url,

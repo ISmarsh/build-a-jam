@@ -130,18 +130,9 @@ function transformResource(resource) {
   // Build a URL to the resource on improvdb.com
   const sourceUrl = `${IMPROVDB_BASE}/resource/${resource.id}`;
 
-  // Map ImprovDB type to our category enum
-  const categoryMap = {
-    EXERCISE: "other",
-    SHORT_FORM: "game",
-    LONG_FORM: "game",
-  };
-  const category = categoryMap[resource.type] || "other";
-
   return {
     id: resource.id,
     name: resource.title,
-    category,
     description: stripMarkdown(resource.description),
     tags: allTags,
     alternativeNames: resource.alternativeNames || undefined,
