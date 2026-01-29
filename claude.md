@@ -42,24 +42,33 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 ```
 src/
 ├── components/
-│   ├── ui/            # shadcn/ui primitives (Card, Badge, etc.)
-│   ├── HomePage.tsx   # Exercise browsing (tag filter + list)
-│   ├── CreditsPage.tsx# Licensing & attribution display
-│   ├── Footer.tsx     # Site-wide footer (credits link, GitHub link)
+│   ├── ui/              # shadcn/ui primitives (Card, Badge, etc.)
+│   ├── HomePage.tsx     # Exercise browsing (tag filter + list)
+│   ├── PrepPage.tsx     # Session builder (add exercises, set durations)
+│   ├── SessionPage.tsx  # Active session (timer, current exercise)
+│   ├── NotesPage.tsx    # Post-session reflections
+│   ├── CreditsPage.tsx  # Licensing & attribution display
+│   ├── Footer.tsx       # Site-wide footer (credits link, GitHub link)
 │   ├── ExerciseCard.tsx
 │   ├── ExerciseList.tsx
 │   └── TagFilter.tsx
-├── data/              # Data files (will move to API/storage later)
-├── types.ts           # Shared TypeScript types
-├── App.tsx            # Layout shell + route definitions
-└── main.tsx           # Entry point (BrowserRouter lives here)
+├── context/
+│   └── SessionContext.tsx  # Session state (useReducer + Context)
+├── storage/
+│   ├── StorageContext.tsx  # StorageProvider context + useStorage hook
+│   └── local-storage.ts   # localStorage implementation
+├── data/                # Exercise data files
+├── types.ts             # Shared TypeScript types
+├── App.tsx              # Layout shell + route definitions + providers
+└── main.tsx             # Entry point (BrowserRouter lives here)
 ```
 
 ### State Management Philosophy
-- Start simple with component state (`useState`)
-- Lift state up to common parent when needed
-- Introduce Context API when prop drilling becomes painful
-- Only add external state management (Redux, Zustand) if truly needed
+- Component-local state (`useState`) for UI concerns (tag filters, form inputs)
+- `useReducer` + Context for shared workflow state (SessionContext)
+- Async `StorageProvider` interface for persistence — localStorage today,
+  Google Drive or other backends later
+- No external state management library (Redux, Zustand) unless needed
 
 ### Styling Approach
 - Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
@@ -122,28 +131,39 @@ src/
 The app follows a three-stage **Prep → Session → Notes** structure that mirrors
 how an actual improv practice session works.
 
-**1. Prep Screen**
-- Browse/filter exercises by tags
-- Build a session by adding exercises to a queue
-- Set duration for each exercise in the queue (duration lives on
-  `SessionExercise`, not on `Exercise` — the same exercise can be 5 min or 15
-  min depending on context)
+**Routes:**
+| Path | Component | Purpose |
+|---|---|---|
+| `/` | `HomePage` | Browse/filter exercise library |
+| `/prep` | `PrepPage` | Build a session queue |
+| `/session/:id` | `SessionPage` | Run through exercises with timer |
+| `/notes/:id` | `NotesPage` | Post-session reflections |
+| `/credits` | `CreditsPage` | Licensing & attribution |
+
+**1. Prep Screen** (`/prep`)
+- Add exercises from the library to a session queue
+- Set duration per exercise (duration lives on `SessionExercise`, not on
+  `Exercise` — the same exercise can be 5 min or 15 min depending on context)
 - See total session time estimate
-- Option to save/load session templates for recurring practices
+- Future: save/load session templates, reorder via drag-and-drop
 
-**2. Session Screen**
+**2. Session Screen** (`/session/:id`)
 - Current exercise name and instructions displayed prominently
-- Timer counting down (or up, depending on preference)
+- Timer counting up with target duration
 - "Next Exercise" button to progress through the queue
-- Progress indicator (e.g. "3 of 7 exercises")
+- Progress bar (e.g. "Exercise 3 of 7")
 - Pause/resume functionality
-- Optional: quick notes field to jot observations mid-exercise
 
-**3. Notes Screen**
+**3. Notes Screen** (`/notes/:id`)
 - List of exercises that were run
 - Free-text area for post-session reflections (what worked, what didn't)
-- Optional: star rating or checkboxes for "worked well" / "need to revisit"
-- Save notes for future reference
+- Save to session history (persisted in localStorage)
+- Future: star rating, "worked well" / "need to revisit" tags
+
+**State management:** SessionContext (`useReducer` + React Context) holds the
+current session, exercise queue, and history. All state persists to localStorage
+via an async `StorageProvider` abstraction (can be swapped for Google Drive
+or other backends later).
 
 ### Data model
 

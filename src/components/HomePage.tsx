@@ -11,6 +11,7 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ExerciseList from './ExerciseList';
 import TagFilter from './TagFilter';
 import { exercises } from '../data/exercises';
@@ -43,6 +44,15 @@ function HomePage() {
 
   return (
     <main className="flex flex-col gap-8">
+      <div className="flex justify-end">
+        <Link
+          to="/prep"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
+        >
+          Build a Session
+        </Link>
+      </div>
+
       <TagFilter
         availableTags={availableTags}
         selectedTags={selectedTags}

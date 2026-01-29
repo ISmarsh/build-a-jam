@@ -42,12 +42,17 @@ export interface SessionExercise {
 
 /**
  * A planned session — either a one-off or a reusable template.
+ *
+ * Dates are stored as ISO 8601 strings (not Date objects) so they
+ * survive JSON serialisation to/from localStorage without needing
+ * a reviver. Use `new Date(session.createdAt)` when you need a
+ * Date object for display.
  */
 export interface Session {
   id: string;
   name?: string;                 // optional label for templates
   exercises: SessionExercise[];
-  createdAt: Date;
+  createdAt: string;             // ISO 8601
   isTemplate: boolean;           // true = saved for reuse
 }
 
@@ -56,7 +61,31 @@ export interface Session {
  */
 export interface CompletedSession {
   sessionId: string;             // reference to Session.id
-  completedAt: Date;
+  completedAt: string;           // ISO 8601
   exercises: SessionExercise[];  // what was actually run
   notes: string;                 // post-session reflections
+}
+
+// ---------------------------------------------------------------------------
+// Storage
+// ---------------------------------------------------------------------------
+
+/**
+ * Async storage abstraction.
+ *
+ * ANGULAR vs REACT:
+ * - Angular: you'd create an injectable service with an interface, then
+ *   swap implementations via the DI container (useClass / useFactory)
+ * - React: we expose the implementation through Context and consume it
+ *   via a useStorage() hook. Swapping backends means changing which
+ *   provider is rendered at the top of the tree.
+ *
+ * The interface is async even though localStorage is synchronous —
+ * Google Drive, IndexedDB, or any future backend will be async, and
+ * making all callers async from the start avoids a rewrite later.
+ */
+export interface StorageProvider {
+  load<T>(key: string): Promise<T | null>;
+  save<T>(key: string, data: T): Promise<void>;
+  remove(key: string): Promise<void>;
 }
