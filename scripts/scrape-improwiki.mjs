@@ -13,7 +13,7 @@
  * (or a compatible license such as CC BY-SA 4.0).
  *
  * Usage:
- *   npm run scrape:improwiki
+ *   npm run scrape
  *   # or directly:
  *   node scripts/scrape-improwiki.mjs
  *

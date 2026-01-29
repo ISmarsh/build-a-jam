@@ -10,7 +10,7 @@
  * itself as "open source and free to use."
  *
  * Usage:
- *   npm run scrape:improvdb
+ *   npm run scrape
  *   # or directly:
  *   node scripts/import-improvdb.mjs
  *

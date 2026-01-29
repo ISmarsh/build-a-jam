@@ -9,7 +9,7 @@
  * original descriptions.
  *
  * Usage:
- *   npm run scrape:encyclopedia
+ *   npm run scrape
  *   # or directly:
  *   node scripts/scrape-improvencyclopedia.mjs
  *
@@ -241,13 +241,10 @@ function parseGamePage(html, fallbackTitle) {
 async function main() {
   console.log("=== improvencyclopedia.org scraper ===\n");
 
-  // 1. Fetch category names (optional enrichment)
-  await fetchCategories();
-
-  // 2. Fetch the master game list
+  // 1. Fetch the master game list
   const gameLinks = await fetchGameIndex();
 
-  // 3. Scrape each game page
+  // 2. Scrape each game page
   const exercises = [];
 
   for (const game of gameLinks) {

@@ -62,9 +62,9 @@ src/
 - Only add external state management (Redux, Zustand) if truly needed
 
 ### Styling Approach
-- Plain CSS for now (in component-adjacent .css files)
-- May migrate to CSS Modules or Tailwind later
-- Prioritize learning React concepts over styling complexity
+- Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
+- shadcn/ui for reusable primitives (Card, Badge) — components live in `src/components/ui/`
+- Explicit Tailwind classes on each component (no CSS-variable theming yet)
 
 ## Tech Stack Decisions
 
@@ -85,10 +85,10 @@ src/
 - Better IDE support
 - Industry standard for React apps
 
-### Why not using CSS frameworks yet?
-- Focus on React learning, not styling
-- Can add Tailwind/MUI/styled-components later
-- Plain CSS is good enough for learning
+### Why Tailwind + shadcn/ui?
+- Tailwind: utility-first, fast iteration, no separate CSS files to manage
+- shadcn/ui: copy-paste component library (you own the code, can customize freely)
+- Good balance of productivity and learning — no magic, just classes
 
 ## Development Workflow
 
