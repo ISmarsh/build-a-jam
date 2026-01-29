@@ -1,4 +1,16 @@
-Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+Data Licensing — Build-a-Jam
+
+This file documents the licensing status of exercise data in src/data/.
+The application source code is licensed separately under MIT (see LICENSE).
+
+IMPORTANT: Two sources below (improvencyclopedia.org and ImprovDB) do not
+have clear open licenses. Their data should not be included in a public release
+until explicit permission is obtained from the respective owners. See the
+per-source sections below for details.
+
+===
+
+learnimprov.com — CC BY-SA 4.0
 
 The improv exercise data in src/data/learnimprov-exercises.json is sourced from
 learnimprov.com (https://www.learnimprov.com/) and is licensed under the Creative
@@ -21,19 +33,7 @@ Under the terms of this license:
   - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
     measures that legally restrict others from doing anything the license permits.
 
----
-
-improvencyclopedia.org — Attribution Notice
-
-The improv exercise data in src/data/improvencyclopedia-exercises.json is sourced
-from improvencyclopedia.org (https://improvencyclopedia.org/). No specific license
-was found on the site. Each exercise entry includes a sourceUrl linking back to the
-original page on improvencyclopedia.org for attribution.
-
-If a license is later identified for improvencyclopedia.org content, this file
-should be updated accordingly.
-
----
+===
 
 improwiki.com — CC BY-SA 3.0 DE
 
@@ -56,20 +56,30 @@ Under the terms of this license:
   - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
     measures that legally restrict others from doing anything the license permits.
 
----
+===
 
-ImprovDB — Attribution Notice
+improvencyclopedia.org — NO CLEAR LICENSE (action required before publishing)
+
+The improv exercise data in src/data/improvencyclopedia-exercises.json is sourced
+from improvencyclopedia.org (https://improvencyclopedia.org/). The site's FAQ
+describes content as "free for non-commercial use" and asks users to contact the
+site before publishing or translating content. This is NOT an open license.
+
+Each exercise entry includes a sourceUrl linking back to the original page for
+attribution. Contact the site owner to obtain explicit permission before
+including this data in a public release.
+
+===
+
+ImprovDB — NO CLEAR LICENSE (action required before publishing)
 
 The improv exercise data in src/data/improvdb-exercises.json is imported from the
 ImprovDB open-source repository (https://github.com/aberonni/improvdb) by Dom
 Gemoli. The project describes itself as "open source and free to use" but no
-explicit LICENSE file was found in the repository. Each exercise entry includes a
-sourceUrl linking back to improvdb.com for attribution.
+explicit LICENSE file was found in the repository. Without a license file, the
+content is under default copyright.
 
-If a license is later identified for ImprovDB content, this file should be
-updated accordingly.
-
----
-
-These notices apply specifically to the scraped exercise data. The Build-a-Jam
-application code itself is under its own license (see LICENSE if present).
+Each exercise entry includes a sourceUrl linking back to improvdb.com for
+attribution. Contact the developer (github.com/aberonni) to request a formal
+license or explicit written permission before including this data in a public
+release.

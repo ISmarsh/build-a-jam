@@ -41,10 +41,18 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 ### File Organization
 ```
 src/
-├── components/     # Presentational components
-├── data/          # Data files (will move to API/storage later)
-├── types.ts       # Shared TypeScript types
-└── App.tsx        # Container component with state
+├── components/
+│   ├── ui/            # shadcn/ui primitives (Card, Badge, etc.)
+│   ├── HomePage.tsx   # Exercise browsing (tag filter + list)
+│   ├── CreditsPage.tsx# Licensing & attribution display
+│   ├── Footer.tsx     # Site-wide footer (credits link, GitHub link)
+│   ├── ExerciseCard.tsx
+│   ├── ExerciseList.tsx
+│   └── TagFilter.tsx
+├── data/              # Data files (will move to API/storage later)
+├── types.ts           # Shared TypeScript types
+├── App.tsx            # Layout shell + route definitions
+└── main.tsx           # Entry point (BrowserRouter lives here)
 ```
 
 ### State Management Philosophy
@@ -175,7 +183,23 @@ Common tags for exercises:
 - Import/export exercises (teaches file handling)
 - Post-session notes (teaches forms, persistence)
 
-## Scraped Data & Licensing
+## Licensing
+
+The project uses a **dual-license** structure:
+
+- **Application code** (`.ts`, `.tsx`, `.mjs`, `.css`, configs): **MIT License** — see `LICENSE`
+- **Exercise data** (`src/data/*.json`): sourced from third parties under their own licenses — see `LICENSE-DATA`
+
+The CC BY-SA ShareAlike obligation applies only to the exercise data, not to
+the application code. Displaying CC BY-SA content in an app is a "collection",
+not an "adaptation", so the app code stays MIT.
+
+**⚠ Unlicensed sources**: Two data sources (improvencyclopedia.org and
+ImprovDB) do not have clear open licenses. Their scraped data should **not** be
+included in a public release until explicit permission is obtained from the
+respective owners. See `LICENSE-DATA` for details.
+
+## Scraped Data & Attribution
 
 Exercise data in `src/data/learnimprov-exercises.json` is scraped from
 [learnimprov.com](https://www.learnimprov.com/) and licensed under
@@ -252,14 +276,18 @@ See `LICENSE-DATA` for full licensing details per source.
 - State management with useState
 - Hardcoded exercise data
 - Responsive CSS styling
+- React Router with two routes (`/` and `/credits`)
+- Credits & Licenses page (CreditsPage) with per-source attribution
+- Footer with credits and GitHub links
+- Four scraper scripts for external data sources
+- Dual licensing: MIT for code, CC BY-SA 4.0 for data
 
 **What's next** (in priority order):
 1. Forms - Add new exercise functionality
 2. useEffect - Lifecycle, side effects
 3. localStorage - Persist data
 4. Search - Text filtering
-5. React Router - Multi-page navigation
-6. Custom hooks - Reusable logic
+5. Custom hooks - Reusable logic
 
 ## Communication Style
 
