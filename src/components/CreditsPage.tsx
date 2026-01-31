@@ -44,26 +44,6 @@ const dataSources: DataSource[] = [
       'Descriptions have been adapted for use in Build-a-Jam.',
     status: 'clear',
   },
-  {
-    name: 'improvencyclopedia.org',
-    url: 'https://improvencyclopedia.org/',
-    license: null,
-    licenseUrl: null,
-    description:
-      'A catalog of improv games and categories. No open license was found; ' +
-      'content is described as free for non-commercial use.',
-    status: 'unclear',
-  },
-  {
-    name: 'ImprovDB',
-    url: 'https://improvdb.com/',
-    license: null,
-    licenseUrl: null,
-    description:
-      'An open-source improv resource database by Dom Gemoli. ' +
-      'No explicit license file was found in the repository.',
-    status: 'unclear',
-  },
 ];
 
 function CreditsPage() {

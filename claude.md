@@ -214,11 +214,6 @@ The CC BY-SA ShareAlike obligation applies only to the exercise data, not to
 the application code. Displaying CC BY-SA content in an app is a "collection",
 not an "adaptation", so the app code stays MIT.
 
-**⚠ Unlicensed sources**: Two data sources (improvencyclopedia.org and
-ImprovDB) do not have clear open licenses. Their scraped data should **not** be
-included in a public release until explicit permission is obtained from the
-respective owners. See `LICENSE-DATA` for details.
-
 ## Scraped Data & Attribution
 
 Exercise data in `src/data/learnimprov-exercises.json` is scraped from
@@ -243,30 +238,24 @@ Exercise data in `src/data/improwiki-exercises.json` is scraped from
 The same rules above (preserve attribution, note changes, ShareAlike) apply.
 CC BY-SA 3.0 DE is forward-compatible with CC BY-SA 4.0.
 
-Exercise data in `src/data/improvencyclopedia-exercises.json` is scraped from
-[improvencyclopedia.org](https://improvencyclopedia.org/). No specific license
-was found on the site. Each exercise entry includes a `sourceUrl` linking back
-to the original page for attribution. If a license is later identified, update
-`LICENSE-DATA` and the `attribution` block in the JSON accordingly.
-
-Exercise data in `src/data/improvdb-exercises.json` is imported from the
-[ImprovDB](https://improvdb.com/) open-source repository
-([GitHub](https://github.com/aberonni/improvdb)) by Dom Gemoli. The project
-describes itself as "open source and free to use" but no explicit LICENSE file
-was found. Each entry includes a `sourceUrl` back to improvdb.com. If a license
-is later identified, update `LICENSE-DATA` and the JSON `attribution` block.
+**Disabled sources** (scraper scripts exist but are commented out in
+`scrape-all.mjs` until licensing is resolved):
+- **improvencyclopedia.org** — "free for non-commercial use", not an open
+  license. Contact site owner before enabling.
+- **ImprovDB** (github.com/aberonni/improvdb) — no LICENSE file in repo.
+  Contact developer before enabling.
 
 ### Scraper scripts
 
-Run `npm run scrape` to execute all scrapers via `scripts/scrape-all.mjs`.
+Run `npm run scrape` to execute active scrapers via `scripts/scrape-all.mjs`.
 Individual scrapers can also be run directly with `node scripts/<name>.mjs`.
 
-| Script | Source | Output |
-|---|---|---|
-| `scrape-learnimprov.mjs` | learnimprov.com | `learnimprov-exercises.json` |
-| `scrape-improvencyclopedia.mjs` | improvencyclopedia.org | `improvencyclopedia-exercises.json` |
-| `scrape-improwiki.mjs` | improwiki.com | `improwiki-exercises.json` |
-| `import-improvdb.mjs` | ImprovDB (GitHub) | `improvdb-exercises.json` |
+| Script | Source | Output | Status |
+|---|---|---|---|
+| `scrape-learnimprov.mjs` | learnimprov.com | `learnimprov-exercises.json` | Active |
+| `scrape-improwiki.mjs` | improwiki.com | `improwiki-exercises.json` | Active |
+| `scrape-improvencyclopedia.mjs` | improvencyclopedia.org | `improvencyclopedia-exercises.json` | Disabled |
+| `import-improvdb.mjs` | ImprovDB (GitHub) | `improvdb-exercises.json` | Disabled |
 
 See `LICENSE-DATA` for full licensing details per source.
 

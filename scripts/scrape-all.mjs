@@ -1,11 +1,13 @@
 /**
  * scrape-all.mjs
  *
- * Runs all four data scrapers/importers in sequence:
+ * Runs data scrapers/importers in sequence for licensed sources:
  *   1. learnimprov.com        (CC BY-SA 4.0)
- *   2. improvencyclopedia.org (no license found)
- *   3. improwiki.com          (CC BY-SA 3.0 DE)
- *   4. ImprovDB via GitHub    (open source, no LICENSE file)
+ *   2. improwiki.com          (CC BY-SA 3.0 DE)
+ *
+ * The following sources are disabled until licensing is resolved:
+ *   - improvencyclopedia.org  (no open license — "free for non-commercial use")
+ *   - ImprovDB via GitHub     (no LICENSE file in repo)
  *
  * Usage:
  *   npm run scrape
@@ -24,9 +26,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const SCRIPTS = [
   { file: "scrape-learnimprov.mjs", label: "learnimprov.com" },
-  { file: "scrape-improvencyclopedia.mjs", label: "improvencyclopedia.org" },
+  // { file: "scrape-improvencyclopedia.mjs", label: "improvencyclopedia.org" },
+  //   ↑ Disabled: no open license. Contact site owner before enabling.
   { file: "scrape-improwiki.mjs", label: "improwiki.com" },
-  { file: "import-improvdb.mjs", label: "ImprovDB (GitHub)" },
+  // { file: "import-improvdb.mjs", label: "ImprovDB (GitHub)" },
+  //   ↑ Disabled: no LICENSE file in repo. Contact github.com/aberonni before enabling.
 ];
 
 function run(scriptPath, label) {
