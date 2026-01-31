@@ -223,9 +223,13 @@ Exercise data in `src/data/learnimprov-exercises.json` is scraped from
 When working with this data you **must**:
 - **Preserve attribution** — keep the `attribution` block in the JSON intact.
   Every exercise also carries a `sourceUrl` back to its original page.
-- **Note changes** — if you edit, rewrite, or summarise a description, that
-  counts as an adaptation. Add a note (e.g. `"modified": true`) so downstream
-  consumers know the text has been changed.
+- **Note changes** — each exercise JSON file has a single
+  `attribution.modified` string (e.g. `"2026-01-31: Cleaned descriptions,
+  normalized tags"`). The cleanup script regenerates this automatically.
+  Before committing, review this field to make sure it accurately describes
+  the transformations that were applied. If you made additional manual changes
+  (e.g. rewrote descriptions, added summaries), update the string to reflect
+  that.
 - **ShareAlike** — any file that contains adapted material must remain under
   CC BY-SA 4.0 (or a compatible licence). Do not re-licence scraped content
   under a more restrictive terms.
@@ -258,6 +262,134 @@ Individual scrapers can also be run directly with `node scripts/<name>.mjs`.
 | `import-improvdb.mjs` | ImprovDB (GitHub) | `improvdb-exercises.json` | Disabled |
 
 See `LICENSE-DATA` for full licensing details per source.
+
+### Working with exercise tags
+
+**CRITICAL PRINCIPLE**: Always research domain-specific improv terminology before
+making decisions about tags. Many terms that seem generic or meaningless are
+actually established pedagogical categories.
+
+**Before removing or renaming tags:**
+1. **Research first** — Use WebSearch/WebFetch to look up the tag in context
+   - Search: `improv "[tag]" exercises learnimprov improwiki`
+   - Check: learnimprov.com, improwiki.com, improvencyclopedia.org
+2. **Verify meaning** — Determine if it's a legitimate category or truly generic
+3. **Document findings** — Add comments in cleanup scripts explaining the decision
+
+**Examples of tags that seemed generic but were actually legitimate:**
+- **"problem"** → "problem-solving" (learnimprov category for ensemble/teamwork exercises)
+- **"less"** → "restraint" (learnimprov category for minimalist/simplicity-focused exercises)
+- **"group"** → Keep as-is (ImprovWiki/Encyclopedia category for ensemble participation)
+
+**Truly generic tags to remove:**
+- **"exercise"** — Too broad, applies to almost everything
+- **"game"** — Redundant (anything not tagged "warm-up" is implicitly a game)
+- **"other"** — Not descriptive
+
+**Tag normalizations** (consolidate variations):
+- Singular/plural: prefer the form most commonly used in the data
+- Verify both forms aren't distinct categories before consolidating
+
+### Scraping architecture: raw data vs. processed data
+
+**IMPORTANT**: Scrapers should cache raw HTML locally to avoid repeatedly hitting source sites during development and data processing.
+
+**Two-phase approach:**
+
+1. **Phase 1: Fetch raw HTML**
+   - Cache raw HTML responses in a local directory (e.g., `scripts/.cache/`)
+   - Store with timestamped filenames (e.g., `learnimprov-2026-01-31.html`)
+   - Check cache before fetching from network
+   - This allows re-processing data without re-scraping
+
+2. **Phase 2: Extract and process**
+   - Parse cached HTML to extract exercise data
+   - Transform HTML structure to desired format (HTML or markdown)
+   - Apply cleaning, normalization, and filtering
+   - Output to `src/data/*.json`
+
+**Benefits:**
+- Respectful to source sites (fewer requests)
+- Faster iteration when tweaking extraction logic
+- Ability to compare different processing approaches
+- Historical snapshots of source data
+
+**Implementation notes:**
+- Use conditional fetching: check if cache exists and is recent (e.g., < 24 hours old)
+- Add `--force-refetch` flag to bypass cache when needed
+- Include cache directory in `.gitignore` (raw HTML shouldn't be committed)
+- Document cache location and format in scraper comments
+
+**Approach: Store both raw and cleaned HTML**
+- `description_raw`: Complete original HTML from source page (preserve everything)
+- `description`: Cleaned HTML - remove scripts, dangerous attributes, license footers, navigation
+- Render cleaned HTML with safe HTML renderer (dangerouslySetInnerHTML + sanitization, or DOMPurify)
+- Do NOT convert to markdown or plain text - preserve HTML structure
+- This allows re-processing without re-scraping, and avoids HTML→markdown→HTML roundtrip
+
+### Post-scraping workflow
+
+The scraping workflow is fully automated via `scripts/scrape-all.mjs`:
+
+1. **Run all scrapers**: `npm run scrape`
+   - Fetches (or uses cached) HTML from source sites
+   - Extracts exercise data and writes to `src/data/*.json`
+   - Automatically runs post-processing scripts:
+     - `normalize-tags.mjs` — removes whitespace, deduplicates, filters low-use tags
+     - `cleanup-scraped-data.mjs` — removes noise sections, license footers, redundant tags;
+       reports how many exercises are missing summaries
+
+2. **Commit changes**: Document what was scraped/updated in the commit message
+
+**Individual scripts** can be run separately during development:
+- `node scripts/scrape-learnimprov.mjs` — scrape learnimprov.com
+- `node scripts/scrape-improwiki.mjs` — scrape improwiki.com
+- `node scripts/normalize-tags.mjs` — re-normalize tags from `rawTags`
+- `node scripts/cleanup-scraped-data.mjs` — re-clean descriptions
+
+**Summaries:** Generated on-demand by Claude, not by a script. After scraping,
+the cleanup script reports how many exercises are missing summaries. To fill
+them in, ask Claude to read the exercise JSON files and populate empty `summary`
+fields. Summaries should be 1-2 sentences (max ~150 characters), focus on what
+the exercise does (not how), and use active, descriptive language.
+- Good: "Fast-paced name game building focus and energy through rapid-fire pointing"
+- Bad: "A game where you point at people and say names"
+
+### Data quality checks
+
+When reviewing scraped data, watch for:
+
+**Non-exercise content (EXCLUDE ENTIRE ENTRY):**
+- Improv groups, theaters, or organizations (not exercises at all)
+- Tutorial articles or blog posts
+- General improv theory/philosophy
+- **Action:** Filter out by checking tags like "improv groups", "theater", "theatre"
+- **Where:** `scrape-improwiki.mjs` filters entire entries before adding to dataset
+
+**Unhelpful tags (REMOVE TAG ONLY, KEEP EXERCISE):**
+- "other" — too generic to be useful for filtering
+- "exercise" — redundant (everything is an exercise)
+- "game" — too broad (use more specific tags instead)
+- Tags used by fewer than 3 exercises (noise)
+- **Action:** Strip these tags from exercises, but keep the exercises themselves
+- **Where:** `normalize-tags.mjs` removes blacklisted tags + low-usage tags
+
+**Missing or low-quality content:**
+- Empty descriptions
+- Descriptions that are just the title repeated
+- License footers or site navigation scraped as content
+- **Filter in cleanup-scraped-data.mjs** (removes noise sections)
+
+**Duplicates:**
+- Same exercise under different names
+- Check `alternativeNames` field for known synonyms
+- **Handle manually** if discovered (merge entries, update IDs)
+
+### Scraper Documentation
+
+See **[scripts/SCRAPING-GUIDE.md](scripts/SCRAPING-GUIDE.md)** for the
+complete reference: how to run scrapers, architecture, adding new sources,
+and the full pipeline.
 
 ## Things to Avoid
 

@@ -27,65 +27,36 @@ import * as cheerio from "cheerio";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { sleep, fetchPage, loadCache, saveCache, loadExistingData, clearCache } from "./scraper-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../src/data/learnimprov-exercises.json");
+const HTML_CACHE_FILE = "learnimprov-html.json";
 
 const BASE_URL = "https://www.learnimprov.com";
 
-// Categories to scrape — each maps to an index page listing games
+// Categories to scrape — uses WordPress category slugs (singular)
 const CATEGORIES = [
-  { slug: "warm-ups", tag: "warm-up" },
-  { slug: "exercises", tag: "exercise" },
+  { slug: "warm-up", tag: "warm-up" },
+  { slug: "exercise", tag: "exercise" },
   // Uncomment these to also scrape performance handles and long forms:
-  // { slug: "handles", tag: "handle" },
-  // { slug: "long-forms", tag: "long-form" },
+  // { slug: "handle", tag: "handle" },
+  // { slug: "long-form", tag: "long-form" },
 ];
 
 // Rate limiting: delay between fetches (ms) to be respectful
-const FETCH_DELAY_MS = 500;
+const FETCH_DELAY_MS = 1000;
+
+// Parse command-line flags
+const args = process.argv.slice(2);
+const FORCE_REFETCH = args.includes("--force");
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
 function slugToId(slug) {
   return "learnimprov:" + slug.replace(/^\/|\/$/g, "").replace(/\//g, "-");
-}
-
-/**
- * Fetch a URL with basic retry logic and a browser-like User-Agent.
- * Returns the HTML string, or null on failure.
- */
-async function fetchPage(url, retries = 3) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept: "text/html,application/xhtml+xml",
-        },
-      });
-
-      if (!res.ok) {
-        console.warn(`  [${res.status}] ${url} (attempt ${attempt})`);
-        if (attempt < retries) await sleep(1000 * attempt);
-        continue;
-      }
-
-      return await res.text();
-    } catch (err) {
-      console.warn(`  Error fetching ${url}: ${err.message} (attempt ${attempt})`);
-      if (attempt < retries) await sleep(1000 * attempt);
-    }
-  }
-  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,57 +64,20 @@ async function fetchPage(url, retries = 3) {
 // ---------------------------------------------------------------------------
 
 /**
- * Parse a category index page to extract links to individual game pages.
- * Returns an array of { url, slug } objects.
+ * Parse an individual game page and extract structured data.
+ * Uses structure-aware parsing: learnimprov.com uses h3 headings to mark sections
+ * (Synonyms, Introduction, Description, Gimmicks). We extract only the Description
+ * section for the main content, and Synonyms for alternative names.
+ *
+ * Returns an object with title, description, and alternativeNames (if found).
  */
-function parseIndex(html, categorySlug) {
-  const $ = cheerio.load(html);
-  const links = [];
-
-  // learnimprov.com lists games as links within the main content area.
-  // We look for <a> tags whose href points to a page on the same domain
-  // that is NOT another category index page.
-  const skipSlugs = new Set(CATEGORIES.map((c) => c.slug));
-  skipSlugs.add("about");
-  skipSlugs.add("faq");
-  skipSlugs.add("randoms");
-
-  $("a[href]").each((_i, el) => {
-    const href = $(el).attr("href") || "";
-
-    // Accept both relative (/some-game/) and absolute links
-    let path = href;
-    if (href.startsWith(BASE_URL)) {
-      path = href.slice(BASE_URL.length);
-    }
-
-    // Must be a local path like /some-game/
-    if (!path.startsWith("/")) return;
-
-    const slug = path.replace(/^\/|\/$/g, "");
-
-    // Skip empty, category indices, non-game pages, and anchors
-    if (!slug) return;
-    if (slug.includes("/") && !slug.startsWith(categorySlug)) return;
-    if (skipSlugs.has(slug)) return;
-    if (slug.startsWith("tag/") || slug.startsWith("category/")) return;
-    if (slug.startsWith("randoms/")) return;
-    if (slug.startsWith("http")) return;
-    if (slug.startsWith("#")) return;
-
-    // Avoid duplicates within the same index
-    if (!links.find((l) => l.slug === slug)) {
-      links.push({ url: `${BASE_URL}/${slug}/`, slug });
-    }
-  });
-
-  return links;
+/**
+ * Normalize text by removing extra whitespace and newlines.
+ */
+function normalizeText(text) {
+  return text.replace(/\s+/g, ' ').trim();
 }
 
-/**
- * Parse an individual game page and extract structured data.
- * Returns an object with title, description, and any extra metadata.
- */
 function parseGamePage(html, slug) {
   const $ = cheerio.load(html);
 
@@ -153,42 +87,154 @@ function parseGamePage(html, slug) {
     $("title").text().split("–")[0].trim() ||
     slug;
 
-  // Description: grab the main content paragraphs.
-  // learnimprov.com uses WordPress, so content is typically in .entry-content
   const contentEl = $(".entry-content, article, .post-content, main").first();
 
-  // Collect all <p> text within the content area
-  const paragraphs = [];
-  contentEl.find("p").each((_i, el) => {
-    const text = $(el).text().trim();
-    if (text) paragraphs.push(text);
+  // Store raw HTML for reprocessing capability
+  const description_raw = contentEl.html() || "";
+
+  // Extract alternative names from Synonyms section
+  let alternativeNames = [];
+  const h3Elements = contentEl.find("h3");
+
+  h3Elements.each((_i, h3) => {
+    const heading = $(h3).text().trim();
+
+    if (heading === "Synonyms") {
+      // Collect paragraphs between this h3 and the next h3
+      const paragraphs = [];
+      let current = $(h3).next();
+
+      while (current.length && current.prop("tagName") !== "H3") {
+        if (current.prop("tagName") === "P") {
+          const text = normalizeText(current.text());
+          if (text) paragraphs.push(text);
+        }
+        current = current.next();
+      }
+
+      const synonymText = paragraphs.join(" ");
+      if (synonymText && synonymText !== "None.") {
+        alternativeNames = synonymText
+          .split(/,|\n/)
+          .map(name => name.trim())
+          .filter(name => name && name !== "None.");
+      }
+    }
   });
 
-  const description = paragraphs.join("\n\n");
-
-  // Try to extract teaching-point keywords for tags
-  const fullText = (title + " " + description).toLowerCase();
-  const tagKeywords = {
-    listening: ["listen", "listening"],
-    energy: ["energy", "energize", "energiser", "blood pumping", "physical"],
-    focus: ["focus", "concentration", "concentrate", "attention"],
-    connection: ["connection", "trust", "support", "group", "team", "eye contact"],
-    characters: ["character", "characters", "endow"],
-    storytelling: ["story", "narrative", "storytelling", "once upon"],
-    structure: ["structure", "format", "scene work"],
-    heightening: ["heighten", "escalat", "build on", "yes and"],
-    acceptance: ["accept", "agree", "yes and"],
-    association: ["associat", "free associat", "word"],
+  return {
+    title,
+    description_raw,
+    alternativeNames: alternativeNames.length > 0 ? alternativeNames : undefined
   };
+}
 
-  const derivedTags = [];
-  for (const [tag, keywords] of Object.entries(tagKeywords)) {
-    if (keywords.some((kw) => fullText.includes(kw))) {
-      derivedTags.push(tag);
-    }
+/**
+ * Fetch all categories and tags from WordPress to create ID->name mappings.
+ * Returns { categories: Map<id, name>, tags: Map<id, name> }
+ */
+async function fetchCategoryAndTagMappings() {
+  const mappings = { categories: new Map(), tags: new Map() };
+
+  // Fetch all categories (paginated)
+  let page = 1;
+  while (true) {
+    const url = `${BASE_URL}/wp-json/wp/v2/categories?per_page=100&page=${page}`;
+    const html = await fetchPage(url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
+    if (!html) break;
+
+    const items = JSON.parse(html);
+    if (items.length === 0) break;
+
+    items.forEach(item => mappings.categories.set(item.id, item.name));
+
+    if (items.length < 100) break;
+    page++;
   }
 
-  return { title, description, derivedTags };
+  // Fetch all tags (paginated)
+  page = 1;
+  while (true) {
+    const url = `${BASE_URL}/wp-json/wp/v2/tags?per_page=100&page=${page}`;
+    const html = await fetchPage(url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
+    if (!html) break;
+
+    const items = JSON.parse(html);
+    if (items.length === 0) break;
+
+    items.forEach(item => mappings.tags.set(item.id, item.name));
+
+    if (items.length < 100) break;
+    page++;
+  }
+
+  console.log(`  Loaded ${mappings.categories.size} categories and ${mappings.tags.size} tags\n`);
+  return mappings;
+}
+
+/**
+ * Fetch all posts from a WordPress category via REST API.
+ * Returns array of { id, link, slug, title, categoryIds, tagIds } objects.
+ */
+async function fetchWordPressCategory(categorySlug) {
+  // First, get the category ID
+  const categoriesUrl = `${BASE_URL}/wp-json/wp/v2/categories?slug=${categorySlug}`;
+  const categoriesHtml = await fetchPage(categoriesUrl, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
+
+  if (!categoriesHtml) {
+    console.warn(`  Could not fetch category info for "${categorySlug}"`);
+    return [];
+  }
+
+  const categories = JSON.parse(categoriesHtml);
+  if (categories.length === 0) {
+    console.warn(`  Category "${categorySlug}" not found`);
+    return [];
+  }
+
+  const categoryId = categories[0].id;
+  const categoryCount = categories[0].count;
+
+  console.log(`  Category "${categorySlug}" has ${categoryCount} posts`);
+
+  // Fetch all posts in this category (paginated)
+  const posts = [];
+  let page = 1;
+  const perPage = 100;
+
+  while (true) {
+    const postsUrl = `${BASE_URL}/wp-json/wp/v2/posts?categories=${categoryId}&per_page=${perPage}&page=${page}`;
+    const postsHtml = await fetchPage(postsUrl, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
+
+    if (!postsHtml) break;
+
+    const pagePosts = JSON.parse(postsHtml);
+    if (pagePosts.length === 0) break;
+
+    posts.push(...pagePosts);
+
+    // Check if there are more pages
+    if (pagePosts.length < perPage) break;
+    page++;
+
+    await sleep(FETCH_DELAY_MS / 2); // Shorter delay for API calls
+  }
+
+  // Convert to our format - include both categories and tags from the API
+  return posts.map(post => {
+    const url = post.link;
+    const path = url.replace(BASE_URL, "");
+    const slug = path.replace(/^\/|\/$/g, "");
+
+    return {
+      id: post.id,
+      url,
+      slug,
+      title: post.title.rendered,
+      categoryIds: post.categories || [],  // Array of category IDs
+      tagIds: post.tags || [],              // Array of tag IDs
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -198,36 +244,58 @@ function parseGamePage(html, slug) {
 async function main() {
   console.log("=== learnimprov.com scraper ===\n");
 
+  // Load existing data and cache for incremental/resume support
+  const existingData = loadExistingData(OUTPUT_PATH);
+  const cache = loadCache("learnimprov-progress.json");
+
+  if (cache.size > 0) {
+    console.log(`Loaded ${cache.size} exercises from cache (resume mode)`);
+  }
+  if (existingData) {
+    console.log(`Loaded ${existingData.exercises.length} existing exercises (incremental mode)\n`);
+  }
+
+  // Fetch all categories and tags to create ID->name mappings
+  console.log("Fetching WordPress categories and tags...");
+  const mappings = await fetchCategoryAndTagMappings();
+
   // Map from slug -> exercise data (deduplicates across categories)
-  const exerciseMap = new Map();
+  const exerciseMap = new Map(cache);
 
   for (const category of CATEGORIES) {
-    const indexUrl = `${BASE_URL}/${category.slug}/`;
-    console.log(`Fetching index: ${indexUrl}`);
+    console.log(`Fetching category via API: ${category.slug}`);
 
-    const html = await fetchPage(indexUrl);
-    if (!html) {
-      console.warn(`  Skipping category "${category.slug}" — could not fetch index.`);
+    // Use WordPress REST API to get all posts in this category
+    const gameLinks = await fetchWordPressCategory(category.slug);
+
+    if (gameLinks.length === 0) {
+      console.warn(`  No posts found in category "${category.slug}"`);
       continue;
     }
 
-    const gameLinks = parseIndex(html, category.slug);
-    console.log(`  Found ${gameLinks.length} game links.\n`);
+    console.log(`  Found ${gameLinks.length} exercises.\n`);
+
+    let scraped = 0;
+    let skipped = 0;
 
     for (const link of gameLinks) {
-      // If we already scraped this game from another category, just add the tag
+      // If we already scraped this game from another category, merge tags
       if (exerciseMap.has(link.slug)) {
         const existing = exerciseMap.get(link.slug);
-        if (!existing.tags.includes(category.tag)) {
-          existing.tags.push(category.tag);
-        }
+        // Merge in any new categories/tags from this occurrence
+        const newTags = [
+          ...link.categoryIds.map(id => mappings.categories.get(id)).filter(Boolean),
+          ...link.tagIds.map(id => mappings.tags.get(id)).filter(Boolean),
+        ];
+        existing.tags.push(...newTags);
+        skipped++;
         continue;
       }
 
       await sleep(FETCH_DELAY_MS);
       process.stdout.write(`  Scraping: ${link.slug} ... `);
 
-      const gameHtml = await fetchPage(link.url);
+      const gameHtml = await fetchPage(link.url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
       if (!gameHtml) {
         console.log("FAILED");
         continue;
@@ -235,23 +303,48 @@ async function main() {
 
       const parsed = parseGamePage(gameHtml, link.slug);
 
-      exerciseMap.set(link.slug, {
+      // Merge categories and tags into a single tags array
+      const allTags = [
+        ...link.categoryIds.map(id => mappings.categories.get(id)).filter(Boolean),
+        ...link.tagIds.map(id => mappings.tags.get(id)).filter(Boolean),
+      ];
+
+      const exercise = {
         id: slugToId(link.slug),
         name: parsed.title,
-        description: parsed.description,
-        tags: [category.tag, ...parsed.derivedTags],
+        description: "", // Will be populated by cleanup-scraped-data.mjs from description_raw
+        description_raw: parsed.description_raw,
+        rawTags: [...allTags], // Original tags before normalization
+        tags: allTags, // Will be normalized in post-processing
         sourceUrl: link.url,
-      });
+      };
+
+      // Include alternativeNames if found
+      if (parsed.alternativeNames) {
+        exercise.alternativeNames = parsed.alternativeNames;
+      }
+
+      exerciseMap.set(link.slug, exercise);
 
       console.log(`OK  "${parsed.title}"`);
+      scraped++;
+
+      // Save cache every 10 exercises
+      if (scraped % 10 === 0) {
+        saveCache("learnimprov-progress.json", exerciseMap);
+      }
+    }
+
+    if (skipped > 0) {
+      console.log(`  Skipped ${skipped} already-scraped exercises`);
     }
   }
 
-  // Deduplicate tags within each exercise
-  const exercises = [...exerciseMap.values()].map((ex) => ({
-    ...ex,
-    tags: [...new Set(ex.tags)],
-  }));
+  // Save final cache
+  saveCache("learnimprov-progress.json", exerciseMap);
+
+  // Tag normalization is handled by normalize-tags.mjs in post-processing
+  const exercises = [...exerciseMap.values()];
 
   // Wrap in an object with CC BY-SA 4.0 attribution metadata
   const output = {
@@ -276,6 +369,13 @@ async function main() {
 
   console.log(`\nDone! Wrote ${exercises.length} exercises to:`);
   console.log(`  ${OUTPUT_PATH}`);
+}
+
+// Check for --clear-cache flag
+if (args.includes("--clear-cache")) {
+  console.log("Clearing cache...");
+  clearCache("learnimprov-progress.json");
+  console.log("Cache cleared.\n");
 }
 
 main().catch((err) => {

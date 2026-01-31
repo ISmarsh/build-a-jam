@@ -27,9 +27,11 @@ import * as cheerio from "cheerio";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { sleep, fetchPage } from "./scraper-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../src/data/improwiki-exercises.json");
+const HTML_CACHE_FILE = "improwiki-html.json";
 
 const BASE_URL = "https://improwiki.com";
 
@@ -42,13 +44,13 @@ const INDEX_PAGES = [
 // Rate limiting: delay between fetches (ms) to be respectful
 const FETCH_DELAY_MS = 500;
 
+// Parse command-line flags
+const args = process.argv.slice(2);
+const FORCE_REFETCH = args.includes("--force");
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
 
 function pathToId(path) {
   return "improwiki:" + path
@@ -59,39 +61,6 @@ function pathToId(path) {
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
-}
-
-/**
- * Fetch a URL with basic retry logic and a browser-like User-Agent.
- * Returns the HTML string, or null on failure.
- */
-async function fetchPage(url, retries = 3) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept: "text/html,application/xhtml+xml",
-        },
-      });
-
-      if (!res.ok) {
-        console.warn(`  [${res.status}] ${url} (attempt ${attempt})`);
-        if (attempt < retries) await sleep(1000 * attempt);
-        continue;
-      }
-
-      return await res.text();
-    } catch (err) {
-      console.warn(
-        `  Error fetching ${url}: ${err.message} (attempt ${attempt})`,
-      );
-      if (attempt < retries) await sleep(1000 * attempt);
-    }
-  }
-  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -141,6 +110,11 @@ function parseIndex(html) {
 
 /**
  * Parse an individual game/exercise page and extract structured data.
+ * Uses structure-aware parsing: improwiki.com uses h3 headings to mark sections
+ * (Rules, Notes, Variations, etc.). We extract content intelligently based on
+ * these sections.
+ *
+ * Returns an object with title, description, categories, and alternativeNames (if found).
  */
 function parseGamePage(html, fallbackTitle) {
   const $ = cheerio.load(html);
@@ -151,19 +125,12 @@ function parseGamePage(html, fallbackTitle) {
     $("title").text().split("|")[0].split("-")[0].trim() ||
     fallbackTitle;
 
-  // Description — grab paragraphs from the main content area
-  const contentEl = $(".node-content, .field-body, article, .content, main").first();
-  const paragraphs = [];
+  const contentEl = $(".wikiarticle, .node-content, .field-body, article, .content, main").first();
 
-  const target = contentEl.length ? contentEl : $("body");
-  target.find("p").each((_i, el) => {
-    const text = $(el).text().trim();
-    if (text) paragraphs.push(text);
-  });
+  // Store raw HTML for reprocessing capability
+  const description_raw = contentEl.html() || "";
 
-  const description = paragraphs.join("\n\n");
-
-  // Categories — look for links to category pages or category labels
+  // Categories — look for links to category pages or category labels (kept for tag extraction)
   const categories = [];
   $('a[href*="/en/wiki/improv/"]').each((_i, el) => {
     const href = $(el).attr("href") || "";
@@ -184,29 +151,7 @@ function parseGamePage(html, fallbackTitle) {
     }
   });
 
-  // Derive additional tags from keywords
-  const fullText = (title + " " + description).toLowerCase();
-  const tagKeywords = {
-    listening: ["listen", "listening"],
-    energy: ["energy", "energize", "energiser", "blood pumping", "physical"],
-    focus: ["focus", "concentration", "concentrate", "attention"],
-    connection: ["connection", "trust", "support", "group", "team", "eye contact"],
-    characters: ["character", "characters", "endow"],
-    storytelling: ["story", "narrative", "storytelling"],
-    structure: ["structure", "format", "scene work"],
-    heightening: ["heighten", "escalat", "build on", "yes and"],
-    acceptance: ["accept", "agree", "yes and"],
-    association: ["associat", "free associat", "word"],
-  };
-
-  const derivedTags = [];
-  for (const [tag, keywords] of Object.entries(tagKeywords)) {
-    if (keywords.some((kw) => fullText.includes(kw))) {
-      derivedTags.push(tag);
-    }
-  }
-
-  return { title, description, categories, derivedTags };
+  return { title, description_raw, categories };
 }
 
 // ---------------------------------------------------------------------------
@@ -223,7 +168,7 @@ async function main() {
     const url = `${BASE_URL}${index.url}`;
     console.log(`Fetching index: ${url}`);
 
-    const html = await fetchPage(url);
+    const html = await fetchPage(url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
     if (!html) {
       console.warn(`  Skipping index "${index.url}" — could not fetch.`);
       continue;
@@ -246,7 +191,7 @@ async function main() {
       process.stdout.write(`  Scraping: ${link.path} ... `);
 
       const pageUrl = `${BASE_URL}${link.path}`;
-      const gameHtml = await fetchPage(pageUrl);
+      const gameHtml = await fetchPage(pageUrl, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
       if (!gameHtml) {
         console.log("FAILED");
         continue;
@@ -255,13 +200,15 @@ async function main() {
       const parsed = parseGamePage(gameHtml, link.name);
 
       const siteTags = parsed.categories.map((c) => c.toLowerCase());
-      const allTags = [index.defaultTag, ...siteTags, ...parsed.derivedTags];
+      const allTags = [index.defaultTag, ...siteTags]; // Just use source categories
 
       exerciseMap.set(link.path, {
         id: pathToId(link.path),
         name: parsed.title,
-        description: parsed.description,
-        tags: allTags,
+        description: "", // Will be populated by cleanup-scraped-data.mjs from description_raw
+        description_raw: parsed.description_raw,
+        rawTags: [...allTags], // Original tags before normalization
+        tags: allTags, // Will be normalized in post-processing
         sourceUrl: pageUrl,
       });
 
@@ -269,11 +216,9 @@ async function main() {
     }
   }
 
-  // Deduplicate tags
-  const exercises = [...exerciseMap.values()].map((ex) => ({
-    ...ex,
-    tags: [...new Set(ex.tags)],
-  }));
+  // Non-exercise filtering (groups, theaters, glossary) is handled by
+  // cleanup-scraped-data.mjs in the post-processing pipeline.
+  const exercises = [...exerciseMap.values()];
 
   // Build output with attribution
   const output = {

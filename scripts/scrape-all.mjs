@@ -24,13 +24,19 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SCRIPTS = [
+const SCRAPER_SCRIPTS = [
   { file: "scrape-learnimprov.mjs", label: "learnimprov.com" },
   // { file: "scrape-improvencyclopedia.mjs", label: "improvencyclopedia.org" },
   //   ↑ Disabled: no open license. Contact site owner before enabling.
   { file: "scrape-improwiki.mjs", label: "improwiki.com" },
   // { file: "import-improvdb.mjs", label: "ImprovDB (GitHub)" },
   //   ↑ Disabled: no LICENSE file in repo. Contact github.com/aberonni before enabling.
+];
+
+// Post-processing scripts to run after scraping
+const POST_PROCESSING_SCRIPTS = [
+  { file: "normalize-tags.mjs", label: "Normalize tags" },
+  { file: "cleanup-scraped-data.mjs", label: "Clean descriptions" },
 ];
 
 function run(scriptPath, label) {
@@ -57,7 +63,8 @@ async function main() {
 
   const results = { succeeded: [], failed: [] };
 
-  for (const script of SCRIPTS) {
+  // Phase 1: Run scrapers
+  for (const script of SCRAPER_SCRIPTS) {
     const scriptPath = resolve(__dirname, script.file);
     console.log(`\n--- ${script.label} ---\n`);
 
@@ -67,6 +74,26 @@ async function main() {
     } catch (err) {
       console.error(`\n  ERROR: ${err.message}\n`);
       results.failed.push(script.label);
+    }
+  }
+
+  // Phase 2: Run post-processing (only if scrapers succeeded)
+  if (results.failed.length === 0) {
+    console.log("\n========================================");
+    console.log("  Post-processing");
+    console.log("========================================\n");
+
+    for (const script of POST_PROCESSING_SCRIPTS) {
+      const scriptPath = resolve(__dirname, script.file);
+      console.log(`\n--- ${script.label} ---\n`);
+
+      try {
+        await run(scriptPath, script.label);
+        results.succeeded.push(script.label);
+      } catch (err) {
+        console.error(`\n  ERROR: ${err.message}\n`);
+        results.failed.push(script.label);
+      }
     }
   }
 

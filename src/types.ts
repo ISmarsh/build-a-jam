@@ -18,10 +18,13 @@
 export interface Exercise {
   id: string;
   name: string;
-  tags: string[];
-  description: string;
+  tags: string[];                // normalized tags (lowercase, deduplicated, filtered)
+  description: string;           // cleaned HTML (safe to render)
+  description_raw?: string;      // original HTML from source (before cleaning)
+  summary?: string;              // 1-2 line summary for quick scanning (optional)
   alternativeNames?: string[];   // other names this exercise goes by
   sourceUrl?: string;            // attribution link back to origin site
+  rawTags?: string[];            // original tags from source (before normalization)
 }
 
 // ---------------------------------------------------------------------------

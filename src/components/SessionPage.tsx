@@ -84,10 +84,12 @@ function SessionPage() {
     setElapsedSeconds(0);
     setIsPaused(false);
 
-    if (exerciseIndex + 1 >= totalExercises) {
+    // TypeScript doesn't realize session/exerciseIndex are non-null here
+    // due to the early return guard above, so we use non-null assertions
+    if (exerciseIndex! + 1 >= totalExercises) {
       // Last exercise — go to notes
       dispatch({ type: 'NEXT_EXERCISE' });
-      navigate(`/notes/${session.id}`);
+      navigate(`/notes/${session!.id}`);
     } else {
       dispatch({ type: 'NEXT_EXERCISE' });
     }

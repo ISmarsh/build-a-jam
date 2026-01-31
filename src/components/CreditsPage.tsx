@@ -8,42 +8,44 @@
  * - Angular: a routed component declared in a route config array
  * - React: a component passed as a <Route element={...} />
  * - Angular uses routerLink; React uses <Link> from react-router-dom
+ *
+ * DATA LOADING:
+ * - We import JSON directly (Vite handles this at build time)
+ * - In Angular, you'd use HttpClient to fetch JSON
+ * - In React, static imports are simpler for bundled data
  */
 
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
-interface DataSource {
-  name: string;
-  url: string;
-  license: string | null;
-  licenseUrl: string | null;
+// Import exercise data to extract attribution info
+// Vite automatically parses these as JSON objects at build time
+import learnimprovData from '../data/learnimprov-exercises.json';
+import improwikiData from '../data/improwiki-exercises.json';
+
+// TypeScript interface for modification entries
+interface Modification {
+  date: string;
   description: string;
-  status: 'clear' | 'unclear';
 }
 
-const dataSources: DataSource[] = [
-  {
-    name: 'learnimprov.com',
-    url: 'https://www.learnimprov.com/',
-    license: 'CC BY-SA 4.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
-    description:
-      'A collection of improv warm-ups, exercises, handles, and long forms. ' +
-      'Descriptions have been adapted for use in Build-a-Jam.',
-    status: 'clear',
-  },
-  {
-    name: 'improwiki.com',
-    url: 'https://improwiki.com/en',
-    license: 'CC BY-SA 3.0 DE',
-    licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/de/deed.en',
-    description:
-      'A wiki of improv exercises and games. ' +
-      'Descriptions have been adapted for use in Build-a-Jam.',
-    status: 'clear',
-  },
+// TypeScript interface for attribution blocks in our JSON files
+interface Attribution {
+  source: string;
+  sourceUrl: string;
+  license: string;
+  licenseUrl: string;
+  note: string;
+  scrapedAt: string;
+  modifications?: Modification[];
+}
+
+// Extract attribution from imported data
+// The 'as Attribution' cast tells TypeScript the shape of the data
+const dataSources: Attribution[] = [
+  learnimprovData.attribution as Attribution,
+  improwikiData.attribution as Attribution,
 ];
 
 function CreditsPage() {
@@ -75,49 +77,59 @@ function CreditsPage() {
       </p>
 
       <div className="space-y-4">
+        {/* map() is like Angular's *ngFor - iterates over an array */}
         {dataSources.map((source) => (
           <Card
-            key={source.name}
+            key={source.source}
             className="bg-gray-800 border-gray-700"
           >
             <CardHeader>
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <CardTitle className="text-indigo-500">
                   <a
-                    href={source.url}
+                    href={source.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-indigo-400 underline"
                   >
-                    {source.name}
+                    {source.source}
                   </a>
                 </CardTitle>
-                {source.license ? (
-                  <Badge
-                    variant="outline"
-                    className="bg-gray-700 text-green-400 border-green-600"
+                <Badge
+                  variant="outline"
+                  className="bg-gray-700 text-green-400 border-green-600"
+                >
+                  <a
+                    href={source.licenseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-green-300"
                   >
-                    <a
-                      href={source.licenseUrl!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-green-300"
-                    >
-                      {source.license}
-                    </a>
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className="bg-gray-700 text-yellow-400 border-yellow-600"
-                  >
-                    No clear license
-                  </Badge>
-                )}
+                    {source.license}
+                  </a>
+                </Badge>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-300">{source.description}</p>
+              <p className="text-gray-300 mb-4">{source.note}</p>
+
+              {/* Conditional rendering - only show if modifications exist */}
+              {/* Like Angular's *ngIf */}
+              {source.modifications && source.modifications.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <h3 className="text-sm font-semibold text-gray-400 mb-2">
+                    Modifications:
+                  </h3>
+                  <ul className="space-y-2">
+                    {source.modifications.map((mod, index) => (
+                      <li key={index} className="text-sm text-gray-400">
+                        <span className="text-gray-500">{mod.date}:</span>{' '}
+                        {mod.description}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
