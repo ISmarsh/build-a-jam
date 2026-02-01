@@ -1,69 +1,121 @@
 /**
- * Hardcoded exercise data
+ * Exercise data loader
+ *
+ * Combines exercises from multiple scraped sources into a single array.
  *
  * ANGULAR vs REACT:
- * - In Angular: you might put this in a service with @Injectable
- * - In React: plain data files are fine, no dependency injection needed
- * - Later we can move this to a backend API or local storage
+ * - In Angular: you might load JSON via HttpClient in a service
+ * - In React: Vite allows direct JSON imports at build time
+ * - JSON imports are typed automatically, no need for explicit type assertions
+ *
+ * DATA STRUCTURE:
+ * Each JSON file has: { attribution: {...}, exercises: Exercise[] }
+ * We import the files and merge the exercises arrays.
  */
 
 import type { Exercise } from '../types';
 
+// Import scraped exercise data
+// Vite handles these as static imports and includes them in the bundle
+import learnimprovData from './learnimprov-exercises.json';
+import improwikiData from './improwiki-exercises.json';
+
+/**
+ * All exercises from all sources, merged into a single array.
+ *
+ * REACT LEARNING NOTE:
+ * This is a simple array that gets imported by components. In Angular,
+ * you might use a service with @Injectable and Observable streams.
+ * In React, plain data imports work great for static data like this.
+ * Later we can add filtering, search, and other transformations.
+ */
 export const exercises: Exercise[] = [
-  {
-    id: '1',
-    title: 'Yes, And Circle',
-    description: 'Players stand in a circle. One person makes a statement, the next person says "Yes, and..." and adds to the statement. Continue around the circle.',
-    tags: ['connection', 'listening', 'heightening'],
-    duration: 10,
-  },
-  {
-    id: '2',
-    title: 'Zip Zap Zop',
-    description: 'Players stand in a circle and pass energy by pointing and saying "Zip", "Zap", or "Zop" in sequence while making eye contact.',
-    tags: ['energy', 'focus', 'connection'],
-    duration: 5,
-  },
-  {
-    id: '3',
-    title: 'Object Work',
-    description: 'Practice creating and manipulating invisible objects with detail and specificity. Focus on weight, size, texture, and function.',
-    tags: ['structure', 'focus'],
-    duration: 15,
-  },
-  {
-    id: '4',
-    title: 'Emotional Party',
-    description: 'One person is the host. Guests arrive one at a time with different emotional states. The host tries to guess the emotion.',
-    tags: ['heightening', 'energy', 'connection'],
-    duration: 15,
-  },
-  {
-    id: '5',
-    title: 'Scene Painting',
-    description: 'Two players face the audience. The first describes a location in detail. Both players then step into the scene they created.',
-    tags: ['structure', 'listening', 'heightening'],
-    duration: 10,
-  },
-  {
-    id: '6',
-    title: 'One Word Story',
-    description: 'The group tells a story together, with each person contributing exactly one word at a time.',
-    tags: ['listening', 'connection', 'structure'],
-    duration: 10,
-  },
-  {
-    id: '7',
-    title: 'Energy Ball',
-    description: 'Pass an imaginary ball of energy around the circle. Change the size, speed, and quality of the energy.',
-    tags: ['energy', 'focus', 'connection'],
-    duration: 5,
-  },
-  {
-    id: '8',
-    title: 'Status Walks',
-    description: 'Walk around the space embodying different status levels (1 being lowest, 10 being highest). Notice how your body changes.',
-    tags: ['structure', 'energy', 'focus'],
-    duration: 10,
-  },
+  // Spread operator (...) unpacks arrays - like concat but cleaner
+  ...learnimprovData.exercises,
+  ...improwikiData.exercises,
 ];
+
+/**
+ * Helper to get a single exercise by ID.
+ * Returns undefined if not found.
+ */
+export function getExerciseById(id: string): Exercise | undefined {
+  return exercises.find(ex => ex.id === id);
+}
+
+/**
+ * Format a duration in seconds as M:SS.
+ *
+ * Used across SessionPage, NotesPage, and HistoryPage to display
+ * elapsed and target times consistently.
+ */
+export function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Source filter type — used by HomePage and PrepPage dropdowns.
+ *
+ * REACT LEARNING NOTE:
+ * Extracting shared types to a central location avoids duplication
+ * across components. In Angular you'd put this in a shared module
+ * or a service interface — same idea, different mechanism.
+ */
+export type SourceFilter = 'all' | 'learnimprov' | 'improwiki';
+
+/**
+ * Filter exercises by source prefix.
+ */
+export function filterBySource(source: SourceFilter): Exercise[] {
+  if (source === 'all') return exercises;
+  return exercises.filter(ex => ex.id.startsWith(`${source}:`));
+}
+
+/**
+ * Pre-computed counts per source for dropdown labels.
+ * Avoids recalculating .filter().length on every render.
+ */
+export const sourceCounts: Record<SourceFilter, number> = {
+  all: exercises.length,
+  learnimprov: exercises.filter(ex => ex.id.startsWith('learnimprov:')).length,
+  improwiki: exercises.filter(ex => ex.id.startsWith('improwiki:')).length,
+};
+
+/**
+ * Curated tags shown in the filter UI.
+ *
+ * We have 57 unique tags in the data, but showing all of them is overwhelming.
+ * This hand-picked list covers the most useful categories for browsing.
+ * Edit this list to add/remove tags from the filter UI — the full tag data
+ * stays on every exercise for search and future use.
+ */
+export const FEATURED_TAGS: string[] = [
+  "warm-up",
+  "circle",
+  "listening",
+  "characters",
+  "problem-solving",
+  "teamwork",
+  "scene work",
+  "accepting",
+  "object work",
+  "storytelling",
+  "ice breaker",
+  "pairs",
+  "focus",
+];
+
+/**
+ * Helper to get all unique tags across all exercises, sorted alphabetically.
+ * This is useful for building tag filter UI.
+ */
+export function getAllTags(): string[] {
+  // flatMap is like map + flatten - extracts all tags into a flat array
+  // Set automatically deduplicates
+  // Array.from converts Set back to array so we can sort it
+  return Array.from(
+    new Set(exercises.flatMap(ex => ex.tags))
+  ).sort();
+}

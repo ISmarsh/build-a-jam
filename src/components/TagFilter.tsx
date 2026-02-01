@@ -16,21 +16,30 @@
  *    Similar to Angular's @Output() EventEmitter
  *    React: just pass functions as props
  *
- * 4. CLEANER CODE:
- *    Compare this to the previous version - much more readable!
- *    The Button component handles all the styling complexity
+ * 4. LOCAL STATE:
+ *    The "show all" toggle is local UI state — it doesn't affect
+ *    filtering logic, just which tags are visible. This is a good
+ *    example of keeping state where it belongs.
  */
 
-import Button from './ui/Button';
+import { useState } from 'react';
+import Button from './ui/TagButton';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface TagFilterProps {
-  availableTags: string[];
+  featuredTags: string[];   // Curated subset shown by default
+  allTags: string[];        // Every tag in the current source
   selectedTags: string[];
-  onTagToggle: (tag: string) => void; // Like @Output() in Angular
+  onTagToggle: (tag: string) => void;
 }
 
-function TagFilter({ availableTags, selectedTags, onTagToggle }: TagFilterProps) {
+function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilterProps) {
+  // Local state: whether to show all tags or just featured ones
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedTags = showAll ? allTags : featuredTags;
+  const hasMore = allTags.length > featuredTags.length;
+
   return (
     <Card className="bg-gray-800 border-gray-700">
       <CardHeader>
@@ -38,7 +47,7 @@ function TagFilter({ availableTags, selectedTags, onTagToggle }: TagFilterProps)
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-2">
-          {availableTags.map((tag) => {
+          {displayedTags.map((tag) => {
             const isSelected = selectedTags.includes(tag);
 
             return (
@@ -52,6 +61,16 @@ function TagFilter({ availableTags, selectedTags, onTagToggle }: TagFilterProps)
               </Button>
             );
           })}
+
+          {/* Show more/less toggle */}
+          {hasMore && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-indigo-400 hover:text-indigo-300 text-sm px-2 py-1 transition-colors"
+            >
+              {showAll ? 'show less' : `+${allTags.length - featuredTags.length} more`}
+            </button>
+          )}
         </div>
 
         {selectedTags.length > 0 && (

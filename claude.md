@@ -15,20 +15,23 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 - Seeing Angular vs React pattern comparisons
 - Understanding the "why" behind React's design decisions
 
-**Current learning stage**: Just learned core React fundamentals:
-- JSX, components, props, state
+**Topics covered so far**:
+- JSX, components, props, state (`useState`)
 - Events, lists, conditional rendering
-- `useState` hook
 - Lifting state up pattern
-
-**Next topics to cover**:
-- `useEffect` (side effects, lifecycle)
+- `useEffect` (side effects, lifecycle, intervals)
 - Forms and controlled components
-- `useRef`, `useMemo`, `useCallback`
-- Custom hooks
-- React Router
-- State management patterns
-- Building portfolio-worthy features
+- `useReducer` + Context for shared state management
+- Custom hooks (`useTemplateSaver`)
+- React Router (routes, params, navigation)
+- localStorage persistence via async StorageProvider
+- Third-party library integration (shadcn/ui, Radix UI, Sonner)
+
+**Next topics to explore**:
+- `useRef`, `useMemo`, `useCallback` (performance optimization)
+- Drag-and-drop (session queue reordering)
+- Testing (React Testing Library, Vitest)
+- Deployment pipeline (GitHub Actions, GitHub Pages)
 
 ## Code Patterns & Conventions
 
@@ -41,22 +44,45 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 ### File Organization
 ```
 src/
-├── components/     # Presentational components
-├── data/          # Data files (will move to API/storage later)
-├── types.ts       # Shared TypeScript types
-└── App.tsx        # Container component with state
+├── components/
+│   ├── ui/                    # shadcn/ui primitives (Card, Badge, Dialog, AlertDialog, Sonner)
+│   ├── HomePage.tsx           # Exercise browsing (source filter, tag filter, search)
+│   ├── PrepPage.tsx           # Session builder (add exercises, set durations)
+│   ├── SessionPage.tsx        # Active session (timer, current exercise)
+│   ├── NotesPage.tsx          # Post-session reflections
+│   ├── HistoryPage.tsx        # Past sessions with save-as-template
+│   ├── FavoritesPage.tsx      # Starred exercises and saved templates
+│   ├── CreditsPage.tsx        # Licensing & attribution display
+│   ├── Footer.tsx             # Site-wide footer (credits link, GitHub link)
+│   ├── ExerciseCard.tsx       # Exercise card (shadcn Card + Badge)
+│   ├── ExerciseList.tsx       # Exercise grid
+│   ├── ExerciseDetailModal.tsx # Full exercise detail (Radix Dialog)
+│   ├── ConfirmModal.tsx       # Destructive action confirmation (Radix AlertDialog)
+│   └── TagFilter.tsx          # Tag chip filter with "show more"
+├── context/
+│   └── SessionContext.tsx     # Session state (useReducer + Context)
+├── hooks/
+│   └── useTemplateSaver.ts    # Shared template-saving logic
+├── storage/
+│   ├── StorageContext.tsx      # StorageProvider context + useStorage hook
+│   └── local-storage.ts       # localStorage implementation
+├── data/                      # Exercise data files (JSON + TS module)
+├── types.ts                   # Shared TypeScript types
+├── App.tsx                    # Layout shell + route definitions + providers
+└── main.tsx                   # Entry point (BrowserRouter lives here)
 ```
 
 ### State Management Philosophy
-- Start simple with component state (`useState`)
-- Lift state up to common parent when needed
-- Introduce Context API when prop drilling becomes painful
-- Only add external state management (Redux, Zustand) if truly needed
+- Component-local state (`useState`) for UI concerns (tag filters, form inputs)
+- `useReducer` + Context for shared workflow state (SessionContext)
+- Async `StorageProvider` interface for persistence — localStorage today,
+  Google Drive or other backends later
+- No external state management library (Redux, Zustand) unless needed
 
 ### Styling Approach
-- Plain CSS for now (in component-adjacent .css files)
-- May migrate to CSS Modules or Tailwind later
-- Prioritize learning React concepts over styling complexity
+- Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
+- shadcn/ui for reusable primitives (Card, Badge, Dialog, AlertDialog, Sonner) — components live in `src/components/ui/`
+- Explicit Tailwind classes on each component (no CSS-variable theming yet)
 
 ## Tech Stack Decisions
 
@@ -77,10 +103,10 @@ src/
 - Better IDE support
 - Industry standard for React apps
 
-### Why not using CSS frameworks yet?
-- Focus on React learning, not styling
-- Can add Tailwind/MUI/styled-components later
-- Plain CSS is good enough for learning
+### Why Tailwind + shadcn/ui?
+- Tailwind: utility-first, fast iteration, no separate CSS files to manage
+- shadcn/ui: copy-paste component library (you own the code, can customize freely)
+- Good balance of productivity and learning — no magic, just classes
 
 ## Development Workflow
 
@@ -98,7 +124,7 @@ src/
 
 ### Git commits should:
 - Be descriptive about what was learned
-- Include "Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+- Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Atomic commits per feature/concept
 
 ## Important Context
@@ -109,29 +135,271 @@ src/
 - **Show alternatives** - mention different ways to solve problems
 - **Encourage experimentation** - suggest modifications user could try
 
+### Application flow
+
+The app follows a three-stage **Prep → Session → Notes** structure that mirrors
+how an actual improv practice session works.
+
+**Routes:**
+| Path | Component | Purpose |
+|---|---|---|
+| `/` | `HomePage` | Browse/filter exercise library |
+| `/prep` | `PrepPage` | Build a session queue |
+| `/session/:id` | `SessionPage` | Run through exercises with timer |
+| `/notes/:id` | `NotesPage` | Post-session reflections |
+| `/favorites` | `FavoritesPage` | Starred exercises and saved templates |
+| `/history` | `HistoryPage` | Past completed sessions |
+| `/credits` | `CreditsPage` | Licensing & attribution |
+
+**1. Prep Screen** (`/prep`)
+- Add exercises from the library to a session queue
+- Set duration per exercise (duration lives on `SessionExercise`, not on
+  `Exercise` — the same exercise can be 5 min or 15 min depending on context)
+- See total session time estimate
+- Save session as template (reusable from Favorites page)
+- Future: reorder via drag-and-drop
+
+**2. Session Screen** (`/session/:id`)
+- Current exercise name and instructions displayed prominently
+- Timer counting up with target duration
+- "Next Exercise" button to progress through the queue
+- Progress bar (e.g. "Exercise 3 of 7")
+- Pause/resume functionality
+
+**3. Notes Screen** (`/notes/:id`)
+- List of exercises that were run
+- Free-text area for post-session reflections (what worked, what didn't)
+- Save to session history (persisted in localStorage)
+- Future: star rating, "worked well" / "need to revisit" tags
+
+**State management:** SessionContext (`useReducer` + React Context) holds the
+current session, exercise queue, and history. All state persists to localStorage
+via an async `StorageProvider` abstraction (can be swapped for Google Drive
+or other backends later).
+
+### Data model
+
+See `src/types.ts` for the full type definitions. Key types:
+
+- **`Exercise`** — library item: name, tags, description, optional
+  `alternativeNames`. No duration (that's context-dependent). IDs are
+  prefixed by source (e.g. `learnimprov:zip-zap-zop`, `improvdb:42`,
+  `builtin:yes-and-circle`).
+- **`SessionExercise`** — an exercise placed in a session queue with a
+  duration and order.
+- **`Session`** — ordered list of `SessionExercise` items. Can be a one-off
+  plan or a reusable template (`isTemplate`).
+- **`CompletedSession`** — what actually happened, with post-session notes.
+
 ### Improv exercise context
+
 Common tags for exercises:
+- **warm-up** - Ice breakers, energy builders, group focus
+- **scene** - Scene work, environment, object work, characters
 - **connection** - Building ensemble, group awareness
 - **structure** - Scene structure, narrative, game
 - **heightening** - Escalating patterns, raising stakes
 - **energy** - Physical warmth, pacing
 - **focus** - Concentration, object work
 - **listening** - Agreement, "yes and", paying attention
-
-Exercises typically have:
-- Title, description
-- Duration (5-20 minutes usually)
-- Multiple tags
-- Sometimes participant count, difficulty, etc.
+- **group** - Ensemble participation exercises
+- **problem-solving** - Teamwork and lateral thinking
 
 ### Future feature ideas
-- Add exercise form (teaches forms, controlled components)
-- Search bar (teaches filtering, debouncing)
-- Favorites (teaches localStorage, useEffect)
-- Random selector (fun utility feature)
-- Exercise timer (teaches useEffect, intervals)
-- Categories/playlists (teaches data organization)
+- Drag-and-drop reorder in session queue (teaches DnD libraries)
+- Random exercise selector (fun utility feature)
 - Import/export exercises (teaches file handling)
+- Google Drive sync (teaches OAuth, async storage backends)
+- Star ratings on completed exercises (teaches forms, data enrichment)
+- "Worked well" / "need to revisit" tags on session notes
+
+## Licensing
+
+The project uses a **dual-license** structure:
+
+- **Application code** (`.ts`, `.tsx`, `.mjs`, `.css`, configs): **MIT License** — see `LICENSE`
+- **Exercise data** (`src/data/*.json`): sourced from third parties under their own licenses — see `LICENSE-DATA`
+
+The CC BY-SA ShareAlike obligation applies only to the exercise data, not to
+the application code. Displaying CC BY-SA content in an app is a "collection",
+not an "adaptation", so the app code stays MIT.
+
+## Scraped Data & Attribution
+
+Exercise data in `src/data/learnimprov-exercises.json` is scraped from
+[learnimprov.com](https://www.learnimprov.com/) and licensed under
+**[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**.
+
+When working with this data you **must**:
+- **Preserve attribution** — keep the `attribution` block in the JSON intact.
+  Every exercise also carries a `sourceUrl` back to its original page.
+- **Note changes** — each exercise JSON file has a single
+  `attribution.modified` string (e.g. `"2026-01-31: Cleaned descriptions,
+  normalized tags"`). The cleanup script regenerates this automatically.
+  Before committing, review this field to make sure it accurately describes
+  the transformations that were applied. If you made additional manual changes
+  (e.g. rewrote descriptions, added summaries), update the string to reflect
+  that.
+- **ShareAlike** — any file that contains adapted material must remain under
+  CC BY-SA 4.0 (or a compatible licence). Do not re-licence scraped content
+  under a more restrictive terms.
+- **Keep `LICENSE-DATA`** — the repo-level `LICENSE-DATA` file documents these
+  obligations. Do not remove it.
+
+Exercise data in `src/data/improwiki-exercises.json` is scraped from
+[improwiki.com](https://improwiki.com/en) and licensed under
+**[CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en)**.
+The same rules above (preserve attribution, note changes, ShareAlike) apply.
+CC BY-SA 3.0 DE is forward-compatible with CC BY-SA 4.0.
+
+**Disabled sources** (scraper scripts exist but are commented out in
+`scrape-all.mjs` until licensing is resolved):
+- **improvencyclopedia.org** — "free for non-commercial use", not an open
+  license. Contact site owner before enabling.
+- **ImprovDB** (github.com/aberonni/improvdb) — no LICENSE file in repo.
+  Contact developer before enabling.
+
+### Scraper scripts
+
+Run `npm run scrape` to execute active scrapers via `scripts/scrape-all.mjs`.
+Individual scrapers can also be run directly with `node scripts/<name>.mjs`.
+
+| Script | Source | Output | Status |
+|---|---|---|---|
+| `scrape-learnimprov.mjs` | learnimprov.com | `learnimprov-exercises.json` | Active |
+| `scrape-improwiki.mjs` | improwiki.com | `improwiki-exercises.json` | Active |
+| `scrape-improvencyclopedia.mjs` | improvencyclopedia.org | `improvencyclopedia-exercises.json` | Disabled |
+| `import-improvdb.mjs` | ImprovDB (GitHub) | `improvdb-exercises.json` | Disabled |
+
+See `LICENSE-DATA` for full licensing details per source.
+
+### Working with exercise tags
+
+**CRITICAL PRINCIPLE**: Always research domain-specific improv terminology before
+making decisions about tags. Many terms that seem generic or meaningless are
+actually established pedagogical categories.
+
+**Before removing or renaming tags:**
+1. **Research first** — Use WebSearch/WebFetch to look up the tag in context
+   - Search: `improv "[tag]" exercises learnimprov improwiki`
+   - Check: learnimprov.com, improwiki.com, improvencyclopedia.org
+2. **Verify meaning** — Determine if it's a legitimate category or truly generic
+3. **Document findings** — Add comments in cleanup scripts explaining the decision
+
+**Examples of tags that seemed generic but were actually legitimate:**
+- **"problem"** → "problem-solving" (learnimprov category for ensemble/teamwork exercises)
+- **"less"** → "restraint" (learnimprov category for minimalist/simplicity-focused exercises)
+- **"group"** → Keep as-is (ImprovWiki/Encyclopedia category for ensemble participation)
+
+**Truly generic tags to remove:**
+- **"exercise"** — Too broad, applies to almost everything
+- **"game"** — Redundant (anything not tagged "warm-up" is implicitly a game)
+- **"other"** — Not descriptive
+
+**Tag normalizations** (consolidate variations):
+- Singular/plural: prefer the form most commonly used in the data
+- Verify both forms aren't distinct categories before consolidating
+
+### Scraping architecture: raw data vs. processed data
+
+**IMPORTANT**: Scrapers should cache raw HTML locally to avoid repeatedly hitting source sites during development and data processing.
+
+**Two-phase approach:**
+
+1. **Phase 1: Fetch raw HTML**
+   - Cache raw HTML responses in a local directory (e.g., `scripts/.cache/`)
+   - Store with timestamped filenames (e.g., `learnimprov-2026-01-31.html`)
+   - Check cache before fetching from network
+   - This allows re-processing data without re-scraping
+
+2. **Phase 2: Extract and process**
+   - Parse cached HTML to extract exercise data
+   - Transform HTML structure to desired format (HTML or markdown)
+   - Apply cleaning, normalization, and filtering
+   - Output to `src/data/*.json`
+
+**Benefits:**
+- Respectful to source sites (fewer requests)
+- Faster iteration when tweaking extraction logic
+- Ability to compare different processing approaches
+- Historical snapshots of source data
+
+**Implementation notes:**
+- Use conditional fetching: check if cache exists and is recent (e.g., < 24 hours old)
+- Add `--force-refetch` flag to bypass cache when needed
+- Include cache directory in `.gitignore` (raw HTML shouldn't be committed)
+- Document cache location and format in scraper comments
+
+**Approach: Store both raw and cleaned HTML**
+- `description_raw`: Complete original HTML from source page (preserve everything)
+- `description`: Cleaned HTML - remove scripts, dangerous attributes, license footers, navigation
+- Render cleaned HTML with safe HTML renderer (dangerouslySetInnerHTML + sanitization, or DOMPurify)
+- Do NOT convert to markdown or plain text - preserve HTML structure
+- This allows re-processing without re-scraping, and avoids HTML→markdown→HTML roundtrip
+
+### Post-scraping workflow
+
+The scraping workflow is fully automated via `scripts/scrape-all.mjs`:
+
+1. **Run all scrapers**: `npm run scrape`
+   - Fetches (or uses cached) HTML from source sites
+   - Extracts exercise data and writes to `src/data/*.json`
+   - Automatically runs post-processing scripts:
+     - `normalize-tags.mjs` — removes whitespace, deduplicates, filters low-use tags
+     - `cleanup-scraped-data.mjs` — removes noise sections, license footers, redundant tags;
+       reports how many exercises are missing summaries
+
+2. **Commit changes**: Document what was scraped/updated in the commit message
+
+**Individual scripts** can be run separately during development:
+- `node scripts/scrape-learnimprov.mjs` — scrape learnimprov.com
+- `node scripts/scrape-improwiki.mjs` — scrape improwiki.com
+- `node scripts/normalize-tags.mjs` — re-normalize tags from `rawTags`
+- `node scripts/cleanup-scraped-data.mjs` — re-clean descriptions
+
+**Summaries:** Generated on-demand by Claude, not by a script. After scraping,
+the cleanup script reports how many exercises are missing summaries. To fill
+them in, ask Claude to read the exercise JSON files and populate empty `summary`
+fields. Summaries should be 1-2 sentences (max ~150 characters), focus on what
+the exercise does (not how), and use active, descriptive language.
+- Good: "Fast-paced name game building focus and energy through rapid-fire pointing"
+- Bad: "A game where you point at people and say names"
+
+### Data quality checks
+
+When reviewing scraped data, watch for:
+
+**Non-exercise content (EXCLUDE ENTIRE ENTRY):**
+- Improv groups, theaters, or organizations (not exercises at all)
+- Tutorial articles or blog posts
+- General improv theory/philosophy
+- **Action:** Filter out by checking tags like "improv groups", "theater", "theatre"
+- **Where:** `scrape-improwiki.mjs` filters entire entries before adding to dataset
+
+**Unhelpful tags (REMOVE TAG ONLY, KEEP EXERCISE):**
+- "other" — too generic to be useful for filtering
+- "exercise" — redundant (everything is an exercise)
+- "game" — too broad (use more specific tags instead)
+- Tags used by fewer than 3 exercises (noise)
+- **Action:** Strip these tags from exercises, but keep the exercises themselves
+- **Where:** `normalize-tags.mjs` removes blacklisted tags + low-usage tags
+
+**Missing or low-quality content:**
+- Empty descriptions
+- Descriptions that are just the title repeated
+- License footers or site navigation scraped as content
+- **Filter in cleanup-scraped-data.mjs** (removes noise sections)
+
+**Duplicates:**
+- Same exercise under different names
+- Check `alternativeNames` field for known synonyms
+- **Handle manually** if discovered (merge entries, update IDs)
+
+### Scraper Documentation
+
+See **[scripts/SCRAPING-GUIDE.md](scripts/SCRAPING-GUIDE.md)** for the
+complete reference: how to run scrapers, architecture, adding new sources,
+and the full pipeline.
 
 ## Things to Avoid
 
@@ -154,19 +422,27 @@ Exercises typically have:
 ## Current State
 
 **What's built**:
-- Basic exercise display (ExerciseCard, ExerciseList)
-- Tag filtering (TagFilter component)
-- State management with useState
-- Hardcoded exercise data
-- Responsive CSS styling
+- Exercise browsing with source filtering, tag filtering, and text search
+- Exercise detail modals (Radix Dialog) with full HTML descriptions
+- Prep → Session → Notes workflow with countdown timer
+- Favorites: star exercises, save session templates
+- Session history with delete, clear, and save-as-template
+- Confirmation modals (Radix AlertDialog) for destructive actions
+- Toast notifications (Sonner) for user feedback
+- Custom hooks (`useTemplateSaver`) for shared logic
+- `useReducer` + Context for session state management
+- localStorage persistence via async StorageProvider
+- Scraped exercise data from learnimprov.com and improwiki.com
+- Post-processing pipeline (tag normalization, description cleanup)
+- Dual licensing: MIT for code, CC BY-SA for data
+- Dark theme with Tailwind CSS + shadcn/ui components
+- Responsive design, deployed to GitHub Pages
 
-**What's next** (in priority order):
-1. Forms - Add new exercise functionality
-2. useEffect - Lifecycle, side effects
-3. localStorage - Persist data
-4. Search - Text filtering
-5. React Router - Multi-page navigation
-6. Custom hooks - Reusable logic
+**What's next**:
+- Drag-and-drop session queue reordering
+- Performance optimization (`useMemo`, `useCallback`)
+- Testing (React Testing Library)
+- CI/CD pipeline
 
 ## Communication Style
 

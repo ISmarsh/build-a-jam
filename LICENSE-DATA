@@ -1,0 +1,52 @@
+Data Licensing — Build-a-Jam
+
+This file documents the licensing status of exercise data in src/data/.
+The application source code is licensed separately under MIT (see LICENSE).
+
+===
+
+learnimprov.com — CC BY-SA 4.0
+
+The improv exercise data in src/data/learnimprov-exercises.json is sourced from
+learnimprov.com (https://www.learnimprov.com/) and is licensed under the Creative
+Commons Attribution-ShareAlike 4.0 International License.
+
+To view a copy of this license, visit:
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+Under the terms of this license:
+
+  - ATTRIBUTION: You must give appropriate credit to learnimprov.com, provide a
+    link to the license, and indicate if changes were made. You may do so in any
+    reasonable manner, but not in any way that suggests learnimprov.com endorses
+    you or your use.
+
+  - SHAREALIKE: If you remix, transform, or build upon the scraped material, you
+    must distribute your contributions under the same CC BY-SA 4.0 license (or a
+    compatible license).
+
+  - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
+    measures that legally restrict others from doing anything the license permits.
+
+===
+
+improwiki.com — CC BY-SA 3.0 DE
+
+The improv exercise data in src/data/improwiki-exercises.json is sourced from
+improwiki.com (https://improwiki.com/en) and is licensed under the Creative
+Commons Attribution-ShareAlike 3.0 Germany License.
+
+To view a copy of this license, visit:
+  https://creativecommons.org/licenses/by-sa/3.0/de/deed.en
+
+Under the terms of this license:
+
+  - ATTRIBUTION: You must give appropriate credit to improwiki.com, provide a
+    link to the license, and indicate if changes were made.
+
+  - SHAREALIKE: If you remix, transform, or build upon the scraped material, you
+    must distribute your contributions under CC BY-SA 3.0 DE or a compatible
+    license (such as CC BY-SA 4.0).
+
+  - NO ADDITIONAL RESTRICTIONS: You may not apply legal terms or technological
+    measures that legally restrict others from doing anything the license permits.

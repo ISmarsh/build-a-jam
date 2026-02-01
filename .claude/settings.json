@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run scrape:*)",
+      "WebFetch(domain:improvencyclopedia.org)"
+    ],
+    "additionalDirectories": [
+      "c:\\Dev\\build-a-jam\\src\\data",
+      "c:\\Dev\\build-a-jam\\scripts"
+    ]
+  }
+}
