@@ -120,10 +120,15 @@ function parseGamePage(html, fallbackTitle) {
   const $ = cheerio.load(html);
 
   // Title
-  const title =
-    $("h1").first().text().trim() ||
-    $("title").text().split("|")[0].split("-")[0].trim() ||
-    fallbackTitle;
+  // Extract title from h1 or fall back to <title> tag.
+  // Use lastIndexOf(" - ") to strip site suffix (e.g. "Game Name - improwiki")
+  // without truncating legitimate hyphens in names (e.g. "Self-Awareness Exercise").
+  let title = $("h1").first().text().trim();
+  if (!title) {
+    const raw = $("title").text().split("|")[0];
+    const sepIndex = raw.lastIndexOf(" - ");
+    title = (sepIndex !== -1 ? raw.substring(0, sepIndex) : raw).trim() || fallbackTitle;
+  }
 
   const contentEl = $(".wikiarticle, .node-content, .field-body, article, .content, main").first();
 

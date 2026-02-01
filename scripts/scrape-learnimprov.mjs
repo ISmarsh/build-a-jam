@@ -82,7 +82,7 @@ function parseGamePage(html, slug) {
   // Title: usually in the <h1> or <header> within the main content
   const title =
     $("article h1, .entry-title, h1.post-title, h1").first().text().trim() ||
-    $("title").text().split("–")[0].trim() ||
+    $("title").text().split(/[–-]/)[0].trim() ||
     slug;
 
   const contentEl = $(".entry-content, article, .post-content, main").first();
@@ -133,11 +133,12 @@ function parseGamePage(html, slug) {
  */
 async function fetchCategoryAndTagMappings() {
   const mappings = { categories: new Map(), tags: new Map() };
+  const perPage = 100;
 
   // Fetch all categories (paginated)
   let page = 1;
   while (true) {
-    const url = `${BASE_URL}/wp-json/wp/v2/categories?per_page=100&page=${page}`;
+    const url = `${BASE_URL}/wp-json/wp/v2/categories?per_page=${perPage}&page=${page}`;
     const html = await fetchPage(url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
     if (!html) break;
 
@@ -146,14 +147,14 @@ async function fetchCategoryAndTagMappings() {
 
     items.forEach(item => mappings.categories.set(item.id, item.name));
 
-    if (items.length < 100) break;
+    if (items.length < perPage) break;
     page++;
   }
 
   // Fetch all tags (paginated)
   page = 1;
   while (true) {
-    const url = `${BASE_URL}/wp-json/wp/v2/tags?per_page=100&page=${page}`;
+    const url = `${BASE_URL}/wp-json/wp/v2/tags?per_page=${perPage}&page=${page}`;
     const html = await fetchPage(url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
     if (!html) break;
 
@@ -162,7 +163,7 @@ async function fetchCategoryAndTagMappings() {
 
     items.forEach(item => mappings.tags.set(item.id, item.name));
 
-    if (items.length < 100) break;
+    if (items.length < perPage) break;
     page++;
   }
 
