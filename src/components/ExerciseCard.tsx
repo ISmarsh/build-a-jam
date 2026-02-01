@@ -40,7 +40,7 @@ interface ExerciseCardProps {
 // Functional component - using shadcn components
 function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: ExerciseCardProps) {
   // Only show summary if it exists - don't fall back to description (it's HTML now)
-  const displayText = exercise.summary || null;
+  const displayText = exercise.summary;
 
   return (
     <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:border-indigo-500 bg-gray-800 border-gray-700 flex flex-col">
