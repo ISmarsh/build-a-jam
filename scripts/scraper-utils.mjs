@@ -149,7 +149,13 @@ export async function fetchPage(url, retries = 3, extraHeaders = {}, htmlCacheFi
       return cached;
     }
   }
-  const baseUrl = new URL(url).origin;
+  let baseUrl;
+  try {
+    baseUrl = new URL(url).origin;
+  } catch {
+    console.error(`  [ERROR] Malformed URL: ${url}`);
+    return null;
+  }
 
   const headers = {
     "User-Agent":

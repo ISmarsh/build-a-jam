@@ -269,7 +269,7 @@ function processFile(filePath) {
 
   // Update modified field to document transformations
   const today = new Date().toISOString().split("T")[0];
-  data.attribution.modified = `${today}: Cleaned descriptions, normalized tags`;
+  data.attribution.modified = `${today}: Cleaned ${cleanedCount} descriptions, filtered ${filteredNonExercises} non-exercises, ${data.exercises.length} remaining`;
 
   writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n");
   console.log(`  ✓ Cleaned ${cleanedCount} descriptions`);

@@ -71,14 +71,12 @@ function slugToId(slug) {
  *
  * Returns an object with title, description, and alternativeNames (if found).
  */
-/**
- * Normalize text by removing extra whitespace and newlines.
- */
-function normalizeText(text) {
-  return text.replace(/\s+/g, ' ').trim();
-}
-
 function parseGamePage(html, slug) {
+  /** Normalize text by removing extra whitespace and newlines. */
+  function normalizeText(text) {
+    return text.replace(/\s+/g, ' ').trim();
+  }
+
   const $ = cheerio.load(html);
 
   // Title: usually in the <h1> or <header> within the main content
