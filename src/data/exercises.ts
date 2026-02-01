@@ -44,6 +44,46 @@ export function getExerciseById(id: string): Exercise | undefined {
 }
 
 /**
+ * Format a duration in seconds as M:SS.
+ *
+ * Used across SessionPage, NotesPage, and HistoryPage to display
+ * elapsed and target times consistently.
+ */
+export function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Source filter type — used by HomePage and PrepPage dropdowns.
+ *
+ * REACT LEARNING NOTE:
+ * Extracting shared types to a central location avoids duplication
+ * across components. In Angular you'd put this in a shared module
+ * or a service interface — same idea, different mechanism.
+ */
+export type SourceFilter = 'all' | 'learnimprov' | 'improwiki';
+
+/**
+ * Filter exercises by source prefix.
+ */
+export function filterBySource(source: SourceFilter): Exercise[] {
+  if (source === 'all') return exercises;
+  return exercises.filter(ex => ex.id.startsWith(`${source}:`));
+}
+
+/**
+ * Pre-computed counts per source for dropdown labels.
+ * Avoids recalculating .filter().length on every render.
+ */
+export const sourceCounts: Record<SourceFilter, number> = {
+  all: exercises.length,
+  learnimprov: exercises.filter(ex => ex.id.startsWith('learnimprov:')).length,
+  improwiki: exercises.filter(ex => ex.id.startsWith('improwiki:')).length,
+};
+
+/**
  * Curated tags shown in the filter UI.
  *
  * We have 57 unique tags in the data, but showing all of them is overwhelming.

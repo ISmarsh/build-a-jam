@@ -21,26 +21,23 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
-import { exercises as exerciseLibrary } from '../data/exercises';
+import { useTemplateSaver } from '../hooks/useTemplateSaver';
+import { getExerciseById, formatDuration } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 
 function NotesPage() {
   const { state, dispatch } = useSession();
   const navigate = useNavigate();
   const [notes, setNotes] = useState('');
+  const template = useTemplateSaver();
 
   const session = state.currentSession;
 
   // If there's no session to take notes on, redirect to home
   if (!session) {
-    navigate('/');
-    return null;
-  }
-
-  function getExerciseName(exerciseId: string): string {
-    return exerciseLibrary.find((e) => e.id === exerciseId)?.name ?? exerciseId;
+    return <Navigate to="/" replace />;
   }
 
   function handleSave() {
@@ -62,19 +59,44 @@ function NotesPage() {
 
       {/* Exercises that were run */}
       <h2 className="text-lg font-semibold text-white mb-3">Exercises</h2>
-      <div className="space-y-2 mb-8">
+      <div className="space-y-2 mb-4">
         {session.exercises.map((se, i) => (
           <Card key={i} className="bg-gray-800 border-gray-700">
-            <CardContent className="py-3 flex items-center justify-between">
-              <span className="text-white">
-                <span className="text-gray-500 mr-2">{i + 1}.</span>
-                {getExerciseName(se.exerciseId)}
-              </span>
-              <span className="text-gray-400 text-sm">{se.duration} min</span>
+            <CardContent className="py-3">
+              <div className="flex items-center justify-between">
+                <span className="text-white">
+                  <span className="text-gray-500 mr-2">{i + 1}.</span>
+                  {getExerciseById(se.exerciseId)?.name ?? se.exerciseId}
+                </span>
+                <span className="text-gray-400 text-sm">
+                  {se.actualSeconds != null
+                    ? <>{formatDuration(se.actualSeconds)} <span className="text-gray-500">/ {se.duration} min</span></>
+                    : <>{se.duration} min</>
+                  }
+                </span>
+              </div>
+              {se.notes && (
+                <p className="text-gray-400 text-sm mt-1 ml-5">{se.notes}</p>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* Session totals */}
+      {(() => {
+        const plannedMinutes = session.exercises.reduce((sum, ex) => sum + ex.duration, 0);
+        const actualTotalSeconds = session.exercises.reduce((sum, ex) => sum + (ex.actualSeconds ?? 0), 0);
+        const hasActualTime = session.exercises.some((ex) => ex.actualSeconds != null);
+        return (
+          <p className="text-gray-400 text-sm mb-8">
+            Total: {hasActualTime
+              ? <>{formatDuration(actualTotalSeconds)} <span className="text-gray-500">/ {plannedMinutes} min planned</span></>
+              : <>{plannedMinutes} min</>
+            }
+          </p>
+        );
+      })()}
 
       {/* Notes textarea — controlled component */}
       <h2 className="text-lg font-semibold text-white mb-3">Notes</h2>
@@ -85,6 +107,46 @@ function NotesPage() {
         rows={6}
         className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-y"
       />
+
+      {/* Save as favorite template */}
+      <div className="mt-6 mb-2">
+        {template.isSaving ? (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={template.templateName}
+              onChange={(e) => template.setTemplateName(e.target.value)}
+              placeholder="Template name..."
+              className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') template.save();
+                if (e.key === 'Escape') template.cancel();
+              }}
+            />
+            <button
+              onClick={template.save}
+              disabled={!template.templateName.trim()}
+              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm px-4 py-2 rounded transition-colors"
+            >
+              Save
+            </button>
+            <button
+              onClick={template.cancel}
+              className="text-gray-400 hover:text-white text-sm transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => template.start()}
+            className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
+          >
+            &#9733; Save session as favorite
+          </button>
+        )}
+      </div>
 
       {/* Actions */}
       <div className="flex gap-4 mt-6">

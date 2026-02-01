@@ -40,6 +40,7 @@ const STORAGE_KEYS = {
   CURRENT_SESSION: 'current-session',
   SESSIONS: 'sessions',
   COMPLETED_SESSIONS: 'completed-sessions',
+  FAVORITE_EXERCISE_IDS: 'favorite-exercise-ids',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -55,6 +56,8 @@ interface SessionState {
   sessions: Session[];
   /** History of completed sessions */
   completedSessions: CompletedSession[];
+  /** IDs of individually-starred exercises */
+  favoriteExerciseIds: string[];
   /** Whether initial load from storage has finished */
   loaded: boolean;
 }
@@ -64,6 +67,7 @@ const initialState: SessionState = {
   currentExerciseIndex: null,
   sessions: [],
   completedSessions: [],
+  favoriteExerciseIds: [],
   loaded: false,
 };
 
@@ -72,18 +76,25 @@ const initialState: SessionState = {
 // ---------------------------------------------------------------------------
 
 type SessionAction =
-  | { type: 'HYDRATE'; sessions: Session[]; completedSessions: CompletedSession[]; currentSession: Session | null }
+  | { type: 'HYDRATE'; sessions: Session[]; completedSessions: CompletedSession[]; currentSession: Session | null; favoriteExerciseIds: string[] }
   | { type: 'CREATE_SESSION'; name?: string }
   | { type: 'LOAD_SESSION'; session: Session }
   | { type: 'ADD_EXERCISE'; exerciseId: string; duration: number }
   | { type: 'REMOVE_EXERCISE'; index: number }
   | { type: 'SET_DURATION'; index: number; duration: number }
+  | { type: 'SET_EXERCISE_NOTES'; index: number; notes: string }
+  | { type: 'SET_ACTUAL_DURATION'; index: number; actualSeconds: number }
   | { type: 'REORDER_EXERCISES'; from: number; to: number }
   | { type: 'START_SESSION' }
   | { type: 'NEXT_EXERCISE' }
   | { type: 'COMPLETE_SESSION'; notes: string }
   | { type: 'SAVE_AS_TEMPLATE'; name: string }
-  | { type: 'CLEAR_SESSION' };
+  | { type: 'CLEAR_SESSION' }
+  | { type: 'DELETE_COMPLETED_SESSION'; index: number }
+  | { type: 'CLEAR_COMPLETED_SESSIONS' }
+  | { type: 'TOGGLE_FAVORITE_EXERCISE'; exerciseId: string }
+  | { type: 'DELETE_SESSION_TEMPLATE'; sessionId: string }
+  | { type: 'SAVE_COMPLETED_AS_TEMPLATE'; completedSessionIndex: number; name: string };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -112,6 +123,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         sessions: action.sessions,
         completedSessions: action.completedSessions,
         currentSession: action.currentSession,
+        favoriteExerciseIds: action.favoriteExerciseIds,
         loaded: true,
       };
 
@@ -175,6 +187,34 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       if (!state.currentSession) return state;
       const updated = state.currentSession.exercises.map((ex, i) =>
         i === action.index ? { ...ex, duration: action.duration } : ex,
+      );
+      return {
+        ...state,
+        currentSession: {
+          ...state.currentSession,
+          exercises: updated,
+        },
+      };
+    }
+
+    case 'SET_EXERCISE_NOTES': {
+      if (!state.currentSession) return state;
+      const updated = state.currentSession.exercises.map((ex, i) =>
+        i === action.index ? { ...ex, notes: action.notes } : ex,
+      );
+      return {
+        ...state,
+        currentSession: {
+          ...state.currentSession,
+          exercises: updated,
+        },
+      };
+    }
+
+    case 'SET_ACTUAL_DURATION': {
+      if (!state.currentSession) return state;
+      const updated = state.currentSession.exercises.map((ex, i) =>
+        i === action.index ? { ...ex, actualSeconds: action.actualSeconds } : ex,
       );
       return {
         ...state,
@@ -251,6 +291,55 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         currentExerciseIndex: null,
       };
 
+    case 'DELETE_COMPLETED_SESSION':
+      return {
+        ...state,
+        completedSessions: state.completedSessions.filter((_, i) => i !== action.index),
+      };
+
+    case 'CLEAR_COMPLETED_SESSIONS':
+      return {
+        ...state,
+        completedSessions: [],
+      };
+
+    case 'TOGGLE_FAVORITE_EXERCISE': {
+      const ids = state.favoriteExerciseIds;
+      const exists = ids.includes(action.exerciseId);
+      return {
+        ...state,
+        favoriteExerciseIds: exists
+          ? ids.filter(id => id !== action.exerciseId)
+          : [...ids, action.exerciseId],
+      };
+    }
+
+    case 'DELETE_SESSION_TEMPLATE':
+      return {
+        ...state,
+        sessions: state.sessions.filter(s => s.id !== action.sessionId),
+      };
+
+    case 'SAVE_COMPLETED_AS_TEMPLATE': {
+      const completed = state.completedSessions[action.completedSessionIndex];
+      if (!completed) return state;
+      const template: Session = {
+        id: generateId(),
+        name: action.name,
+        exercises: completed.exercises.map(({ exerciseId, duration, order }) => ({
+          exerciseId,
+          duration,
+          order,
+        })),
+        createdAt: new Date().toISOString(),
+        isTemplate: true,
+      };
+      return {
+        ...state,
+        sessions: [...state.sessions, template],
+      };
+    }
+
     default:
       return state;
   }
@@ -274,16 +363,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // Load persisted state on mount
   useEffect(() => {
     async function hydrate() {
-      const [sessions, completedSessions, currentSession] = await Promise.all([
+      const [sessions, completedSessions, currentSession, favoriteExerciseIds] = await Promise.all([
         storage.load<Session[]>(STORAGE_KEYS.SESSIONS),
         storage.load<CompletedSession[]>(STORAGE_KEYS.COMPLETED_SESSIONS),
         storage.load<Session>(STORAGE_KEYS.CURRENT_SESSION),
+        storage.load<string[]>(STORAGE_KEYS.FAVORITE_EXERCISE_IDS),
       ]);
       dispatch({
         type: 'HYDRATE',
         sessions: sessions ?? [],
         completedSessions: completedSessions ?? [],
         currentSession: currentSession ?? null,
+        favoriteExerciseIds: favoriteExerciseIds ?? [],
       });
     }
     hydrate();
@@ -294,12 +385,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!state.loaded) return;
     storage.save(STORAGE_KEYS.SESSIONS, state.sessions);
     storage.save(STORAGE_KEYS.COMPLETED_SESSIONS, state.completedSessions);
+    storage.save(STORAGE_KEYS.FAVORITE_EXERCISE_IDS, state.favoriteExerciseIds);
     if (state.currentSession) {
       storage.save(STORAGE_KEYS.CURRENT_SESSION, state.currentSession);
     } else {
       storage.remove(STORAGE_KEYS.CURRENT_SESSION);
     }
-  }, [state.sessions, state.completedSessions, state.currentSession, state.loaded, storage]);
+  }, [state.sessions, state.completedSessions, state.currentSession, state.favoriteExerciseIds, state.loaded, storage]);
 
   return (
     <SessionContext.Provider value={{ state, dispatch }}>

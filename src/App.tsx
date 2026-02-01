@@ -21,10 +21,13 @@
 
 import { Routes, Route, Link } from 'react-router-dom';
 import { SessionProvider } from './context/SessionContext';
+import { Toaster } from './components/ui/sonner';
 import HomePage from './components/HomePage';
 import PrepPage from './components/PrepPage';
 import SessionPage from './components/SessionPage';
 import NotesPage from './components/NotesPage';
+import HistoryPage from './components/HistoryPage';
+import FavoritesPage from './components/FavoritesPage';
 import CreditsPage from './components/CreditsPage';
 import Footer from './components/Footer';
 
@@ -48,12 +51,15 @@ function App() {
             <Route path="/prep" element={<PrepPage />} />
             <Route path="/session/:id" element={<SessionPage />} />
             <Route path="/notes/:id" element={<NotesPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/credits" element={<CreditsPage />} />
           </Routes>
         </div>
 
         <Footer />
       </div>
+      <Toaster position="bottom-center" duration={3000} richColors />
     </SessionProvider>
   );
 }

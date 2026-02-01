@@ -32,18 +32,39 @@ import { Badge } from './ui/badge';
 // Props interface - like defining @Input() properties in Angular
 interface ExerciseCardProps {
   exercise: Exercise;
-  onClick?: () => void;  // Optional click handler - passed from parent
+  onClick?: () => void;        // Optional click handler - passed from parent
+  isFavorite?: boolean;        // Whether this exercise is starred
+  onToggleFavorite?: () => void;  // Toggle star on/off
 }
 
 // Functional component - using shadcn components
-function ExerciseCard({ exercise, onClick }: ExerciseCardProps) {
+function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: ExerciseCardProps) {
   // Only show summary if it exists - don't fall back to description (it's HTML now)
   const displayText = exercise.summary || null;
 
   return (
     <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:border-indigo-500 bg-gray-800 border-gray-700 flex flex-col">
       <CardHeader>
-        <CardTitle className="text-indigo-500">{exercise.name}</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-indigo-500">{exercise.name}</CardTitle>
+          {onToggleFavorite && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite();
+              }}
+              className="text-lg shrink-0 ml-2 transition-colors"
+              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {isFavorite ? (
+                <span className="text-yellow-400">&#9733;</span>
+              ) : (
+                <span className="text-gray-500 hover:text-yellow-400">&#9734;</span>
+              )}
+            </button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4 flex-1">
         <p className="text-gray-300 leading-relaxed">

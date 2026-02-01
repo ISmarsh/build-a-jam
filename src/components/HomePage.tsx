@@ -18,14 +18,18 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useSession } from '../context/SessionContext';
 import ExerciseList from './ExerciseList';
 import TagFilter from './TagFilter';
-import { exercises, FEATURED_TAGS } from '../data/exercises';
-
-// Source options for the dropdown
-type SourceFilter = 'all' | 'learnimprov' | 'improwiki';
+import { FEATURED_TAGS, filterBySource, sourceCounts } from '../data/exercises';
+import type { SourceFilter } from '../data/exercises';
 
 function HomePage() {
+  // SESSION CONTEXT: access favorite exercise IDs
+  const { state, dispatch } = useSession();
+  const favoriteIds = state.favoriteExerciseIds;
+
   // STATE: tag selection for filtering
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -35,13 +39,8 @@ function HomePage() {
   // STATE: text search filter
   const [searchText, setSearchText] = useState('');
 
-  // COMPUTED VALUE: Filter by source first
-  const sourceFilteredExercises = exercises.filter(ex => {
-    if (selectedSource === 'all') return true;
-    if (selectedSource === 'learnimprov') return ex.id.startsWith('learnimprov:');
-    if (selectedSource === 'improwiki') return ex.id.startsWith('improwiki:');
-    return true;
-  });
+  // COMPUTED VALUE: Filter by source first (shared logic in exercises.ts)
+  const sourceFilteredExercises = filterBySource(selectedSource);
 
   // COMPUTED VALUE: Tags available in the current source
   // Featured tags are shown by default; all tags available via "show more"
@@ -65,6 +64,13 @@ function HomePage() {
     })();
 
     return matchesTags && matchesSearch;
+  });
+
+  // SORTING: Favorited exercises float to the top of the list
+  const sortedExercises = [...filteredExercises].sort((a, b) => {
+    const aFav = favoriteIds.includes(a.id) ? 0 : 1;
+    const bFav = favoriteIds.includes(b.id) ? 0 : 1;
+    return aFav - bFav;
   });
 
   // EVENT HANDLER: Toggle tag selection
@@ -99,18 +105,43 @@ function HomePage() {
             onChange={handleSourceChange}
             className="bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="all">All Sources ({exercises.length})</option>
-            <option value="learnimprov">learnimprov.com ({exercises.filter(ex => ex.id.startsWith('learnimprov:')).length})</option>
-            <option value="improwiki">improwiki.com ({exercises.filter(ex => ex.id.startsWith('improwiki:')).length})</option>
+            <option value="all">All Sources ({sourceCounts.all})</option>
+            <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
+            <option value="improwiki">improwiki.com ({sourceCounts.improwiki})</option>
           </select>
         </div>
 
-        <Link
-          to="/prep"
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
-        >
-          Build a Session
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/prep"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
+          >
+            Build a jam!
+          </Link>
+          <Link
+            to="/favorites"
+            className="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
+            aria-label="Favorites"
+            title="Favorites"
+          >
+            {/* Star icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </Link>
+          <Link
+            to="/history"
+            className="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
+            aria-label="Session history"
+            title="Session history"
+          >
+            {/* Clock/history icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </Link>
+        </div>
       </div>
 
       <TagFilter
@@ -148,12 +179,20 @@ function HomePage() {
       </div>
 
       <div className="flex flex-col min-h-0">
-        <h2 className="mb-6 text-2xl font-semibold text-white flex-shrink-0">
+        <h2 className="mb-3 text-2xl font-semibold text-white flex-shrink-0">
           Exercises
           {` (${filteredExercises.length})`}
         </h2>
-        <div className="overflow-y-auto">
-          <ExerciseList exercises={filteredExercises} />
+        <div className="pt-3 overflow-y-auto">
+          <ExerciseList
+            exercises={sortedExercises}
+            favoriteIds={favoriteIds}
+            onToggleFavorite={(id) => {
+              const wasFavorite = favoriteIds.includes(id);
+              dispatch({ type: 'TOGGLE_FAVORITE_EXERCISE', exerciseId: id });
+              toast(wasFavorite ? 'Removed from favorites' : 'Added to favorites');
+            }}
+          />
         </div>
       </div>
     </main>

@@ -6,7 +6,7 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
     "note": "This data was scraped from improwiki.com. Descriptions have been adapted for use in Build-a-Jam. Under CC BY-SA 3.0 DE, you must give appropriate credit, link to the license, and indicate if changes were made. Any adaptations must be shared under the same or a compatible license (e.g. CC BY-SA 4.0).",
     "scrapedAt": "2026-01-31T21:10:18.908Z",
-    "modified": "2026-01-31: Cleaned descriptions, normalized tags, generated summaries"
+    "modified": "2026-02-01: Cleaned descriptions, normalized tags"
   },
   "exercises": [
     {

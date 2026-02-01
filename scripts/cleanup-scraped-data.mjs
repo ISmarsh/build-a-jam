@@ -34,6 +34,27 @@ const NON_EXERCISE_TAGS = [
 ];
 
 /**
+ * Remove heading + "None" sections.
+ * Some learnimprov exercises have sections like:
+ *   <h3>Variations</h3><p>None</p>
+ *   <h3>Gimmicks</h3><ul><li>None</li></ul>
+ * These add noise and should be stripped out entirely.
+ */
+function removeNoneSections(html) {
+  if (!html) return "";
+  // Match <h3>Heading</h3> followed by <p>None</p> or <ul><li>None</li></ul>
+  // with optional period, whitespace, and missing closing tags
+  return html
+    // Heading followed by a "None" paragraph or list
+    .replace(/<h\d>[^<]*<\/h\d>\s*<p>\s*None\.?\s*<\/p>/gi, "")
+    .replace(/<h\d>[^<]*<\/h\d>\s*<ul>\s*<li>\s*None\.?\s*<\/li>\s*<\/ul>/gi, "")
+    // Standalone "None" elements anywhere — never meaningful exercise content
+    .replace(/<p>\s*None\.?\s*<\/p>/gi, "")
+    .replace(/<ul>\s*<li>\s*None\.?\s*<\/li>\s*<\/ul>/gi, "")
+    .trim();
+}
+
+/**
  * Strip all HTML attributes from elements (class, id, style, etc.)
  * Keeps only the semantic tags and their content.
  * Preserves href attributes on links.
@@ -143,8 +164,8 @@ function cleanLearnimprovDescription(rawHtml) {
     }
   }
 
-  // Strip all HTML attributes (class, id, style, etc.)
-  return stripHtmlAttributes(parts.join(""));
+  // Strip all HTML attributes, then remove heading+None noise
+  return removeNoneSections(stripHtmlAttributes(parts.join("")));
 }
 
 /**
@@ -192,8 +213,8 @@ function cleanImprowikiDescription(rawHtml) {
     }
   });
 
-  // Strip all HTML attributes (class, id, style, etc.)
-  return stripHtmlAttributes(parts.join(""));
+  // Strip all HTML attributes, then remove heading+None noise
+  return removeNoneSections(stripHtmlAttributes(parts.join("")));
 }
 
 /**

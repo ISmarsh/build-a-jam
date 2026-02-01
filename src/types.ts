@@ -41,6 +41,7 @@ export interface SessionExercise {
   duration: number;              // minutes — set during session prep
   order: number;                 // position in the queue
   notes?: string;                // notes specific to this slot
+  actualSeconds?: number;        // actual time spent (seconds), recorded during session
 }
 
 /**

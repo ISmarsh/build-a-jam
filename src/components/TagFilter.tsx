@@ -23,7 +23,7 @@
  */
 
 import { useState } from 'react';
-import Button from './ui/Button';
+import Button from './ui/TagButton';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface TagFilterProps {
