@@ -193,17 +193,22 @@ See `src/types.ts` for the full type definitions. Key types:
 
 ### Improv exercise context
 
-Common tags for exercises:
+Common tags for exercises (from source data, applied by `normalize-tags.mjs`):
 - **warm-up** - Ice breakers, energy builders, group focus
-- **scene** - Scene work, environment, object work, characters
-- **connection** - Building ensemble, group awareness
-- **structure** - Scene structure, narrative, game
-- **heightening** - Escalating patterns, raising stakes
-- **energy** - Physical warmth, pacing
-- **focus** - Concentration, object work
+- **environment** - Building physical locations/settings (the "Where")
+- **object work** - Miming and interacting with individual imaginary objects
+- **characters** - Character creation, physicality, voices
 - **listening** - Agreement, "yes and", paying attention
-- **group** - Ensemble participation exercises
+- **teamwork** - Ensemble participation, group awareness, trust
 - **problem-solving** - Teamwork and lateral thinking
+- **accepting** - "Yes, and" — receiving and building on offers
+- **focus** - Concentration, attention exercises
+
+Inferred tags (curated in `src/data/inferred-tags.json`, applied by
+`apply-inferred-tags.mjs`):
+- **heightening** - Sequential amplification of a pattern; "do it again, but more"
+- **grounding** - Making scenes feel real, justified, emotionally true; base reality
+- **game of the scene** - Finding and playing the emergent comedic pattern (UCB concept)
 
 ### Future feature ideas
 - Drag-and-drop reorder in session queue (teaches DnD libraries)
@@ -300,6 +305,37 @@ actually established pedagogical categories.
 - Singular/plural: prefer the form most commonly used in the data
 - Verify both forms aren't distinct categories before consolidating
 
+### Inferred tags
+
+Some tags can't come from source data — they represent improv concepts that
+exercises teach but that source sites don't categorize. These are curated in
+`src/data/inferred-tags.json` and applied by `scripts/apply-inferred-tags.mjs`
+as part of the post-processing pipeline.
+
+**Current inferred tags:**
+- **heightening** — Sequential amplification of a pattern. Indicators: each
+  player amplifies the previous contribution, emotional intensity scaling,
+  progressive escalation, "build on what came before" mechanics.
+- **grounding** — Making scenes feel real and justified. Indicators: establishing
+  base reality, justifying unusual choices, emotional truth, character depth,
+  detailed physical environment creation.
+- **game of the scene** — Finding and playing the emergent comedic pattern (UCB
+  concept). Distinct from short-form "games" where rules are given externally.
+  Indicators: pattern-building, "if this is true what else is true", organic
+  emergence of comedy from base reality.
+
+**Adding new inferred tags:**
+1. Research the concept thoroughly (see heightening/grounding research above)
+2. Define clear indicators and counter-indicators
+3. Classify exercises by reading descriptions and summaries
+4. Add the tag definition and exercise IDs to `inferred-tags.json`
+5. Run `node scripts/apply-inferred-tags.mjs` to apply
+
+**Inferred tags survive re-scraping** — they live in a separate file and are
+merged into exercises after normalization runs. If an exercise ID is removed
+from the data (e.g., filtered as non-exercise), the script warns about
+missing IDs.
+
 ### Scraping architecture: raw data vs. processed data
 
 **IMPORTANT**: Scrapers should cache raw HTML locally to avoid repeatedly hitting source sites during development and data processing.
@@ -346,7 +382,8 @@ The scraping workflow is fully automated via `scripts/scrape-all.mjs`:
    - Extracts exercise data and writes to `src/data/*.json`
    - Automatically runs post-processing scripts:
      - `normalize-tags.mjs` — removes whitespace, deduplicates, filters low-use tags
-     - `cleanup-scraped-data.mjs` — removes noise sections, license footers, redundant tags;
+     - `apply-inferred-tags.mjs` — merges curated tags from `inferred-tags.json`
+     - `cleanup-scraped-data.mjs` — removes noise sections, license footers;
        reports how many exercises are missing summaries
 
 2. **Commit changes**: Document what was scraped/updated in the commit message
@@ -355,6 +392,7 @@ The scraping workflow is fully automated via `scripts/scrape-all.mjs`:
 - `node scripts/scrape-learnimprov.mjs` — scrape learnimprov.com
 - `node scripts/scrape-improwiki.mjs` — scrape improwiki.com
 - `node scripts/normalize-tags.mjs` — re-normalize tags from `rawTags`
+- `node scripts/apply-inferred-tags.mjs` — apply inferred tags
 - `node scripts/cleanup-scraped-data.mjs` — re-clean descriptions
 
 **Summaries:** Generated on-demand by Claude, not by a script. After scraping,

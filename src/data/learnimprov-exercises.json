@@ -6,7 +6,7 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
     "note": "This data was scraped from learnimprov.com. Descriptions have been adapted for use in Build-a-Jam. Under CC BY-SA 4.0, you must give appropriate credit, link to the license, and indicate if changes were made. Any adaptations must be shared under the same license.",
     "scrapedAt": "2026-01-31T23:20:52.794Z",
-    "modified": "2026-02-01: Cleaned descriptions, normalized tags"
+    "modified": "2026-02-01: Cleaned descriptions, normalized tags, applied inferred tags"
   },
   "exercises": [
     {
@@ -85,6 +85,7 @@
         "lying"
       ],
       "tags": [
+        "heightening",
         "warm-up"
       ],
       "sourceUrl": "https://www.learnimprov.com/fish-story/",
@@ -133,7 +134,7 @@
       ],
       "tags": [
         "characters",
-        "scene work",
+        "environment",
         "walking",
         "warm-up"
       ],
@@ -405,8 +406,8 @@
         "volleyball"
       ],
       "tags": [
+        "environment",
         "names",
-        "scene work",
         "warm-up"
       ],
       "sourceUrl": "https://www.learnimprov.com/name-volley/",
@@ -424,6 +425,7 @@
       ],
       "tags": [
         "emotions",
+        "heightening",
         "milling",
         "warm-up"
       ],
@@ -909,6 +911,7 @@
       "tags": [
         "characters",
         "circle",
+        "heightening",
         "listening",
         "warm-up"
       ],
@@ -1858,7 +1861,11 @@
         "dough",
         "flour"
       ],
-      "tags": [],
+      "tags": [
+        "game of the scene",
+        "grounding",
+        "heightening"
+      ],
       "sourceUrl": "https://www.learnimprov.com/leslies-bakery/",
       "alternativeNames": [
         "Tony’s Bakery. Wearhouse. Bakery at the End of the Universe."
@@ -1891,7 +1898,8 @@
         "exits"
       ],
       "tags": [
-        "endowments"
+        "endowments",
+        "grounding"
       ],
       "sourceUrl": "https://www.learnimprov.com/entrances-and-exercises/",
       "alternativeNames": [
@@ -1910,7 +1918,7 @@
         "environments"
       ],
       "tags": [
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/environment-scene-2/",
       "alternativeNames": [
@@ -1952,6 +1960,7 @@
       "tags": [
         "characters",
         "circle",
+        "grounding",
         "relationships",
         "ties"
       ],
@@ -1996,6 +2005,7 @@
       "tags": [
         "characters",
         "emotions",
+        "grounding",
         "ties"
       ],
       "sourceUrl": "https://www.learnimprov.com/emotional-transfer-exercise/",
@@ -2014,7 +2024,7 @@
         "stage"
       ],
       "tags": [
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/disc/",
       "alternativeNames": [
@@ -2132,7 +2142,7 @@
         "environments"
       ],
       "tags": [
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/meanwhile/",
       "alternativeNames": [
@@ -2152,9 +2162,9 @@
         "setting"
       ],
       "tags": [
+        "environment",
         "exploration",
-        "propel",
-        "scene work"
+        "propel"
       ],
       "sourceUrl": "https://www.learnimprov.com/what-happens-next-2/",
       "alternativeNames": [
@@ -2220,6 +2230,7 @@
       "tags": [
         "characters",
         "endowments",
+        "grounding",
         "ties"
       ],
       "sourceUrl": "https://www.learnimprov.com/animal-characters-exercise/",
@@ -2283,8 +2294,8 @@
       ],
       "tags": [
         "circle",
+        "environment",
         "object work",
-        "scene work",
         "three way"
       ],
       "sourceUrl": "https://www.learnimprov.com/trifecta-setting/",
@@ -2328,8 +2339,9 @@
         "mime"
       ],
       "tags": [
-        "object work",
-        "scene work"
+        "environment",
+        "grounding",
+        "object work"
       ],
       "sourceUrl": "https://www.learnimprov.com/coming-home/",
       "summary": "Solo mime exercise creating a detailed home environment through silent physical actions and object work"
@@ -2348,8 +2360,8 @@
         "pencil"
       ],
       "tags": [
-        "pairs",
-        "scene work"
+        "environment",
+        "pairs"
       ],
       "sourceUrl": "https://www.learnimprov.com/sticks/",
       "summary": "Paired scene exercise maintaining fixed physical distance between players, heightening spatial awareness"
@@ -2387,7 +2399,7 @@
         "open"
       ],
       "tags": [
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/big-blob-2/",
       "summary": "Scene complication exercise where players must physically navigate around a persistent imaginary obstacle"
@@ -2404,6 +2416,7 @@
       ],
       "tags": [
         "characters",
+        "heightening",
         "object work"
       ],
       "sourceUrl": "https://www.learnimprov.com/become/",
@@ -2440,7 +2453,7 @@
       ],
       "tags": [
         "clump",
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/object/",
       "summary": "Small groups collaboratively build a secret object using mime and sound, each player adding one component at a time."
@@ -2459,7 +2472,7 @@
       ],
       "tags": [
         "clump",
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/aliens/",
       "summary": "Small groups create an alien species by each contributing a repetitive mime action and sound, building a collaborative creature."
@@ -2533,9 +2546,9 @@
         "Spies"
       ],
       "tags": [
+        "environment",
         "line",
-        "object work",
-        "scene work"
+        "object work"
       ],
       "sourceUrl": "https://www.learnimprov.com/passages/",
       "summary": "Players line up and take turns miming increasingly creative doors to walk through, building mime object skills and imagination."
@@ -2554,6 +2567,7 @@
       ],
       "tags": [
         "characters",
+        "heightening",
         "milling"
       ],
       "sourceUrl": "https://www.learnimprov.com/animals/",
@@ -2574,8 +2588,8 @@
         "mime environment"
       ],
       "tags": [
+        "environment",
         "object work",
-        "scene work",
         "teamwork"
       ],
       "sourceUrl": "https://www.learnimprov.com/car/",
@@ -2596,7 +2610,7 @@
       ],
       "tags": [
         "characters",
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/hitch-hiker/",
       "summary": "Players in a mime car pick up a hitchhiker whose strong character transforms everyone in the vehicle, practicing character adoption."
@@ -2676,6 +2690,7 @@
         "STEPS"
       ],
       "tags": [
+        "grounding",
         "lace",
         "steps"
       ],
@@ -2739,8 +2754,9 @@
         "Problem"
       ],
       "tags": [
-        "problem-solving",
-        "scene work"
+        "environment",
+        "grounding",
+        "problem-solving"
       ],
       "sourceUrl": "https://www.learnimprov.com/touch-it/",
       "summary": "During a scene, the leader calls 'Touch it!' prompting players to physically interact with mime objects in their environment."
@@ -2804,6 +2820,7 @@
       ],
       "tags": [
         "focus",
+        "grounding",
         "object work",
         "problem-solving",
         "restraint"
@@ -2821,6 +2838,7 @@
         "Relationships"
       ],
       "tags": [
+        "grounding",
         "relationships"
       ],
       "sourceUrl": "https://www.learnimprov.com/rope/",
@@ -2838,7 +2856,7 @@
         "setting"
       ],
       "tags": [
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/photograph/",
       "summary": "Players build a frozen group tableau one at a time by striking complementary poses, creating a still photograph of a scene."
@@ -2872,7 +2890,7 @@
       ],
       "tags": [
         "clump",
-        "scene work"
+        "environment"
       ],
       "sourceUrl": "https://www.learnimprov.com/machines/",
       "summary": "Small groups build a whimsical machine by each adding a repetitive mime action and sound that connects to the other parts."
@@ -2932,10 +2950,11 @@
       ],
       "tags": [
         "characters",
+        "environment",
+        "grounding",
         "line",
         "object work",
-        "relationships",
-        "scene work"
+        "relationships"
       ],
       "sourceUrl": "https://www.learnimprov.com/help-desk/",
       "summary": "Players create characters who visit a help desk employee with problems, practicing character work, relationships, and environment."
@@ -2974,9 +2993,9 @@
       ],
       "tags": [
         "emotions",
+        "environment",
         "object work",
-        "problem-solving",
-        "scene work"
+        "problem-solving"
       ],
       "sourceUrl": "https://www.learnimprov.com/environment-shift/",
       "summary": "Players instantly create a called-out environment by becoming objects, sounds, and characters without planning or discussion."
@@ -2994,9 +3013,10 @@
         "mime object"
       ],
       "tags": [
+        "environment",
+        "grounding",
         "object work",
-        "problem-solving",
-        "scene work"
+        "problem-solving"
       ],
       "sourceUrl": "https://www.learnimprov.com/environment-build/",
       "summary": "Players silently add one mime object each to a shared environment, interacting with all existing objects before contributing their own."
@@ -3017,8 +3037,8 @@
       ],
       "tags": [
         "characters",
-        "relationships",
-        "scene work"
+        "environment",
+        "relationships"
       ],
       "sourceUrl": "https://www.learnimprov.com/elevator/",
       "summary": "Players create characters who enter and exit a mime elevator, practicing environment work, character interactions, and spatial awareness."
@@ -3042,9 +3062,10 @@
       "tags": [
         "characters",
         "endowments",
+        "environment",
+        "grounding",
         "problem-solving",
         "relationships",
-        "scene work",
         "steps"
       ],
       "sourceUrl": "https://www.learnimprov.com/corridors/",
@@ -3070,11 +3091,11 @@
       ],
       "tags": [
         "accepting",
+        "environment",
         "line",
         "listening",
         "problem-solving",
         "restraint",
-        "scene work",
         "steps",
         "teamwork"
       ],
@@ -3109,6 +3130,8 @@
         "STEPS"
       ],
       "tags": [
+        "game of the scene",
+        "heightening",
         "problem-solving",
         "propel",
         "steps"

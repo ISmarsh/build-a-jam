@@ -267,9 +267,9 @@ function processFile(filePath) {
   // Count exercises missing summaries
   const missingSummaries = data.exercises.filter(ex => !ex.summary || ex.summary === "").length;
 
-  // Update modified field to document transformations
+  // Update modified field to document transformations (CC BY-SA requirement)
   const today = new Date().toISOString().split("T")[0];
-  data.attribution.modified = `${today}: Cleaned ${cleanedCount} descriptions, filtered ${filteredNonExercises} non-exercises, ${data.exercises.length} remaining`;
+  data.attribution.modified = `${today}: Cleaned descriptions, normalized tags, applied inferred tags`;
 
   writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n");
   console.log(`  ✓ Cleaned ${cleanedCount} descriptions`);

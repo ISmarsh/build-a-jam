@@ -86,7 +86,7 @@ export const sourceCounts: Record<SourceFilter, number> = {
 /**
  * Curated tags shown in the filter UI.
  *
- * We have 57 unique tags in the data, but showing all of them is overwhelming.
+ * We have 60 unique tags in the data, but showing all of them is overwhelming.
  * This hand-picked list covers the most useful categories for browsing.
  * Edit this list to add/remove tags from the filter UI — the full tag data
  * stays on every exercise for search and future use.
@@ -98,9 +98,12 @@ export const FEATURED_TAGS: string[] = [
   "characters",
   "problem-solving",
   "teamwork",
-  "scene work",
+  "environment",
   "accepting",
   "object work",
+  "heightening",
+  "grounding",
+  "game of the scene",
   "storytelling",
   "ice breaker",
   "pairs",

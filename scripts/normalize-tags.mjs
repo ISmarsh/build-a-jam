@@ -36,11 +36,10 @@ const TAG_NORMALIZATIONS = {
   "support": "teamwork",
   "trust": "teamwork",
 
-  // Merge place/space tags into "scene work"
-  "environment": "scene work",
-  "environments": "scene work",
-  "setting": "scene work",
-  "mime environment": "scene work",
+  // Normalize place/space tags into "environment"
+  "environments": "environment",
+  "setting": "environment",
+  "mime environment": "environment",
 
   // Merge mime tags into "object work"
   "mime": "object work",

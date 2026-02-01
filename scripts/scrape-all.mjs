@@ -31,11 +31,19 @@ const SCRAPER_SCRIPTS = [
   { file: "scrape-improwiki.mjs", label: "improwiki.com" },
   // { file: "import-improvdb.mjs", label: "ImprovDB (GitHub)" },
   //   ↑ Disabled: no LICENSE file in repo. Contact github.com/aberonni before enabling.
+  //
+  // TODO: Investigate these potential new sources (check licensing before scraping):
+  //   - improvdr.com — game libraries with exercises like "Heightening Circle"
+  //   - improvdoesbest.com — exercises organized by concept (heightening, game, etc.)
+  //   - wiki.improvresourcecenter.com — wiki-style exercise database (IRC Improv Wiki)
+  //   - improvgames.io — workshops/exercises organized by skill
+  //   - peopleandchairs.com — exercises categorized by scene work, object work, etc.
 ];
 
 // Post-processing scripts to run after scraping
 const POST_PROCESSING_SCRIPTS = [
   { file: "normalize-tags.mjs", label: "Normalize tags" },
+  { file: "apply-inferred-tags.mjs", label: "Apply inferred tags" },
   { file: "cleanup-scraped-data.mjs", label: "Clean descriptions" },
 ];
 

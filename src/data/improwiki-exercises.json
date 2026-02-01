@@ -6,7 +6,7 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
     "note": "This data was scraped from improwiki.com. Descriptions have been adapted for use in Build-a-Jam. Under CC BY-SA 3.0 DE, you must give appropriate credit, link to the license, and indicate if changes were made. Any adaptations must be shared under the same or a compatible license (e.g. CC BY-SA 4.0).",
     "scrapedAt": "2026-01-31T21:10:18.908Z",
-    "modified": "2026-02-01: Cleaned descriptions, normalized tags"
+    "modified": "2026-02-01: Cleaned descriptions, normalized tags, applied inferred tags"
   },
   "exercises": [
     {
@@ -95,7 +95,9 @@
       "rawTags": [
         "exercise"
       ],
-      "tags": [],
+      "tags": [
+        "grounding"
+      ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/la_ronde",
       "summary": "A chain of two-person scenes where one character carries over to the next, linking all players through shared relationships."
     },
@@ -109,7 +111,9 @@
         "#\n                    other",
         "#\n                    finding game"
       ],
-      "tags": [],
+      "tags": [
+        "game of the scene"
+      ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/new_choice",
       "summary": "Players perform a scene while a host calls 'New Choice,' forcing them to instantly replace their last line or action with a bolder one."
     },
@@ -123,7 +127,8 @@
         "#\n                    accepting"
       ],
       "tags": [
-        "accepting"
+        "accepting",
+        "grounding"
       ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/peculiar_neighbor",
       "summary": "In a circle, each player states something absurd about their neighbor, who must accept, justify, and elaborate on it."
@@ -235,7 +240,8 @@
         "#\n                    accepting"
       ],
       "tags": [
-        "accepting"
+        "accepting",
+        "grounding"
       ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/yes_and_because",
       "summary": "Two players sit side by side as one expert, alternately repeating and expanding each other's sentences with 'Yes, and because.'"
@@ -341,6 +347,7 @@
       "tags": [
         "accepting",
         "dialogue form",
+        "heightening",
         "listening",
         "talking"
       ],
@@ -423,6 +430,7 @@
       ],
       "tags": [
         "association",
+        "game of the scene",
         "speech",
         "speed",
         "storytelling"
@@ -914,6 +922,8 @@
         "#\n                    storytelling"
       ],
       "tags": [
+        "game of the scene",
+        "heightening",
         "storytelling"
       ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/advance_and_expand",
@@ -1325,7 +1335,9 @@
       "rawTags": [
         "game"
       ],
-      "tags": [],
+      "tags": [
+        "heightening"
+      ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/serenade",
       "summary": "Players layer improvised sung verses over a repeating chorus, each adding rhyming lines that build into a collaborative song."
     },
@@ -1541,7 +1553,8 @@
       ],
       "tags": [
         "chain games",
-        "emotion games"
+        "emotion games",
+        "heightening"
       ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/the_hitch-hiker",
       "summary": "Players rotate through car seats as hitchhikers join with strong character traits that everyone in the car must adopt."
@@ -1620,7 +1633,8 @@
         "#\n                    chain games"
       ],
       "tags": [
-        "chain games"
+        "chain games",
+        "heightening"
       ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/growing_and_shrinking",
       "summary": "Players enter one by one, each starting a new scene that layers on top; then scenes peel away in reverse order as players exit."
@@ -2259,6 +2273,7 @@
         "#\n                    replay"
       ],
       "tags": [
+        "heightening",
         "replay"
       ],
       "sourceUrl": "https://improwiki.com/en/wiki/improv/replay_of_the_high_arts",

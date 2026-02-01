@@ -1,0 +1,54 @@
+{
+  "_comment": "Inferred tags are applied after scraping and normalization. These tags are NOT from source data — they are curated based on exercise content analysis. This file survives re-scraping. See CLAUDE.md 'Inferred tags' for methodology.",
+  "tags": {
+    "heightening": {
+      "description": "Exercises that practice sequential amplification of a pattern — making it progressively more intense or absurd while staying on the same track. UCB: 'If this is true, what else is true?' Will Hines: 'Do it again, but more.'",
+      "exercises": [
+        "learnimprov:exaggeration-circle",
+        "learnimprov:one-to-ten",
+        "learnimprov:fish-story",
+        "learnimprov:become",
+        "learnimprov:leslies-bakery",
+        "learnimprov:animals",
+        "learnimprov:advance-and-expand",
+        "improwiki:advance-and-expand",
+        "improwiki:serenade",
+        "improwiki:growing-and-shrinking",
+        "improwiki:pen-friends",
+        "improwiki:replay-of-the-high-arts",
+        "improwiki:the-hitch-hiker"
+      ]
+    },
+    "grounding": {
+      "description": "Exercises that practice making scenes feel real, justified, and emotionally true — establishing base reality, justifying choices, and building character depth. The 'explore' complement to heightening.",
+      "exercises": [
+        "improwiki:yes-and-because",
+        "learnimprov:emotional-transfer-exercise",
+        "learnimprov:rope",
+        "learnimprov:character-circle",
+        "learnimprov:open-scene-exercise",
+        "learnimprov:corridors",
+        "learnimprov:entrances-and-exercises",
+        "learnimprov:silent-scene-exercise",
+        "learnimprov:environment-build",
+        "learnimprov:coming-home",
+        "learnimprov:touch-it",
+        "learnimprov:animal-characters-exercise",
+        "learnimprov:leslies-bakery",
+        "improwiki:peculiar-neighbor",
+        "improwiki:la-ronde",
+        "learnimprov:help-desk"
+      ]
+    },
+    "game of the scene": {
+      "description": "Exercises that practice finding and playing the emergent comedic pattern in a scene — the UCB concept of identifying the 'first unusual thing' and heightening it. Distinct from short-form 'games' where rules are given externally.",
+      "exercises": [
+        "learnimprov:leslies-bakery",
+        "improwiki:sex-with-me",
+        "improwiki:new-choice",
+        "learnimprov:advance-and-expand",
+        "improwiki:advance-and-expand"
+      ]
+    }
+  }
+}
