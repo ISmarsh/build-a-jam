@@ -15,20 +15,23 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 - Seeing Angular vs React pattern comparisons
 - Understanding the "why" behind React's design decisions
 
-**Current learning stage**: Just learned core React fundamentals:
-- JSX, components, props, state
+**Topics covered so far**:
+- JSX, components, props, state (`useState`)
 - Events, lists, conditional rendering
-- `useState` hook
 - Lifting state up pattern
-
-**Next topics to cover**:
-- `useEffect` (side effects, lifecycle)
+- `useEffect` (side effects, lifecycle, intervals)
 - Forms and controlled components
-- `useRef`, `useMemo`, `useCallback`
-- Custom hooks
-- React Router
-- State management patterns
-- Building portfolio-worthy features
+- `useReducer` + Context for shared state management
+- Custom hooks (`useTemplateSaver`)
+- React Router (routes, params, navigation)
+- localStorage persistence via async StorageProvider
+- Third-party library integration (shadcn/ui, Radix UI, Sonner)
+
+**Next topics to explore**:
+- `useRef`, `useMemo`, `useCallback` (performance optimization)
+- Drag-and-drop (session queue reordering)
+- Testing (React Testing Library, Vitest)
+- Deployment pipeline (GitHub Actions, GitHub Pages)
 
 ## Code Patterns & Conventions
 
@@ -42,25 +45,31 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 ```
 src/
 ├── components/
-│   ├── ui/              # shadcn/ui primitives (Card, Badge, etc.)
-│   ├── HomePage.tsx     # Exercise browsing (tag filter + list)
-│   ├── PrepPage.tsx     # Session builder (add exercises, set durations)
-│   ├── SessionPage.tsx  # Active session (timer, current exercise)
-│   ├── NotesPage.tsx    # Post-session reflections
-│   ├── CreditsPage.tsx  # Licensing & attribution display
-│   ├── Footer.tsx       # Site-wide footer (credits link, GitHub link)
-│   ├── ExerciseCard.tsx
-│   ├── ExerciseList.tsx
-│   └── TagFilter.tsx
+│   ├── ui/                    # shadcn/ui primitives (Card, Badge, Dialog, AlertDialog, Sonner)
+│   ├── HomePage.tsx           # Exercise browsing (source filter, tag filter, search)
+│   ├── PrepPage.tsx           # Session builder (add exercises, set durations)
+│   ├── SessionPage.tsx        # Active session (timer, current exercise)
+│   ├── NotesPage.tsx          # Post-session reflections
+│   ├── HistoryPage.tsx        # Past sessions with save-as-template
+│   ├── FavoritesPage.tsx      # Starred exercises and saved templates
+│   ├── CreditsPage.tsx        # Licensing & attribution display
+│   ├── Footer.tsx             # Site-wide footer (credits link, GitHub link)
+│   ├── ExerciseCard.tsx       # Exercise card (shadcn Card + Badge)
+│   ├── ExerciseList.tsx       # Exercise grid
+│   ├── ExerciseDetailModal.tsx # Full exercise detail (Radix Dialog)
+│   ├── ConfirmModal.tsx       # Destructive action confirmation (Radix AlertDialog)
+│   └── TagFilter.tsx          # Tag chip filter with "show more"
 ├── context/
-│   └── SessionContext.tsx  # Session state (useReducer + Context)
+│   └── SessionContext.tsx     # Session state (useReducer + Context)
+├── hooks/
+│   └── useTemplateSaver.ts    # Shared template-saving logic
 ├── storage/
-│   ├── StorageContext.tsx  # StorageProvider context + useStorage hook
-│   └── local-storage.ts   # localStorage implementation
-├── data/                # Exercise data files
-├── types.ts             # Shared TypeScript types
-├── App.tsx              # Layout shell + route definitions + providers
-└── main.tsx             # Entry point (BrowserRouter lives here)
+│   ├── StorageContext.tsx      # StorageProvider context + useStorage hook
+│   └── local-storage.ts       # localStorage implementation
+├── data/                      # Exercise data files (JSON + TS module)
+├── types.ts                   # Shared TypeScript types
+├── App.tsx                    # Layout shell + route definitions + providers
+└── main.tsx                   # Entry point (BrowserRouter lives here)
 ```
 
 ### State Management Philosophy
@@ -72,7 +81,7 @@ src/
 
 ### Styling Approach
 - Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
-- shadcn/ui for reusable primitives (Card, Badge) — components live in `src/components/ui/`
+- shadcn/ui for reusable primitives (Card, Badge, Dialog, AlertDialog, Sonner) — components live in `src/components/ui/`
 - Explicit Tailwind classes on each component (no CSS-variable theming yet)
 
 ## Tech Stack Decisions
@@ -115,7 +124,7 @@ src/
 
 ### Git commits should:
 - Be descriptive about what was learned
-- Include "Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+- Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Atomic commits per feature/concept
 
 ## Important Context
@@ -138,6 +147,8 @@ how an actual improv practice session works.
 | `/prep` | `PrepPage` | Build a session queue |
 | `/session/:id` | `SessionPage` | Run through exercises with timer |
 | `/notes/:id` | `NotesPage` | Post-session reflections |
+| `/favorites` | `FavoritesPage` | Starred exercises and saved templates |
+| `/history` | `HistoryPage` | Past completed sessions |
 | `/credits` | `CreditsPage` | Licensing & attribution |
 
 **1. Prep Screen** (`/prep`)
@@ -145,7 +156,8 @@ how an actual improv practice session works.
 - Set duration per exercise (duration lives on `SessionExercise`, not on
   `Exercise` — the same exercise can be 5 min or 15 min depending on context)
 - See total session time estimate
-- Future: save/load session templates, reorder via drag-and-drop
+- Save session as template (reusable from Favorites page)
+- Future: reorder via drag-and-drop
 
 **2. Session Screen** (`/session/:id`)
 - Current exercise name and instructions displayed prominently
@@ -182,26 +194,24 @@ See `src/types.ts` for the full type definitions. Key types:
 ### Improv exercise context
 
 Common tags for exercises:
-- **warmup** - Ice breakers, energy builders, group focus
+- **warm-up** - Ice breakers, energy builders, group focus
 - **scene** - Scene work, environment, object work, characters
-- **game** - Short-form games, handles, performance structures
-- **exercise** - General exercises, drills
 - **connection** - Building ensemble, group awareness
 - **structure** - Scene structure, narrative, game
 - **heightening** - Escalating patterns, raising stakes
 - **energy** - Physical warmth, pacing
 - **focus** - Concentration, object work
 - **listening** - Agreement, "yes and", paying attention
+- **group** - Ensemble participation exercises
+- **problem-solving** - Teamwork and lateral thinking
 
 ### Future feature ideas
-- Session builder (teaches forms, controlled components, drag-and-drop)
-- Search bar (teaches filtering, debouncing)
-- Favorites (teaches localStorage, useEffect)
-- Random selector (fun utility feature)
-- Session timer (teaches useEffect, intervals)
-- Templates/playlists (teaches data organization)
+- Drag-and-drop reorder in session queue (teaches DnD libraries)
+- Random exercise selector (fun utility feature)
 - Import/export exercises (teaches file handling)
-- Post-session notes (teaches forms, persistence)
+- Google Drive sync (teaches OAuth, async storage backends)
+- Star ratings on completed exercises (teaches forms, data enrichment)
+- "Worked well" / "need to revisit" tags on session notes
 
 ## Licensing
 
@@ -412,23 +422,27 @@ and the full pipeline.
 ## Current State
 
 **What's built**:
-- Basic exercise display (ExerciseCard, ExerciseList)
-- Tag filtering (TagFilter component)
-- State management with useState
-- Hardcoded exercise data
-- Responsive CSS styling
-- React Router with two routes (`/` and `/credits`)
-- Credits & Licenses page (CreditsPage) with per-source attribution
-- Footer with credits and GitHub links
-- Four scraper scripts for external data sources
-- Dual licensing: MIT for code, CC BY-SA 4.0 for data
+- Exercise browsing with source filtering, tag filtering, and text search
+- Exercise detail modals (Radix Dialog) with full HTML descriptions
+- Prep → Session → Notes workflow with countdown timer
+- Favorites: star exercises, save session templates
+- Session history with delete, clear, and save-as-template
+- Confirmation modals (Radix AlertDialog) for destructive actions
+- Toast notifications (Sonner) for user feedback
+- Custom hooks (`useTemplateSaver`) for shared logic
+- `useReducer` + Context for session state management
+- localStorage persistence via async StorageProvider
+- Scraped exercise data from learnimprov.com and improwiki.com
+- Post-processing pipeline (tag normalization, description cleanup)
+- Dual licensing: MIT for code, CC BY-SA for data
+- Dark theme with Tailwind CSS + shadcn/ui components
+- Responsive design, deployed to GitHub Pages
 
-**What's next** (in priority order):
-1. Forms - Add new exercise functionality
-2. useEffect - Lifecycle, side effects
-3. localStorage - Persist data
-4. Search - Text filtering
-5. Custom hooks - Reusable logic
+**What's next**:
+- Drag-and-drop session queue reordering
+- Performance optimization (`useMemo`, `useCallback`)
+- Testing (React Testing Library)
+- CI/CD pipeline
 
 ## Communication Style
 
