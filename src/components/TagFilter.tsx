@@ -41,7 +41,7 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
   const hasMore = allTags.length > featuredTags.length;
 
   return (
-    <Card className="bg-gray-800 border-gray-700">
+    <Card>
       <CardHeader>
         <CardTitle className="text-white">Filter by Tags</CardTitle>
       </CardHeader>
@@ -74,7 +74,7 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
         </div>
 
         {selectedTags.length > 0 && (
-          <p className="text-gray-400 text-sm italic">
+          <p className="text-muted-foreground text-sm italic">
             Filtering by: {selectedTags.join(', ')}
           </p>
         )}

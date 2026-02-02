@@ -44,15 +44,15 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent
-        className="bg-gray-800 border-gray-700 max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-dark p-0 gap-0"
+        className="bg-card max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-dark p-0 gap-0"
       >
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b border-gray-700">
+        <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle className="text-2xl font-bold text-white">
             {exercise.name}
           </DialogTitle>
           {exercise.alternativeNames && exercise.alternativeNames.length > 0 && (
-            <DialogDescription className="text-gray-400 text-sm mt-1">
+            <DialogDescription className="text-muted-foreground text-sm mt-1">
               Also known as: {exercise.alternativeNames.join(', ')}
             </DialogDescription>
           )}
@@ -61,7 +61,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
         {/* Body */}
         <div className="p-6">
           {exercise.summary && (
-            <p className="text-gray-300 text-base mb-4 italic">{exercise.summary}</p>
+            <p className="text-secondary-foreground text-base mb-4 italic">{exercise.summary}</p>
           )}
 
           {exercise.tags.length > 0 && (
@@ -70,7 +70,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                  className="bg-secondary text-indigo-400 border-input text-xs"
                 >
                   {tag}
                 </Badge>
@@ -80,7 +80,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
 
           {exercise.description ? (
             <div
-              className="text-gray-300 leading-relaxed prose-exercise max-w-none"
+              className="text-secondary-foreground leading-relaxed prose-exercise max-w-none"
               dangerouslySetInnerHTML={{ __html: exercise.description }}
             />
           ) : (
@@ -89,7 +89,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
         </div>
 
         {/* Footer */}
-        <DialogFooter className="flex items-center justify-between p-6 pt-4 border-t border-gray-700 sm:justify-between">
+        <DialogFooter className="flex items-center justify-between p-6 pt-4 border-t sm:justify-between">
           {exercise.sourceUrl ? (
             <a
               href={exercise.sourceUrl}

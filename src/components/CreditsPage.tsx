@@ -63,7 +63,7 @@ function CreditsPage() {
       <h1 className="text-3xl font-bold text-white mb-2">
         Credits &amp; Licenses
       </h1>
-      <p className="text-gray-400 mb-8">
+      <p className="text-muted-foreground mb-8">
         Build-a-Jam application code is licensed under the{' '}
         <a
           href="https://opensource.org/licenses/MIT"
@@ -82,7 +82,6 @@ function CreditsPage() {
         {dataSources.map((source) => (
           <Card
             key={source.source}
-            className="bg-gray-800 border-gray-700"
           >
             <CardHeader>
               <div className="flex items-center justify-between flex-wrap gap-2">
@@ -98,7 +97,7 @@ function CreditsPage() {
                 </CardTitle>
                 <Badge
                   variant="outline"
-                  className="bg-gray-700 text-green-400 border-green-600"
+                  className="bg-secondary text-green-400 border-green-600"
                 >
                   <a
                     href={source.licenseUrl}
@@ -112,18 +111,18 @@ function CreditsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-300 mb-4">{source.note}</p>
+              <p className="text-secondary-foreground mb-4">{source.note}</p>
 
               {/* Conditional rendering - only show if modifications exist */}
               {/* Like Angular's *ngIf */}
               {source.modifications && source.modifications.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">
+                <div className="mt-4 pt-4 border-t">
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-2">
                     Modifications:
                   </h3>
                   <ul className="space-y-2">
                     {source.modifications.map((mod, index) => (
-                      <li key={index} className="text-sm text-gray-400">
+                      <li key={index} className="text-sm text-muted-foreground">
                         <span className="text-gray-500">{mod.date}:</span>{' '}
                         {mod.description}
                       </li>
@@ -136,7 +135,7 @@ function CreditsPage() {
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-gray-700 text-gray-500 text-sm">
+      <div className="mt-8 pt-6 border-t text-gray-500 text-sm">
         <p>
           For full licensing details see{' '}
           <a

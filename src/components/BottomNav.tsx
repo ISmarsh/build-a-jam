@@ -51,12 +51,12 @@ function BottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 sm:hidden z-50">
         {/* Expanding menu panel */}
         {menuOpen && (
-          <div className="bg-gray-900 border-t border-gray-700 py-2">
+          <div className="bg-gray-900 border-t py-2">
             {menuItems.map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
                 to={to}
-                className="flex items-center gap-3 px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-white hover:bg-muted transition-colors"
               >
                 <Icon className="w-5 h-5" />
                 <span>{label}</span>
@@ -66,7 +66,7 @@ function BottomNav() {
               href="https://github.com/ISmarsh/build-a-jam"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-white hover:bg-muted transition-colors"
             >
               <Github className="w-5 h-5" />
               <span>GitHub</span>
@@ -75,14 +75,14 @@ function BottomNav() {
         )}
 
         {/* Bottom bar */}
-        <div className="bg-gray-900 border-t border-gray-700 flex items-stretch">
+        <div className="bg-gray-900 border-t flex items-stretch">
           {/* Home */}
           <Link
             to="/"
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               location.pathname === '/'
                 ? 'text-indigo-400'
-                : 'text-gray-400 hover:text-white'
+                : 'text-muted-foreground hover:text-white'
             }`}
             aria-label="Home"
           >
@@ -92,7 +92,7 @@ function BottomNav() {
           {/* Menu — spans available space */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-gray-400 hover:text-white transition-colors border-x border-gray-700"
+            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted-foreground hover:text-white transition-colors border-x"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
@@ -110,7 +110,7 @@ function BottomNav() {
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               hasActiveSession
                 ? 'text-indigo-400 hover:text-indigo-300'
-                : 'text-gray-400 hover:text-white'
+                : 'text-muted-foreground hover:text-white'
             }`}
             aria-label={hasActiveSession ? 'Resume session' : 'Build a session'}
           >

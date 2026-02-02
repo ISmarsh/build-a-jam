@@ -103,7 +103,7 @@ function HistoryPage() {
         {sessions.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="text-gray-400 hover:text-red-400 text-sm transition-colors"
+            className="text-muted-foreground hover:text-red-400 text-sm transition-colors"
           >
             Clear All
           </button>
@@ -112,7 +112,7 @@ function HistoryPage() {
 
       {sessions.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-lg mb-4">No sessions yet.</p>
+          <p className="text-muted-foreground text-lg mb-4">No sessions yet.</p>
           <Link
             to="/prep"
             className="text-indigo-400 hover:text-indigo-300 transition-colors"
@@ -136,7 +136,7 @@ function HistoryPage() {
             const isExpanded = expandedIndex === i;
 
             return (
-              <Card key={i} className="bg-gray-800 border-gray-700">
+              <Card key={i}>
                 <CardContent className="py-4">
                   {/* Header — clickable to expand/collapse */}
                   <button
@@ -151,11 +151,11 @@ function HistoryPage() {
                         <span className="text-white font-semibold">
                           {formatDate(session.completedAt)}
                         </span>
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-muted-foreground text-sm">
                           {formatTime(session.completedAt)}
                         </span>
                       </div>
-                      <span className="text-gray-400 text-sm">
+                      <span className="text-muted-foreground text-sm">
                         {session.exercises.length} exercise
                         {session.exercises.length !== 1 && 's'}
                         {' · '}
@@ -175,7 +175,7 @@ function HistoryPage() {
                             <Badge
                               key={j}
                               variant="outline"
-                              className={`bg-gray-700 border-gray-600 text-xs ${ex ? 'text-indigo-400 cursor-pointer hover:bg-gray-600' : 'text-gray-300'}`}
+                              className={`bg-secondary border-input text-xs ${ex ? 'text-indigo-400 cursor-pointer hover:bg-gray-600' : 'text-secondary-foreground'}`}
                               onClick={ex ? (e: React.MouseEvent) => { e.stopPropagation(); setDetailExercise(ex); } : undefined}
                             >
                               {ex?.name ?? se.exerciseId}
@@ -190,7 +190,7 @@ function HistoryPage() {
                   {isExpanded && (
                     <div className="mt-4 ml-5 space-y-3">
                       {session.exercises.map((se, j) => (
-                        <div key={j} className="border-l-2 border-gray-700 pl-3">
+                        <div key={j} className="border-l-2 border-border pl-3">
                           <div className="flex items-center justify-between">
                             <span className="text-white text-sm">
                               <span className="text-gray-500 mr-2">{j + 1}.</span>
@@ -206,7 +206,7 @@ function HistoryPage() {
                                 ) : se.exerciseId;
                               })()}
                             </span>
-                            <span className="text-gray-400 text-xs">
+                            <span className="text-muted-foreground text-xs">
                               {se.actualSeconds != null
                                 ? <>{formatDuration(se.actualSeconds)} <span className="text-gray-500">/ {se.duration} min</span></>
                                 : <>{se.duration} min</>
@@ -214,21 +214,21 @@ function HistoryPage() {
                             </span>
                           </div>
                           {se.notes && (
-                            <p className="text-gray-400 text-sm mt-1">{se.notes}</p>
+                            <p className="text-muted-foreground text-sm mt-1">{se.notes}</p>
                           )}
                         </div>
                       ))}
 
                       {/* Session notes */}
                       {session.notes && (
-                        <div className="border-t border-gray-700 pt-3 mt-3">
+                        <div className="border-t pt-3 mt-3">
                           <p className="text-gray-500 text-xs mb-1">Session notes</p>
-                          <p className="text-gray-300 text-sm">{session.notes}</p>
+                          <p className="text-secondary-foreground text-sm">{session.notes}</p>
                         </div>
                       )}
 
                       {/* Actions: save as template + delete */}
-                      <div className="border-t border-gray-700 pt-3 mt-3">
+                      <div className="border-t pt-3 mt-3">
                         {savingIndex === i ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -236,7 +236,7 @@ function HistoryPage() {
                               value={templateName}
                               onChange={(e) => setTemplateName(e.target.value)}
                               placeholder="Template name..."
-                              className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
+                              className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleSaveAsTemplate(i);
@@ -260,7 +260,7 @@ function HistoryPage() {
                             </button>
                             <button
                               onClick={() => handleDeleteSession(i)}
-                              className="text-gray-400 hover:text-red-400 text-xs transition-colors"
+                              className="text-muted-foreground hover:text-red-400 text-xs transition-colors"
                             >
                               Delete session
                             </button>

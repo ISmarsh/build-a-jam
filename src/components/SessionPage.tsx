@@ -104,10 +104,10 @@ function SessionPage() {
   return (
     <div className="max-w-2xl mx-auto text-center">
       {/* Progress indicator */}
-      <p className="text-gray-400 mb-2">
+      <p className="text-muted-foreground mb-2">
         Exercise {idx + 1} of {totalExercises}
       </p>
-      <div className="w-full bg-gray-700 rounded-full h-2 mb-8">
+      <div className="w-full bg-secondary rounded-full h-2 mb-8">
         <div
           className="bg-indigo-500 h-2 rounded-full transition-all duration-300"
           style={{ width: `${((idx + 1) / totalExercises) * 100}%` }}
@@ -115,17 +115,17 @@ function SessionPage() {
       </div>
 
       {/* Current exercise */}
-      <Card className="bg-gray-800 border-gray-700 mb-8">
+      <Card className="mb-8">
         <CardContent className="py-8 text-left">
           <h1 className="text-3xl font-bold text-white mb-2">
             {currentExercise?.name ?? currentSessionExercise.exerciseId}
           </h1>
           {currentExercise?.summary && (
-            <p className="text-gray-400 text-base mb-4 italic">{currentExercise.summary}</p>
+            <p className="text-muted-foreground text-base mb-4 italic">{currentExercise.summary}</p>
           )}
           {currentExercise?.description ? (
             <div
-              className="text-gray-300 text-lg leading-relaxed prose-exercise"
+              className="text-secondary-foreground text-lg leading-relaxed prose-exercise"
               dangerouslySetInnerHTML={{ __html: currentExercise.description }}
             />
           ) : (
@@ -139,7 +139,7 @@ function SessionPage() {
             }
             placeholder="Quick notes..."
             rows={2}
-            className="w-full mt-4 bg-gray-700 border border-gray-600 rounded-lg p-3 text-gray-300 placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-y"
+            className="w-full mt-4 bg-secondary border border-input rounded-lg p-3 text-secondary-foreground placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-y"
           />
         </CardContent>
       </Card>
@@ -153,7 +153,7 @@ function SessionPage() {
         >
           {formatDuration(elapsedSeconds)}
         </p>
-        <p className="text-gray-400">
+        <p className="text-muted-foreground">
           Target: {currentSessionExercise.duration} min ({formatDuration(targetSeconds)})
         </p>
         <p className="text-gray-500 text-sm mt-1">

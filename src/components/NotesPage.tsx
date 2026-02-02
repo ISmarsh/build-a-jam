@@ -55,7 +55,7 @@ function NotesPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold text-white mb-2">Session Complete</h1>
-      <p className="text-gray-400 mb-8">
+      <p className="text-muted-foreground mb-8">
         How did it go? Jot down what worked, what didn't, and anything to remember.
       </p>
 
@@ -63,14 +63,14 @@ function NotesPage() {
       <h2 className="text-lg font-semibold text-white mb-3">Exercises</h2>
       <div className="space-y-2 mb-4">
         {session.exercises.map((se, i) => (
-          <Card key={i} className="bg-gray-800 border-gray-700">
+          <Card key={i}>
             <CardContent className="py-3">
               <div className="flex items-center justify-between">
                 <span className="text-white">
                   <span className="text-gray-500 mr-2">{i + 1}.</span>
                   {getExerciseById(se.exerciseId)?.name ?? se.exerciseId}
                 </span>
-                <span className="text-gray-400 text-sm">
+                <span className="text-muted-foreground text-sm">
                   {se.actualSeconds != null
                     ? <>{formatDuration(se.actualSeconds)} <span className="text-gray-500">/ {se.duration} min</span></>
                     : <>{se.duration} min</>
@@ -78,7 +78,7 @@ function NotesPage() {
                 </span>
               </div>
               {se.notes && (
-                <p className="text-gray-400 text-sm mt-1 ml-5">{se.notes}</p>
+                <p className="text-muted-foreground text-sm mt-1 ml-5">{se.notes}</p>
               )}
             </CardContent>
           </Card>
@@ -91,7 +91,7 @@ function NotesPage() {
         const actualTotalSeconds = session.exercises.reduce((sum, ex) => sum + (ex.actualSeconds ?? 0), 0);
         const hasActualTime = session.exercises.some((ex) => ex.actualSeconds != null);
         return (
-          <p className="text-gray-400 text-sm mb-8">
+          <p className="text-muted-foreground text-sm mb-8">
             Total: {hasActualTime
               ? <>{formatDuration(actualTotalSeconds)} <span className="text-gray-500">/ {plannedMinutes} min planned</span></>
               : <>{plannedMinutes} min</>
@@ -107,7 +107,7 @@ function NotesPage() {
         onChange={(e) => setNotes(e.target.value)}
         placeholder="What worked well? What needs work? Any exercises to try next time?"
         rows={6}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-y"
+        className="w-full bg-card border rounded-lg p-4 text-secondary-foreground placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-y"
       />
 
       {/* Save as favorite template */}
@@ -119,7 +119,7 @@ function NotesPage() {
               value={template.templateName}
               onChange={(e) => template.setTemplateName(e.target.value)}
               placeholder="Template name..."
-              className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+              className="flex-1 bg-secondary border border-input rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') template.save();

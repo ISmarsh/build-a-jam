@@ -112,11 +112,11 @@ function PrepPage() {
               Exercises ({filteredExercises.length})
             </h2>
             <div className="flex items-center gap-2">
-              <label className="text-gray-400 text-sm">Source:</label>
+              <label className="text-muted-foreground text-sm">Source:</label>
               <select
                 value={selectedSource}
                 onChange={handleSourceChange}
-                className="bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-card text-white border rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="all">All ({sourceCounts.all})</option>
                 <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
@@ -138,12 +138,12 @@ function PrepPage() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search exercises..."
-              className="bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500 text-sm"
+              className="bg-card text-white border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-gray-500 text-sm"
             />
             {searchText && (
               <button
                 onClick={() => setSearchText('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white px-2"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white px-2"
                 aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
@@ -152,21 +152,21 @@ function PrepPage() {
           </div>
 
           <div className="flex items-center gap-2 mb-4">
-            <label className="text-gray-400 text-sm">Default duration:</label>
+            <label className="text-muted-foreground text-sm">Default duration:</label>
             <input
               type="number"
               min={1}
               max={60}
               value={defaultDuration}
               onChange={(e) => setDefaultDuration(Math.max(1, Number(e.target.value)))}
-              className="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-center text-sm"
+              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-white text-center text-sm"
             />
-            <span className="text-gray-400 text-sm">min</span>
+            <span className="text-muted-foreground text-sm">min</span>
           </div>
 
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-dark">
             {sortedExercises.map((exercise) => (
-              <Card key={exercise.id} className="bg-gray-800 border-gray-700">
+              <Card key={exercise.id}>
                 <CardHeader className="py-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-indigo-500 text-base">
@@ -182,7 +182,7 @@ function PrepPage() {
                 </CardHeader>
                 <CardContent className="pt-0 pb-3">
                   {exercise.summary && (
-                    <p className="text-gray-400 text-sm line-clamp-2">
+                    <p className="text-muted-foreground text-sm line-clamp-2">
                       {exercise.summary}
                     </p>
                   )}
@@ -192,7 +192,7 @@ function PrepPage() {
                         <Badge
                           key={tag}
                           variant="outline"
-                          className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                          className="bg-secondary text-indigo-400 border-input text-xs"
                         >
                           {tag}
                         </Badge>
@@ -217,7 +217,7 @@ function PrepPage() {
             <h2 className="text-xl font-semibold text-white">
               Session Queue
               {sessionExercises.length > 0 && (
-                <span className="text-gray-400 text-base font-normal ml-2">
+                <span className="text-muted-foreground text-base font-normal ml-2">
                   {sessionExercises.length} exercise{sessionExercises.length !== 1 && 's'}
                   {' · '}{totalMinutes} min
                 </span>
@@ -243,7 +243,7 @@ function PrepPage() {
                       toast('Queue cleared');
                     },
                   })}
-                  className="text-gray-400 hover:text-red-400 text-sm transition-colors"
+                  className="text-muted-foreground hover:text-red-400 text-sm transition-colors"
                 >
                   Clear
                 </button>
@@ -259,7 +259,7 @@ function PrepPage() {
                 value={template.templateName}
                 onChange={(e) => template.setTemplateName(e.target.value)}
                 placeholder="Template name..."
-                className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') template.save();
@@ -284,7 +284,7 @@ function PrepPage() {
               {sessionExercises.map((se, index) => {
                 const exercise = getExerciseById(se.exerciseId);
                 return (
-                  <Card key={index} className="bg-gray-800 border-gray-700">
+                  <Card key={index}>
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -302,9 +302,9 @@ function PrepPage() {
                             onChange={(e) =>
                               handleDurationChange(index, Math.max(1, Number(e.target.value)))
                             }
-                            className="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-center text-sm"
+                            className="w-16 bg-secondary border border-input rounded px-2 py-1 text-white text-center text-sm"
                           />
-                          <span className="text-gray-400 text-sm">min</span>
+                          <span className="text-muted-foreground text-sm">min</span>
                           <button
                             onClick={() => setConfirm({
                               title: 'Remove exercise?',
@@ -323,7 +323,7 @@ function PrepPage() {
                         </div>
                       </div>
                       {exercise?.summary && (
-                        <p className="text-gray-400 text-sm mt-1 ml-5 line-clamp-1">
+                        <p className="text-muted-foreground text-sm mt-1 ml-5 line-clamp-1">
                           {exercise.summary}
                         </p>
                       )}
@@ -333,7 +333,7 @@ function PrepPage() {
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                              className="bg-secondary text-indigo-400 border-input text-xs"
                             >
                               {tag}
                             </Badge>

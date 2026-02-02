@@ -56,22 +56,22 @@ function ConfirmModal({
   onCancel,
 }: ConfirmModalProps) {
   const confirmClasses = variant === 'danger'
-    ? 'bg-red-600 hover:bg-red-500 text-white'
+    ? 'bg-destructive hover:bg-red-500 text-destructive-foreground'
     : 'bg-indigo-600 hover:bg-indigo-500 text-white';
 
   return (
     <AlertDialog open={true} onOpenChange={(open) => { if (!open) onCancel(); }}>
-      <AlertDialogContent className="bg-gray-800 border-gray-700 max-w-sm">
+      <AlertDialogContent className="bg-card max-w-sm">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white">{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-gray-400">
+          <AlertDialogDescription className="text-muted-foreground">
             {message}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
             onClick={onCancel}
-            className="bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600"
+            className="bg-secondary hover:bg-gray-600 text-secondary-foreground border-input"
           >
             {cancelLabel}
           </AlertDialogCancel>

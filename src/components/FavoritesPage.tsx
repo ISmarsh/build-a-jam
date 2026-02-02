@@ -80,7 +80,7 @@ function FavoritesPage() {
 
       {isEmpty ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-lg mb-2">No favorites yet.</p>
+          <p className="text-muted-foreground text-lg mb-2">No favorites yet.</p>
           <p className="text-gray-500 mb-4">
             Star exercises from the home page, or save session templates from the prep or history pages.
           </p>
@@ -108,7 +108,7 @@ function FavoritesPage() {
                   const isExpanded = expandedTemplateId === template.id;
 
                   return (
-                    <Card key={template.id} className="bg-gray-800 border-gray-700">
+                    <Card key={template.id}>
                       <CardContent className="py-4">
                         {/* Header — clickable to expand/collapse */}
                         <button
@@ -127,7 +127,7 @@ function FavoritesPage() {
                                 {template.name ?? 'Untitled'}
                               </span>
                             </div>
-                            <span className="text-gray-400 text-sm">
+                            <span className="text-muted-foreground text-sm">
                               {template.exercises.length} exercise
                               {template.exercises.length !== 1 && 's'}
                               {' · '}
@@ -144,10 +144,10 @@ function FavoritesPage() {
                                   <Badge
                                     key={j}
                                     variant="outline"
-                                    className={`bg-gray-700 border-gray-600 text-xs ${
+                                    className={`bg-secondary border-input text-xs ${
                                       ex
                                         ? 'text-indigo-400 cursor-pointer hover:bg-gray-600'
-                                        : 'text-gray-300'
+                                        : 'text-secondary-foreground'
                                     }`}
                                     onClick={
                                       ex
@@ -174,7 +174,7 @@ function FavoritesPage() {
                               return (
                                 <div
                                   key={j}
-                                  className="border-l-2 border-gray-700 pl-3"
+                                  className="border-l-2 border-border pl-3"
                                 >
                                   <div className="flex items-center justify-between">
                                     <span className="text-white text-sm">
@@ -192,7 +192,7 @@ function FavoritesPage() {
                                         se.exerciseId
                                       )}
                                     </span>
-                                    <span className="text-gray-400 text-xs">
+                                    <span className="text-muted-foreground text-xs">
                                       {se.duration} min
                                     </span>
                                   </div>
@@ -201,13 +201,13 @@ function FavoritesPage() {
                             })}
 
                             {/* Actions */}
-                            <div className="border-t border-gray-700 pt-3 mt-3 flex items-center gap-4">
+                            <div className="border-t pt-3 mt-3 flex items-center gap-4">
                               <Button size="sm" onClick={() => handleStartTemplate(template)}>
                                 Start Session
                               </Button>
                               <button
                                 onClick={() => handleDeleteTemplate(template.id)}
-                                className="text-gray-400 hover:text-red-400 text-xs transition-colors"
+                                className="text-muted-foreground hover:text-red-400 text-xs transition-colors"
                               >
                                 Delete
                               </button>
@@ -230,7 +230,7 @@ function FavoritesPage() {
               </h2>
               <div className="space-y-3">
                 {favoriteExercises.map((exercise) => (
-                  <Card key={exercise.id} className="bg-gray-800 border-gray-700">
+                  <Card key={exercise.id}>
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -259,7 +259,7 @@ function FavoritesPage() {
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                              className="bg-secondary text-indigo-400 border-input text-xs"
                             >
                               {tag}
                             </Badge>
@@ -267,7 +267,7 @@ function FavoritesPage() {
                         </div>
                       </div>
                       {exercise.summary && (
-                        <p className="text-gray-400 text-sm mt-1 ml-8 line-clamp-1">
+                        <p className="text-muted-foreground text-sm mt-1 ml-8 line-clamp-1">
                           {exercise.summary}
                         </p>
                       )}

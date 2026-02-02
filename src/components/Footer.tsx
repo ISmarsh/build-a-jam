@@ -13,11 +13,11 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="hidden sm:block py-6 border-t border-gray-700 text-center text-gray-500 text-sm flex-shrink-0">
+    <footer className="hidden sm:block py-6 border-t text-center text-gray-500 text-sm flex-shrink-0">
       <div className="flex justify-center gap-4 flex-wrap">
         <Link
           to="/credits"
-          className="text-gray-400 hover:text-indigo-400 transition-colors underline"
+          className="text-muted-foreground hover:text-indigo-400 transition-colors underline"
         >
           Credits &amp; Licenses
         </Link>
@@ -26,7 +26,7 @@ function Footer() {
           href="https://github.com/ISmarsh/build-a-jam"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-gray-400 hover:text-indigo-400 transition-colors underline"
+          className="text-muted-foreground hover:text-indigo-400 transition-colors underline"
         >
           GitHub
         </a>

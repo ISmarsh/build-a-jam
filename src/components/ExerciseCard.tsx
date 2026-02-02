@@ -44,7 +44,7 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
   const displayText = exercise.summary;
 
   return (
-    <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:border-indigo-500 bg-gray-800 border-gray-700 flex flex-col">
+    <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:border-indigo-500 flex flex-col">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-indigo-500">{exercise.name}</CardTitle>
@@ -68,7 +68,7 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
         </div>
       </CardHeader>
       <CardContent className="space-y-4 flex-1">
-        <p className="text-gray-300 leading-relaxed">
+        <p className="text-secondary-foreground leading-relaxed">
           {displayText}
         </p>
 
@@ -78,7 +78,7 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
             <Badge
               key={tag}
               variant="outline"
-              className="bg-gray-700 text-indigo-400 border-gray-600"
+              className="bg-secondary text-indigo-400 border-input"
             >
               {tag}
             </Badge>

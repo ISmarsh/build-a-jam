@@ -70,14 +70,14 @@ function HomePage() {
       <div className="flex justify-between items-center gap-4">
         {/* Source filter dropdown */}
         <div className="flex items-center gap-3">
-          <label htmlFor="source-filter" className="text-gray-300 font-medium">
+          <label htmlFor="source-filter" className="text-secondary-foreground font-medium">
             Source:
           </label>
           <select
             id="source-filter"
             value={selectedSource}
             onChange={handleSourceChange}
-            className="bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="bg-card text-white border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="all">All Sources ({sourceCounts.all})</option>
             <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
@@ -115,7 +115,7 @@ function HomePage() {
 
       {/* Text search input with clear button */}
       <div className="flex flex-col gap-2">
-        <label htmlFor="search-text" className="text-gray-300 font-medium">
+        <label htmlFor="search-text" className="text-secondary-foreground font-medium">
           Search exercises:
         </label>
         <div className="relative">
@@ -125,13 +125,13 @@ function HomePage() {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search by name, description, or tags..."
-            className="bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+            className="bg-card text-white border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-gray-500"
           />
           {/* Clear button - only show when there's text */}
           {searchText && (
             <button
               onClick={() => setSearchText('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white px-2"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white px-2"
               aria-label="Clear search"
             >
               <X className="w-5 h-5" />
