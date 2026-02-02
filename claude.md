@@ -129,15 +129,8 @@ src/
 
 ### GitHub CLI (`gh`) setup
 
-The `gh` CLI is installed at `C:\Program Files\GitHub CLI\gh.exe` and is in
-the Windows user PATH, but Claude Code's bash shell doesn't inherit it
-automatically. At the start of a session, run:
-
-```bash
-export PATH="$PATH:/c/Program Files/GitHub CLI"
-```
-
-This makes `gh` available for all subsequent commands in the session.
+The `gh` CLI should be installed and available in PATH. It's used for
+PR management, review comment workflows, and GraphQL API calls.
 
 ### Working with PR review comments
 
