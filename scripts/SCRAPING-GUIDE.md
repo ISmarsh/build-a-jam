@@ -29,7 +29,8 @@ node scripts/scrape-improwiki.mjs
 1. `scrape-learnimprov.mjs` — fetch from learnimprov.com (CC BY-SA 4.0)
 2. `scrape-improwiki.mjs` — fetch from improwiki.com (CC BY-SA 3.0 DE)
 3. `normalize-tags.mjs` — deduplicate, filter low-use tags, remove blacklisted tags
-4. `cleanup-scraped-data.mjs` — extract clean HTML from raw, filter non-exercises, report missing summaries
+4. `apply-inferred-tags.mjs` — merge curated tags from `src/data/inferred-tags.json`
+5. `cleanup-scraped-data.mjs` — extract clean HTML from raw, filter non-exercises, report missing summaries
 
 Summaries are generated on-demand by Claude, not by a script.
 
@@ -37,6 +38,7 @@ Summaries are generated on-demand by Claude, not by a script.
 
 ```bash
 node scripts/normalize-tags.mjs        # Re-normalize tags from rawTags
+node scripts/apply-inferred-tags.mjs   # Re-apply curated inferred tags
 node scripts/cleanup-scraped-data.mjs   # Re-clean descriptions
 ```
 
@@ -55,6 +57,7 @@ Source site
 
 Post-processing:
   → normalize-tags.mjs (clean tags from rawTags field)
+  → apply-inferred-tags.mjs (merge curated tags from inferred-tags.json)
   → cleanup-scraped-data.mjs (extract clean description from description_raw)
 ```
 

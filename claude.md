@@ -53,9 +53,11 @@ src/
 │   ├── HistoryPage.tsx        # Past sessions with save-as-template
 │   ├── FavoritesPage.tsx      # Starred exercises and saved templates
 │   ├── CreditsPage.tsx        # Licensing & attribution display
+│   ├── BottomNav.tsx          # Mobile bottom navigation bar
 │   ├── Footer.tsx             # Site-wide footer (credits link, GitHub link)
 │   ├── ExerciseCard.tsx       # Exercise card (shadcn Card + Badge)
 │   ├── ExerciseList.tsx       # Exercise grid
+│   ├── ExerciseFilterBar.tsx  # Source, tag, and text search filter controls
 │   ├── ExerciseDetailModal.tsx # Full exercise detail (Radix Dialog)
 │   ├── ConfirmModal.tsx       # Destructive action confirmation (Radix AlertDialog)
 │   └── TagFilter.tsx          # Tag chip filter with "show more"
@@ -66,7 +68,7 @@ src/
 ├── storage/
 │   ├── StorageContext.tsx      # StorageProvider context + useStorage hook
 │   └── local-storage.ts       # localStorage implementation
-├── data/                      # Exercise data files (JSON + TS module)
+├── data/                      # Exercise data files (JSON + TS module + inferred-tags.json)
 ├── types.ts                   # Shared TypeScript types
 ├── App.tsx                    # Layout shell + route definitions + providers
 └── main.tsx                   # Entry point (BrowserRouter lives here)
