@@ -127,6 +127,46 @@ src/
 - Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Atomic commits per feature/concept
 
+### GitHub CLI (`gh`) setup
+
+The `gh` CLI is installed at `C:\Program Files\GitHub CLI\gh.exe` and is in
+the Windows user PATH, but Claude Code's bash shell doesn't inherit it
+automatically. At the start of a session, run:
+
+```bash
+export PATH="$PATH:/c/Program Files/GitHub CLI"
+```
+
+This makes `gh` available for all subsequent commands in the session.
+
+### Working with PR review comments
+
+**Copilot auto-review**: This repo has GitHub Copilot configured to review PRs
+automatically. Copilot comments should be triaged into categories: already
+fixed, actionable (make the change), or dismiss with explanation.
+
+**Replying to comments** (`gh api`):
+- `POST /repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies` posts a reply
+- Replies are attributed to the authenticated user (the repo owner), not a bot
+- Replying does **not** resolve the thread — threads stay "unresolved" in the
+  GitHub UI
+
+**Resolving threads** (GraphQL):
+- Use the `resolveReviewThread` mutation to mark threads as resolved
+- First fetch thread IDs from review threads:
+  `gh api repos/{owner}/{repo}/pulls/{pr}/threads`
+  (thread IDs look like `PRRT_kwDORDVJ7s5sSJ8u`)
+- Then resolve: `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } } }'`
+- Multiple threads can be resolved in a single batched mutation using aliases:
+  `t1: resolveReviewThread(...) t2: resolveReviewThread(...)`
+
+**Typical PR review workflow**:
+1. Fetch unresolved threads → triage comments
+2. Fix actionable items in code
+3. Reply to each comment (explain fix or dismissal reason)
+4. Resolve all threads via batched GraphQL mutation
+5. Commit and push fixes
+
 ## Important Context
 
 ### This is a learning project
