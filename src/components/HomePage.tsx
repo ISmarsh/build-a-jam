@@ -116,11 +116,13 @@ function HomePage() {
             to="/prep"
             className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
           >
-            Build a jam!
+            <span className="sm:hidden">Build!</span>
+            <span className="hidden sm:inline">Build a jam!</span>
           </Link>
+          {/* Favorites & History — hidden on mobile, available via BottomNav menu */}
           <Link
             to="/favorites"
-            className="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
+            className="hidden sm:flex bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
             aria-label="Favorites"
             title="Favorites"
           >
@@ -131,7 +133,7 @@ function HomePage() {
           </Link>
           <Link
             to="/history"
-            className="bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
+            className="hidden sm:flex bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
             aria-label="Session history"
             title="Session history"
           >

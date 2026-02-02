@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="py-6 border-t border-gray-700 text-center text-gray-500 text-sm flex-shrink-0">
+    <footer className="hidden sm:block py-6 border-t border-gray-700 text-center text-gray-500 text-sm flex-shrink-0">
       <div className="flex justify-center gap-4 flex-wrap">
         <Link
           to="/credits"

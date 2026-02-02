@@ -1,0 +1,129 @@
+/**
+ * BottomNav Component — mobile-only fixed bottom navigation bar
+ *
+ * Three-zone layout:
+ * - Left: Home button
+ * - Center: Hamburger menu (spans available width), expands upward
+ * - Right: Play/session button (contextual icon based on active session)
+ *
+ * The expanding menu provides access to Favorites, History, Credits, and GitHub.
+ * Hidden on sm+ breakpoints where these links live in the top bar and footer.
+ */
+
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Menu, X, Star, Clock, ScrollText, Github, Play, CirclePlay } from 'lucide-react';
+import { useSession } from '../context/SessionContext';
+
+const menuItems = [
+  { to: '/favorites', icon: Star, label: 'Favorites' },
+  { to: '/history', icon: Clock, label: 'History' },
+  { to: '/credits', icon: ScrollText, label: 'Credits & Licenses' },
+] as const;
+
+function BottomNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { state } = useSession();
+  const location = useLocation();
+
+  // Close menu on any navigation
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  const hasActiveSession =
+    state.currentSession !== null && state.currentExerciseIndex !== null;
+  const sessionUrl = hasActiveSession
+    ? `/session/${state.currentSession!.id}`
+    : '/prep';
+
+  return (
+    <>
+      {/* Backdrop overlay */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
+      {/* Bottom nav */}
+      <nav className="fixed bottom-0 left-0 right-0 sm:hidden z-50">
+        {/* Expanding menu panel */}
+        {menuOpen && (
+          <div className="bg-gray-900 border-t border-gray-700 py-2">
+            {menuItems.map(({ to, icon: Icon, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="flex items-center gap-3 px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+              >
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
+              </Link>
+            ))}
+            <a
+              href="https://github.com/ISmarsh/build-a-jam"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-6 py-3 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+            >
+              <Github className="w-5 h-5" />
+              <span>GitHub</span>
+            </a>
+          </div>
+        )}
+
+        {/* Bottom bar */}
+        <div className="bg-gray-900 border-t border-gray-700 flex items-stretch">
+          {/* Home */}
+          <Link
+            to="/"
+            className={`flex items-center justify-center px-4 py-3 transition-colors ${
+              location.pathname === '/'
+                ? 'text-indigo-400'
+                : 'text-gray-400 hover:text-white'
+            }`}
+            aria-label="Home"
+          >
+            <Home className="w-6 h-6" />
+          </Link>
+
+          {/* Menu — spans available space */}
+          <button
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="flex-1 flex items-center justify-center gap-2 py-3 text-gray-400 hover:text-white transition-colors border-x border-gray-700"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+            <span className="text-sm font-medium">Menu</span>
+          </button>
+
+          {/* Play / Resume session */}
+          <Link
+            to={sessionUrl}
+            className={`flex items-center justify-center px-4 py-3 transition-colors ${
+              hasActiveSession
+                ? 'text-indigo-400 hover:text-indigo-300'
+                : 'text-gray-400 hover:text-white'
+            }`}
+            aria-label={hasActiveSession ? 'Resume session' : 'Build a session'}
+          >
+            {hasActiveSession ? (
+              <CirclePlay className="w-6 h-6" />
+            ) : (
+              <Play className="w-6 h-6" />
+            )}
+          </Link>
+        </div>
+      </nav>
+    </>
+  );
+}
+
+export default BottomNav;

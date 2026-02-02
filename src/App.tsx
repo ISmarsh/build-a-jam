@@ -30,11 +30,12 @@ import HistoryPage from './components/HistoryPage';
 import FavoritesPage from './components/FavoritesPage';
 import CreditsPage from './components/CreditsPage';
 import Footer from './components/Footer';
+import BottomNav from './components/BottomNav';
 
 function App() {
   return (
     <SessionProvider>
-      <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8 sm:px-6 lg:px-8">
         <header className="text-center mb-12 pb-8 border-b-2 border-indigo-500 flex-shrink-0">
           <Link to="/" className="hover:opacity-80 transition-opacity">
             <h1 className="text-5xl font-bold mb-2 text-indigo-500">Build-a-Jam</h1>
@@ -59,6 +60,7 @@ function App() {
 
         <Footer />
       </div>
+      <BottomNav />
       <Toaster position="bottom-center" duration={3000} richColors />
     </SessionProvider>
   );
