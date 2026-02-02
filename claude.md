@@ -176,6 +176,17 @@ fixed, actionable (make the change), or dismiss with explanation.
   ```
 - Filter the result for `isResolved: false` to get only unresolved threads.
 
+**Replying to comments — escaping pitfalls**:
+- The `-f body=` value is parsed by the shell. Backticks, double quotes,
+  backslashes, and `$` all cause issues.
+- **Avoid backticks** in reply text. Use plain-English descriptions instead of
+  inline code formatting (e.g., "the ring token" not `` `ring` ``).
+- To get comment database IDs (needed for the REST reply endpoint), include
+  `databaseId` in the GraphQL query on comment nodes.
+- Use the GraphQL `comments(first: 1) { nodes { databaseId } }` field to get
+  numeric IDs, then reply via
+  `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body="..."`.
+
 **Typical PR review workflow**:
 1. Fetch unresolved threads (GraphQL) → triage comments
 2. Fix actionable items in code
