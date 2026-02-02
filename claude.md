@@ -162,6 +162,23 @@ fixed, actionable (make the change), or dismiss with explanation.
 4. Resolve all threads via batched GraphQL mutation
 5. Commit and push fixes
 
+### PR wrap-up checklist
+
+Before merging or marking a PR as ready, **ask the user** before running
+these heavier wrap-up tasks (they touch many files and use significant context):
+
+1. **Review all markdown** — check README.md, CLAUDE.md, and
+   scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
+   descriptions, and project structure match the current codebase.
+2. **Check for code duplication** — scan for duplicated logic across
+   components that should be extracted into shared helpers or hooks.
+3. **Check for obsolete code** — look for unused imports, dead functions,
+   stale comments, or references to removed features.
+
+These tasks are expensive in context and time, so always confirm with the
+user before starting them. A simple "Want me to run the wrap-up checks
+(markdown review, duplication scan, dead code check)?" is enough.
+
 ## Important Context
 
 ### This is a learning project
