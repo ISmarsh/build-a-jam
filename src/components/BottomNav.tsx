@@ -51,7 +51,7 @@ function BottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 sm:hidden z-50">
         {/* Expanding menu panel */}
         {menuOpen && (
-          <div className="bg-gray-900 border-t py-2">
+          <div className="bg-card border-t py-2">
             {menuItems.map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
@@ -75,7 +75,7 @@ function BottomNav() {
         )}
 
         {/* Bottom bar */}
-        <div className="bg-gray-900 border-t flex items-stretch">
+        <div className="bg-card border-t flex items-stretch">
           {/* Home */}
           <Link
             to="/"

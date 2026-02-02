@@ -75,7 +75,7 @@ function ExerciseFilterBar({
             id={sourceId}
             value={selectedSource}
             onChange={onSourceChange}
-            className="bg-card text-white border rounded-lg px-3 py-2 text-sm sm:text-base sm:px-4 focus:outline-none focus:ring-2 focus:ring-ring min-w-0"
+            className="bg-card text-card-foreground border rounded-lg px-3 py-2 text-sm sm:text-base sm:px-4 focus:outline-none focus:ring-2 focus:ring-ring min-w-0"
           >
             <option value="all">All Sources ({sourceCounts.all})</option>
             <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
@@ -105,7 +105,7 @@ function ExerciseFilterBar({
             value={searchText}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name, description, or tags..."
-            className="bg-card text-white border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-gray-500"
+            className="bg-card text-foreground border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-muted-foreground"
           />
           {searchText && (
             <button
