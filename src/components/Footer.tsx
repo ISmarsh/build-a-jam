@@ -2,6 +2,8 @@
  * Footer Component
  *
  * Site-wide footer with links to the credits page and GitHub repo.
+ * Hidden on mobile (BottomNav provides navigation there).
+ * Sticky on desktop so it stays visible at the bottom.
  *
  * ANGULAR vs REACT:
  * - Angular: routerLink directive for internal navigation
@@ -13,7 +15,7 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="hidden sm:block py-6 border-t text-center text-gray-500 text-sm flex-shrink-0">
+    <footer className="hidden sm:block sticky bottom-0 py-6 border-t text-center text-muted-foreground text-sm flex-shrink-0 bg-background">
       <div className="flex justify-center gap-4 flex-wrap">
         <Link
           to="/credits"

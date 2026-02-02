@@ -15,7 +15,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronRight, Star } from 'lucide-react';
+import { ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById } from '../data/exercises';
@@ -69,13 +69,6 @@ function FavoritesPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
-      </Link>
-
       <h1 className="text-3xl font-bold text-white mb-6">Favorites</h1>
 
       {isEmpty ? (
@@ -86,9 +79,9 @@ function FavoritesPage() {
           </p>
           <Link
             to="/"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
           >
-            Browse exercises <ArrowRight className="w-4 h-4 inline" />
+            Browse exercises <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       ) : (

@@ -18,7 +18,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ChevronRight, Star } from 'lucide-react';
+import { ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, formatDuration, formatDate, formatTime } from '../data/exercises';
@@ -91,13 +91,6 @@ function HistoryPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
-      </Link>
-
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-white">Session History</h1>
         {sessions.length > 0 && (
@@ -115,9 +108,9 @@ function HistoryPage() {
           <p className="text-muted-foreground text-lg mb-4">No sessions yet.</p>
           <Link
             to="/prep"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
           >
-            Build your first jam <ArrowRight className="w-4 h-4 inline" />
+            Build your first jam <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       ) : (
@@ -251,12 +244,12 @@ function HistoryPage() {
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-4">
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                             <button
                               onClick={() => { setSavingIndex(i); setTemplateName(''); }}
-                              className="text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
+                              className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
                             >
-                              <Star className="w-4 h-4 inline fill-current" /> Save as favorite
+                              <Star className="w-4 h-4 fill-current" /> Save as favorite
                             </button>
                             <button
                               onClick={() => handleDeleteSession(i)}

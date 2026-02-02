@@ -16,15 +16,15 @@
  */
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Star, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites, sourceCounts } from '../data/exercises';
+import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 import type { Exercise } from '../types';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
-import TagFilter from './TagFilter';
+import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import ConfirmModal from './ConfirmModal';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -95,63 +95,22 @@ function PrepPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
-      </Link>
-
-      <h1 className="text-3xl font-bold text-white mb-6">Build Your Session</h1>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left column: exercise library with filtering */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">
-              Exercises ({filteredExercises.length})
-            </h2>
-            <div className="flex items-center gap-2">
-              <label className="text-muted-foreground text-sm">Source:</label>
-              <select
-                value={selectedSource}
-                onChange={handleSourceChange}
-                className="bg-card text-white border rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                <option value="all">All ({sourceCounts.all})</option>
-                <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
-                <option value="improwiki">improwiki.com ({sourceCounts.improwiki})</option>
-              </select>
-            </div>
-          </div>
-
-          <TagFilter
+          <ExerciseFilterBar
+            selectedSource={selectedSource}
+            onSourceChange={handleSourceChange}
             featuredTags={featuredTags}
             allTags={allTags}
             selectedTags={selectedTags}
             onTagToggle={handleTagToggle}
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            idPrefix="prep"
           />
 
-          <div className="relative mt-4 mb-4">
-            <input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search exercises..."
-              className="bg-card text-white border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-gray-500 text-sm"
-            />
-            {searchText && (
-              <button
-                onClick={() => setSearchText('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white px-2"
-                aria-label="Clear search"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 my-4">
             <label className="text-muted-foreground text-sm">Default duration:</label>
             <input
               type="number"
@@ -164,6 +123,9 @@ function PrepPage() {
             <span className="text-muted-foreground text-sm">min</span>
           </div>
 
+          <h2 className="text-xl font-semibold text-white mb-3">
+            Exercises ({filteredExercises.length})
+          </h2>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-dark">
             {sortedExercises.map((exercise) => (
               <Card key={exercise.id}>
@@ -200,9 +162,9 @@ function PrepPage() {
                     </div>
                     <button
                       onClick={() => setDetailExercise(exercise)}
-                      className="text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
+                      className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
                     >
-                      Details <ArrowRight className="w-3 h-3 inline" />
+                      Details <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </CardContent>
@@ -227,10 +189,10 @@ function PrepPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => template.start(state.currentSession?.name ?? '')}
-                  className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
+                  className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
                   title="Save as favorite template"
                 >
-                  <Star className="w-4 h-4 inline fill-current" /> Save
+                  <Star className="w-4 h-4 fill-current" /> Save
                 </button>
                 <button
                   onClick={() => setConfirm({
@@ -342,9 +304,9 @@ function PrepPage() {
                         {exercise && (
                           <button
                             onClick={() => setDetailExercise(exercise)}
-                            className="text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
+                            className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
                           >
-                            Details <ArrowRight className="w-3 h-3 inline" />
+                            Details <ArrowRight className="w-3 h-3" />
                           </button>
                         )}
                       </div>

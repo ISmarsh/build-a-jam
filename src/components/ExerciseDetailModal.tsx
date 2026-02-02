@@ -88,16 +88,16 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
           )}
         </div>
 
-        {/* Footer */}
-        <DialogFooter className="flex items-center justify-between p-6 pt-4 border-t sm:justify-between">
+        {/* Footer — stacks vertically on mobile, side-by-side on desktop */}
+        <DialogFooter className="flex flex-col-reverse items-center gap-3 p-6 pt-4 border-t sm:flex-row sm:justify-between">
           {exercise.sourceUrl ? (
             <a
               href={exercise.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-400 hover:text-indigo-300 text-sm transition-colors"
+              className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-sm transition-colors"
             >
-              View on source site <ArrowRight className="w-4 h-4 inline" />
+              View on source site <ArrowRight className="w-4 h-4" />
             </a>
           ) : (
             <span />

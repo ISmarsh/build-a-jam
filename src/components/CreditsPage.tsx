@@ -15,8 +15,8 @@
  * - In React, static imports are simpler for bundled data
  */
 
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+
+
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
@@ -52,14 +52,6 @@ const dataSources: Attribution[] = [
 function CreditsPage() {
   return (
     <div>
-      {/* Link component — like Angular's routerLink directive */}
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
-      </Link>
-
       <h1 className="text-3xl font-bold text-white mb-2">
         Credits &amp; Licenses
       </h1>

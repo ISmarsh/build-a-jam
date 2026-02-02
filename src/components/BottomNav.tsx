@@ -12,7 +12,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Menu, X, Star, Clock, ScrollText, Github, Play, CirclePlay } from 'lucide-react';
+import { Home, Menu, X, Star, Clock, ScrollText, Github, PlusCircle, CirclePlay } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 
 const menuItems = [
@@ -117,7 +117,7 @@ function BottomNav() {
             {hasActiveSession ? (
               <CirclePlay className="w-6 h-6" />
             ) : (
-              <Play className="w-6 h-6" />
+              <PlusCircle className="w-6 h-6" />
             )}
           </Link>
         </div>

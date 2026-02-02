@@ -36,11 +36,11 @@ function App() {
   return (
     <SessionProvider>
       <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8 sm:px-6 lg:px-8">
-        <header className="text-center mb-12 pb-8 border-b-2 border-indigo-500 flex-shrink-0">
+        <header className="text-center mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-indigo-500 flex-shrink-0">
           <Link to="/" className="hover:opacity-80 transition-opacity">
-            <h1 className="text-5xl font-bold mb-2 text-indigo-500">Build-a-Jam</h1>
+            <h1 className="text-3xl sm:text-5xl font-bold mb-2 text-indigo-500">Build-a-Jam</h1>
           </Link>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-sm sm:text-lg">
             Your improv exercise library - Plan sessions with confidence
           </p>
         </header>

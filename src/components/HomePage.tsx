@@ -18,13 +18,13 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Clock, X } from 'lucide-react';
+import { Star, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import ExerciseList from './ExerciseList';
-import TagFilter from './TagFilter';
+import ExerciseFilterBar from './ExerciseFilterBar';
 import { Button } from './ui/button';
-import { filterBySource, getTagsForExercises, filterExercises, sortByFavorites, sourceCounts } from '../data/exercises';
+import { filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 
 function HomePage() {
@@ -66,31 +66,22 @@ function HomePage() {
 
   return (
     <main className="flex flex-col gap-8">
-      {/* Top bar with source filter and session builder button */}
-      <div className="flex justify-between items-center gap-4">
-        {/* Source filter dropdown */}
-        <div className="flex items-center gap-3">
-          <label htmlFor="source-filter" className="text-secondary-foreground font-medium">
-            Source:
-          </label>
-          <select
-            id="source-filter"
-            value={selectedSource}
-            onChange={handleSourceChange}
-            className="bg-card text-white border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="all">All Sources ({sourceCounts.all})</option>
-            <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
-            <option value="improwiki">improwiki.com ({sourceCounts.improwiki})</option>
-          </select>
-        </div>
-
+      <ExerciseFilterBar
+        selectedSource={selectedSource}
+        onSourceChange={handleSourceChange}
+        featuredTags={featuredTags}
+        allTags={allTags}
+        selectedTags={selectedTags}
+        onTagToggle={handleTagToggle}
+        searchText={searchText}
+        onSearchChange={setSearchText}
+        idPrefix="home"
+      >
+        {/* Action buttons rendered in the header row */}
         <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link to="/prep">
-              <span className="sm:hidden">Build!</span>
-              <span className="hidden sm:inline">Build a jam!</span>
-            </Link>
+          {/* Build button — hidden on mobile where BottomNav provides access */}
+          <Button asChild className="hidden sm:inline-flex">
+            <Link to="/prep">Build a jam!</Link>
           </Button>
           {/* Favorites & History — hidden on mobile, available via BottomNav menu */}
           <Button variant="secondary" size="icon" className="hidden sm:flex" asChild>
@@ -104,58 +95,21 @@ function HomePage() {
             </Link>
           </Button>
         </div>
-      </div>
+      </ExerciseFilterBar>
 
-      <TagFilter
-        featuredTags={featuredTags}
-        allTags={allTags}
-        selectedTags={selectedTags}
-        onTagToggle={handleTagToggle}
-      />
-
-      {/* Text search input with clear button */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="search-text" className="text-secondary-foreground font-medium">
-          Search exercises:
-        </label>
-        <div className="relative">
-          <input
-            id="search-text"
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Search by name, description, or tags..."
-            className="bg-card text-white border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-gray-500"
-          />
-          {/* Clear button - only show when there's text */}
-          {searchText && (
-            <button
-              onClick={() => setSearchText('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white px-2"
-              aria-label="Clear search"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="flex flex-col min-h-0">
-        <h2 className="mb-3 text-2xl font-semibold text-white flex-shrink-0">
-          Exercises
-          {` (${filteredExercises.length})`}
+      <div>
+        <h2 className="mb-3 text-xl sm:text-2xl font-semibold text-white">
+          Exercises ({filteredExercises.length})
         </h2>
-        <div className="pt-3 overflow-y-auto">
-          <ExerciseList
-            exercises={sortedExercises}
-            favoriteIds={favoriteIds}
-            onToggleFavorite={(id) => {
-              const wasFavorite = favoriteIds.includes(id);
-              dispatch({ type: 'TOGGLE_FAVORITE_EXERCISE', exerciseId: id });
-              toast(wasFavorite ? 'Removed from favorites' : 'Added to favorites');
-            }}
-          />
-        </div>
+        <ExerciseList
+          exercises={sortedExercises}
+          favoriteIds={favoriteIds}
+          onToggleFavorite={(id) => {
+            const wasFavorite = favoriteIds.includes(id);
+            dispatch({ type: 'TOGGLE_FAVORITE_EXERCISE', exerciseId: id });
+            toast(wasFavorite ? 'Removed from favorites' : 'Added to favorites');
+          }}
+        />
       </div>
     </main>
   );
