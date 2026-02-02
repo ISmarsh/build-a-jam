@@ -56,8 +56,8 @@ function ConfirmModal({
   onCancel,
 }: ConfirmModalProps) {
   const confirmClasses = variant === 'danger'
-    ? 'bg-destructive hover:bg-red-500 text-destructive-foreground'
-    : 'bg-indigo-600 hover:bg-indigo-500 text-white';
+    ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+    : 'bg-primary hover:bg-primary/90 text-primary-foreground';
 
   return (
     <AlertDialog open={true} onOpenChange={(open) => { if (!open) onCancel(); }}>
@@ -71,7 +71,7 @@ function ConfirmModal({
         <AlertDialogFooter>
           <AlertDialogCancel
             onClick={onCancel}
-            className="bg-secondary hover:bg-gray-600 text-secondary-foreground border-input"
+            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input"
           >
             {cancelLabel}
           </AlertDialogCancel>
