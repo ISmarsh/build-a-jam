@@ -17,9 +17,10 @@
 
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { FEATURED_TAGS, getExerciseById, filterBySource, sourceCounts } from '../data/exercises';
+import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites, sourceCounts } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 import type { Exercise } from '../types';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
@@ -73,33 +74,12 @@ function PrepPage() {
     navigate(`/session/${state.currentSession!.id}`);
   }
 
-  // Filter by source first, then tags and search (shared logic in exercises.ts)
+  // COMPUTED VALUES: source filtering → tag computation → text/tag filtering → sort
   const sourceFilteredExercises = filterBySource(selectedSource);
-  const tagsInSource = new Set(sourceFilteredExercises.flatMap((ex) => ex.tags));
-  const featuredTags = FEATURED_TAGS.filter((tag) => tagsInSource.has(tag));
-  const allTags = Array.from(tagsInSource).sort();
-
-  const filteredExercises = sourceFilteredExercises.filter((exercise) => {
-    const matchesTags = selectedTags.length === 0 ||
-      selectedTags.every((tag) => exercise.tags.includes(tag));
-
-    const matchesSearch = searchText.trim() === '' || (() => {
-      const searchLower = searchText.toLowerCase();
-      return exercise.name.toLowerCase().includes(searchLower) ||
-        exercise.summary?.toLowerCase().includes(searchLower) ||
-        exercise.tags.some(tag => tag.toLowerCase().includes(searchLower));
-    })();
-
-    return matchesTags && matchesSearch;
-  });
-
-  // SORTING: Favorited exercises float to the top
+  const { featuredTags, allTags } = getTagsForExercises(sourceFilteredExercises);
+  const filteredExercises = filterExercises(sourceFilteredExercises, selectedTags, searchText);
   const favoriteIds = state.favoriteExerciseIds;
-  const sortedExercises = [...filteredExercises].sort((a, b) => {
-    const aFav = favoriteIds.includes(a.id) ? 0 : 1;
-    const bFav = favoriteIds.includes(b.id) ? 0 : 1;
-    return aFav - bFav;
-  });
+  const sortedExercises = sortByFavorites(filteredExercises, favoriteIds);
 
   function handleTagToggle(tag: string) {
     setSelectedTags((prev) =>
@@ -118,7 +98,7 @@ function PrepPage() {
         to="/"
         className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
       >
-        &larr; Back to exercises
+        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
       </Link>
 
       <h1 className="text-3xl font-bold text-white mb-6">Build Your Session</h1>
@@ -162,10 +142,10 @@ function PrepPage() {
             {searchText && (
               <button
                 onClick={() => setSearchText('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xl leading-none px-2"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white px-2"
                 aria-label="Clear search"
               >
-                ×
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -221,7 +201,7 @@ function PrepPage() {
                       onClick={() => setDetailExercise(exercise)}
                       className="text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
                     >
-                      Details &rarr;
+                      Details <ArrowRight className="w-3 h-3 inline" />
                     </button>
                   </div>
                 </CardContent>
@@ -249,7 +229,7 @@ function PrepPage() {
                   className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
                   title="Save as favorite template"
                 >
-                  &#9733; Save
+                  <Star className="w-4 h-4 inline fill-current" /> Save
                 </button>
                 <button
                   onClick={() => setConfirm({
@@ -370,7 +350,7 @@ function PrepPage() {
                             onClick={() => setDetailExercise(exercise)}
                             className="text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
                           >
-                            Details &rarr;
+                            Details <ArrowRight className="w-3 h-3 inline" />
                           </button>
                         )}
                       </div>

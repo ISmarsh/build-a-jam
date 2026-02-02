@@ -16,6 +16,7 @@
  */
 
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
@@ -56,7 +57,7 @@ function CreditsPage() {
         to="/"
         className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
       >
-        &larr; Back to exercises
+        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
       </Link>
 
       <h1 className="text-3xl font-bold text-white mb-2">

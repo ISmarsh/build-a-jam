@@ -18,9 +18,10 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { getExerciseById, formatDuration } from '../data/exercises';
+import { getExerciseById, formatDuration, formatDate, formatTime } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import ConfirmModal from './ConfirmModal';
@@ -45,23 +46,6 @@ function HistoryPage() {
 
   // Show newest first
   const sessions = [...state.completedSessions].reverse();
-
-  function formatDate(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-  }
-
-  function formatTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  }
 
   function handleDeleteSession(reversedIndex: number) {
     // Convert reversed index back to the original completedSessions index
@@ -110,7 +94,7 @@ function HistoryPage() {
         to="/"
         className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
       >
-        &larr; Back to exercises
+        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
       </Link>
 
       <div className="flex items-center justify-between mb-6">
@@ -132,7 +116,7 @@ function HistoryPage() {
             to="/prep"
             className="text-indigo-400 hover:text-indigo-300 transition-colors"
           >
-            Build your first jam &rarr;
+            Build your first jam <ArrowRight className="w-4 h-4 inline" />
           </Link>
         </div>
       ) : (
@@ -160,9 +144,9 @@ function HistoryPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-500 text-sm transition-transform inline-block" style={{ transform: isExpanded ? 'rotate(90deg)' : undefined }}>
-                          &#9654;
-                        </span>
+                        <ChevronRight
+                          className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        />
                         <span className="text-white font-semibold">
                           {formatDate(session.completedAt)}
                         </span>
@@ -278,7 +262,7 @@ function HistoryPage() {
                               onClick={() => { setSavingIndex(i); setTemplateName(''); }}
                               className="text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
                             >
-                              &#9733; Save as favorite
+                              <Star className="w-4 h-4 inline fill-current" /> Save as favorite
                             </button>
                             <button
                               onClick={() => handleDeleteSession(i)}

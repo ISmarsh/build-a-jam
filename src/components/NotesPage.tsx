@@ -22,6 +22,7 @@
 
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
+import { Star } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
 import { getExerciseById, formatDuration } from '../data/exercises';
@@ -143,7 +144,7 @@ function NotesPage() {
             onClick={() => template.start()}
             className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
           >
-            &#9733; Save session as favorite
+            <Star className="w-4 h-4 inline fill-current" /> Save session as favorite
           </button>
         )}
       </div>

@@ -18,11 +18,12 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Star, Clock, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import ExerciseList from './ExerciseList';
 import TagFilter from './TagFilter';
-import { FEATURED_TAGS, filterBySource, sourceCounts } from '../data/exercises';
+import { filterBySource, getTagsForExercises, filterExercises, sortByFavorites, sourceCounts } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 
 function HomePage() {
@@ -39,39 +40,11 @@ function HomePage() {
   // STATE: text search filter
   const [searchText, setSearchText] = useState('');
 
-  // COMPUTED VALUE: Filter by source first (shared logic in exercises.ts)
+  // COMPUTED VALUES: source filtering → tag computation → text/tag filtering → sort
   const sourceFilteredExercises = filterBySource(selectedSource);
-
-  // COMPUTED VALUE: Tags available in the current source
-  // Featured tags are shown by default; all tags available via "show more"
-  const tagsInSource = new Set(sourceFilteredExercises.flatMap((ex) => ex.tags));
-  const featuredTags = FEATURED_TAGS.filter((tag) => tagsInSource.has(tag));
-  const allTags = Array.from(tagsInSource).sort();
-
-  // COMPUTED VALUE: Filter exercises based on source, selected tags, AND search text
-  const filteredExercises = sourceFilteredExercises.filter((exercise) => {
-    // Tag filter: if tags are selected, exercise must have all of them
-    const matchesTags = selectedTags.length === 0 ||
-      selectedTags.every((tag) => exercise.tags.includes(tag));
-
-    // Text filter: if search text exists, check name, summary, and tags
-    const matchesSearch = searchText.trim() === '' || (() => {
-      const searchLower = searchText.toLowerCase();
-      const nameMatch = exercise.name.toLowerCase().includes(searchLower);
-      const summaryMatch = exercise.summary?.toLowerCase().includes(searchLower) || false;
-      const tagsMatch = exercise.tags.some(tag => tag.toLowerCase().includes(searchLower));
-      return nameMatch || summaryMatch || tagsMatch;
-    })();
-
-    return matchesTags && matchesSearch;
-  });
-
-  // SORTING: Favorited exercises float to the top of the list
-  const sortedExercises = [...filteredExercises].sort((a, b) => {
-    const aFav = favoriteIds.includes(a.id) ? 0 : 1;
-    const bFav = favoriteIds.includes(b.id) ? 0 : 1;
-    return aFav - bFav;
-  });
+  const { featuredTags, allTags } = getTagsForExercises(sourceFilteredExercises);
+  const filteredExercises = filterExercises(sourceFilteredExercises, selectedTags, searchText);
+  const sortedExercises = sortByFavorites(filteredExercises, favoriteIds);
 
   // EVENT HANDLER: Toggle tag selection
   const handleTagToggle = (tag: string) => {
@@ -126,10 +99,7 @@ function HomePage() {
             aria-label="Favorites"
             title="Favorites"
           >
-            {/* Star icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
+            <Star className="w-5 h-5" />
           </Link>
           <Link
             to="/history"
@@ -137,11 +107,7 @@ function HomePage() {
             aria-label="Session history"
             title="Session history"
           >
-            {/* Clock/history icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
+            <Clock className="w-5 h-5" />
           </Link>
         </div>
       </div>
@@ -171,10 +137,10 @@ function HomePage() {
           {searchText && (
             <button
               onClick={() => setSearchText('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xl leading-none px-2"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white px-2"
               aria-label="Clear search"
             >
-              ×
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>

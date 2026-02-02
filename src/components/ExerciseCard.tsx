@@ -25,6 +25,7 @@
  *    - This is a practical React pattern
  */
 
+import { Star } from 'lucide-react';
 import type { Exercise } from '../types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -58,9 +59,9 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
               title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
               {isFavorite ? (
-                <span className="text-yellow-400">&#9733;</span>
+                <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
               ) : (
-                <span className="text-gray-500 hover:text-yellow-400">&#9734;</span>
+                <Star className="w-5 h-5 text-gray-500 hover:text-yellow-400" />
               )}
             </button>
           )}

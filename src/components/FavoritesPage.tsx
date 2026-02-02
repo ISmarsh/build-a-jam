@@ -15,6 +15,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById } from '../data/exercises';
@@ -71,7 +72,7 @@ function FavoritesPage() {
         to="/"
         className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
       >
-        &larr; Back to exercises
+        <ArrowLeft className="w-4 h-4 inline" /> Back to exercises
       </Link>
 
       <h1 className="text-3xl font-bold text-white mb-6">Favorites</h1>
@@ -86,7 +87,7 @@ function FavoritesPage() {
             to="/"
             className="text-indigo-400 hover:text-indigo-300 transition-colors"
           >
-            Browse exercises &rarr;
+            Browse exercises <ArrowRight className="w-4 h-4 inline" />
           </Link>
         </div>
       ) : (
@@ -117,15 +118,10 @@ function FavoritesPage() {
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span
-                                className="text-gray-500 text-sm transition-transform inline-block"
-                                style={{
-                                  transform: isExpanded ? 'rotate(90deg)' : undefined,
-                                }}
-                              >
-                                &#9654;
-                              </span>
-                              <span className="text-yellow-400 mr-1">&#9733;</span>
+                              <ChevronRight
+                                className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                              />
+                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                               <span className="text-white font-semibold">
                                 {template.name ?? 'Untitled'}
                               </span>
@@ -248,10 +244,10 @@ function FavoritesPage() {
                               });
                               toast('Removed from favorites');
                             }}
-                            className="text-yellow-400 hover:text-gray-400 text-lg shrink-0 transition-colors"
+                            className="text-yellow-400 hover:text-gray-400 shrink-0 transition-colors"
                             title="Remove from favorites"
                           >
-                            &#9733;
+                            <Star className="w-5 h-5 fill-current" />
                           </button>
                           <button
                             onClick={() => setDetailExercise(exercise)}
