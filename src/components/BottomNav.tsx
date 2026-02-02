@@ -33,8 +33,8 @@ function BottomNav() {
 
   const hasActiveSession =
     state.currentSession !== null && state.currentExerciseIndex !== null;
-  const sessionUrl = hasActiveSession
-    ? `/session/${state.currentSession!.id}`
+  const sessionUrl = state.currentSession && hasActiveSession
+    ? `/session/${state.currentSession.id}`
     : '/prep';
 
   return (
