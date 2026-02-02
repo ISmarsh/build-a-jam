@@ -194,6 +194,12 @@ fixed, actionable (make the change), or dismiss with explanation.
 4. Resolve all threads via batched GraphQL mutation
 5. Commit and push fixes
 
+### Merging PRs
+
+- **Always use merge commits** (`gh pr merge --merge`), not squash or rebase.
+- The user prefers preserving individual commit history in the main branch.
+- Never use `--squash` or `--rebase` unless the user explicitly requests it.
+
 ### PR wrap-up checklist
 
 Before merging or marking a PR as ready, **ask the user** before running
