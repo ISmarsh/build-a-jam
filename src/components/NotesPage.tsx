@@ -110,10 +110,10 @@ function NotesPage() {
         className="w-full bg-card border rounded-lg p-4 text-secondary-foreground placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-y"
       />
 
-      {/* Save as favorite template */}
-      <div className="mt-6 mb-2">
+      {/* Actions — save-as-favorite inline with Save Notes / Skip */}
+      <div className="mt-6">
         {template.isSaving ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-4">
             <input
               type="text"
               value={template.templateName}
@@ -133,24 +133,24 @@ function NotesPage() {
               Cancel
             </Button>
           </div>
-        ) : (
-          <button
-            onClick={() => template.start()}
-            className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
-          >
-            <Star className="w-4 h-4 fill-current" /> Save session as favorite
-          </button>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-4 mt-6">
-        <Button size="lg" className="flex-1" onClick={handleSave}>
-          Save Notes
-        </Button>
-        <Button variant="secondary" size="lg" onClick={handleSkip}>
-          Skip
-        </Button>
+        ) : null}
+        <div className="flex items-center gap-4">
+          {!template.isSaving && (
+            <button
+              onClick={() => template.start()}
+              className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-sm transition-colors shrink-0"
+              title="Save as favorite template"
+            >
+              <Star className="w-5 h-5 fill-current" />
+            </button>
+          )}
+          <Button size="lg" className="flex-1" onClick={handleSave}>
+            Save Notes
+          </Button>
+          <Button variant="secondary" size="lg" onClick={handleSkip}>
+            Skip
+          </Button>
+        </div>
       </div>
     </div>
   );
