@@ -21,7 +21,7 @@
  *    This keeps the same interface — zero consumer changes needed.
  */
 
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, X } from 'lucide-react';
 import type { Exercise } from '../types';
 import { Badge } from './ui/badge';
 import {
@@ -46,11 +46,17 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
       <DialogContent
         className="bg-card max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-dark p-0 gap-0"
       >
-        {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-2xl font-bold text-white">
-            {exercise.name}
-          </DialogTitle>
+        {/* Header — title and close share a flex row for natural alignment */}
+        <DialogHeader className="px-6 py-4 border-b border-border">
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="text-2xl font-bold text-primary">
+              {exercise.name}
+            </DialogTitle>
+            <DialogClose className="shrink-0 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background">
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close</span>
+            </DialogClose>
+          </div>
           {exercise.alternativeNames && exercise.alternativeNames.length > 0 && (
             <DialogDescription className="text-muted-foreground text-sm mt-1">
               Also known as: {exercise.alternativeNames.join(', ')}
@@ -70,7 +76,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="bg-secondary text-indigo-400 border-input text-xs"
+                  className="text-primary border-input text-xs"
                 >
                   {tag}
                 </Badge>
@@ -84,18 +90,18 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
               dangerouslySetInnerHTML={{ __html: exercise.description }}
             />
           ) : (
-            <p className="text-gray-500 italic">No description available.</p>
+            <p className="text-muted-foreground italic">No description available.</p>
           )}
         </div>
 
         {/* Footer — always horizontal: source link left, close button right */}
-        <DialogFooter className="flex flex-row items-center justify-between p-6 pt-4 border-t">
+        <DialogFooter className="flex flex-row items-center justify-between px-6 py-3 border-t border-border">
           {exercise.sourceUrl ? (
             <a
               href={exercise.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-sm transition-colors"
+              className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm transition-colors"
             >
               Source <ExternalLink className="w-3.5 h-3.5" />
             </a>

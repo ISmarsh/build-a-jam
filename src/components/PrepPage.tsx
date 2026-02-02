@@ -72,7 +72,7 @@ function PrepPage() {
 
   function handleStartSession() {
     dispatch({ type: 'START_SESSION' });
-    navigate(`/session/${state.currentSession!.id}`);
+    void navigate(`/session/${state.currentSession!.id}`);
   }
 
   // COMPUTED VALUES: source filtering → tag computation → text/tag filtering → sort
@@ -111,19 +111,20 @@ function PrepPage() {
           />
 
           <div className="flex items-center gap-2 my-4">
-            <label className="text-muted-foreground text-sm">Default duration:</label>
+            <label htmlFor="default-duration" className="text-muted-foreground text-sm">Default duration:</label>
             <input
+              id="default-duration"
               type="number"
               min={1}
               max={60}
               value={defaultDuration}
               onChange={(e) => setDefaultDuration(Math.max(1, Number(e.target.value)))}
-              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-white text-center text-sm"
+              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
             />
             <span className="text-muted-foreground text-sm">min</span>
           </div>
 
-          <h2 className="text-xl font-semibold text-white mb-3">
+          <h2 className="text-xl font-semibold text-foreground mb-3">
             Exercises ({filteredExercises.length})
           </h2>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-dark">
@@ -131,12 +132,12 @@ function PrepPage() {
               <Card key={exercise.id}>
                 <CardHeader className="py-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-indigo-500 text-base">
+                    <CardTitle className="text-primary text-base">
                       {exercise.name}
                     </CardTitle>
                     <button
                       onClick={() => handleAddExercise(exercise.id)}
-                      className="text-indigo-400 hover:text-indigo-300 text-sm shrink-0"
+                      className="text-primary hover:text-primary-hover text-sm shrink-0"
                     >
                       + Add
                     </button>
@@ -154,7 +155,7 @@ function PrepPage() {
                         <Badge
                           key={tag}
                           variant="outline"
-                          className="bg-secondary text-indigo-400 border-input text-xs"
+                          className="text-primary border-input text-xs"
                         >
                           {tag}
                         </Badge>
@@ -162,7 +163,7 @@ function PrepPage() {
                     </div>
                     <button
                       onClick={() => setDetailExercise(exercise)}
-                      className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
+                      className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
                     >
                       Details <ArrowRight className="w-3 h-3" />
                     </button>
@@ -176,7 +177,7 @@ function PrepPage() {
         {/* Right column: session queue */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">
+            <h2 className="text-xl font-semibold text-foreground">
               Session Queue
               {sessionExercises.length > 0 && (
                 <span className="text-muted-foreground text-base font-normal ml-2">
@@ -189,7 +190,7 @@ function PrepPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => template.start(state.currentSession?.name ?? '')}
-                  className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
+                  className="inline-flex items-center gap-1 text-star hover:text-star/80 text-sm transition-colors"
                   title="Save as favorite"
                 >
                   <Star className="w-4 h-4 fill-current" /> Save
@@ -205,7 +206,7 @@ function PrepPage() {
                       toast('Queue cleared');
                     },
                   })}
-                  className="text-muted-foreground hover:text-red-400 text-sm transition-colors"
+                  className="text-muted-foreground hover:text-destructive text-sm transition-colors"
                 >
                   Clear
                 </button>
@@ -221,8 +222,8 @@ function PrepPage() {
                 value={template.templateName}
                 onChange={(e) => template.setTemplateName(e.target.value)}
                 placeholder="Favorite name..."
-                className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
-                autoFocus
+                className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- conditionally rendered after user action
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') template.save();
                   if (e.key === 'Escape') template.cancel();
@@ -238,7 +239,7 @@ function PrepPage() {
           )}
 
           {sessionExercises.length === 0 ? (
-            <p className="text-gray-500 italic">
+            <p className="text-muted-foreground italic">
               No exercises yet. Add some from the library.
             </p>
           ) : (
@@ -250,8 +251,8 @@ function PrepPage() {
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <span className="text-gray-500 text-sm mr-2">{index + 1}.</span>
-                          <span className="text-white">
+                          <span className="text-muted-foreground text-sm mr-2">{index + 1}.</span>
+                          <span className="text-foreground">
                             {exercise?.name ?? se.exerciseId}
                           </span>
                         </div>
@@ -264,7 +265,8 @@ function PrepPage() {
                             onChange={(e) =>
                               handleDurationChange(index, Math.max(1, Number(e.target.value)))
                             }
-                            className="w-16 bg-secondary border border-input rounded px-2 py-1 text-white text-center text-sm"
+                            aria-label={`Duration for ${exercise?.name ?? 'exercise'} in minutes`}
+                            className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
                           />
                           <span className="text-muted-foreground text-sm">min</span>
                           <button
@@ -277,7 +279,7 @@ function PrepPage() {
                                 setConfirm(null);
                               },
                             })}
-                            className="text-red-400 hover:text-red-300 text-sm ml-2"
+                            className="text-destructive hover:text-destructive/80 text-sm ml-2"
                             aria-label={`Remove ${exercise?.name ?? 'exercise'}`}
                           >
                             Remove
@@ -295,7 +297,7 @@ function PrepPage() {
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="bg-secondary text-indigo-400 border-input text-xs"
+                              className="text-primary border-input text-xs"
                             >
                               {tag}
                             </Badge>
@@ -304,7 +306,7 @@ function PrepPage() {
                         {exercise && (
                           <button
                             onClick={() => setDetailExercise(exercise)}
-                            className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
+                            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
                           >
                             Details <ArrowRight className="w-3 h-3" />
                           </button>

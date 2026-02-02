@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- context files export hooks alongside providers */
 /**
  * StorageContext — provides a StorageProvider to the component tree
  *

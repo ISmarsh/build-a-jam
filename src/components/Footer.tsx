@@ -19,7 +19,7 @@ function Footer() {
       <div className="flex justify-center gap-4 flex-wrap">
         <Link
           to="/credits"
-          className="text-muted-foreground hover:text-indigo-400 transition-colors underline"
+          className="text-muted-foreground hover:text-primary transition-colors underline"
         >
           Credits &amp; Licenses
         </Link>
@@ -28,7 +28,7 @@ function Footer() {
           href="https://github.com/ISmarsh/build-a-jam"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-indigo-400 transition-colors underline"
+          className="text-muted-foreground hover:text-primary transition-colors underline"
         >
           GitHub
         </a>

@@ -92,11 +92,11 @@ function HistoryPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white">Session History</h1>
+        <h1 className="text-3xl font-bold text-foreground">Session History</h1>
         {sessions.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="text-muted-foreground hover:text-red-400 text-sm transition-colors"
+            className="text-muted-foreground hover:text-destructive text-sm transition-colors"
           >
             Clear All
           </button>
@@ -108,7 +108,7 @@ function HistoryPage() {
           <p className="text-muted-foreground text-lg mb-4">No sessions yet.</p>
           <Link
             to="/prep"
-            className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover transition-colors"
           >
             Build your first jam <ArrowRight className="w-4 h-4" />
           </Link>
@@ -139,9 +139,9 @@ function HistoryPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <ChevronRight
-                          className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                          className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                         />
-                        <span className="text-white font-semibold">
+                        <span className="text-foreground font-semibold">
                           {formatDate(session.completedAt)}
                         </span>
                         <span className="text-muted-foreground text-sm">
@@ -153,7 +153,7 @@ function HistoryPage() {
                         {session.exercises.length !== 1 && 's'}
                         {' · '}
                         {hasActualTime
-                          ? <>{formatDuration(actualTotalSeconds)} <span className="text-gray-500">/ {plannedMinutes} min planned</span></>
+                          ? <>{formatDuration(actualTotalSeconds)} <span className="text-muted-foreground">/ {plannedMinutes} min planned</span></>
                           : <>{plannedMinutes} min</>
                         }
                       </span>
@@ -168,7 +168,7 @@ function HistoryPage() {
                             <Badge
                               key={j}
                               variant="outline"
-                              className={`bg-secondary border-input text-xs ${ex ? 'text-indigo-400 cursor-pointer hover:bg-secondary/80' : 'text-secondary-foreground'}`}
+                              className={`border-input text-xs ${ex ? 'text-primary cursor-pointer hover:bg-secondary/80' : 'text-secondary-foreground'}`}
                               onClick={ex ? (e: React.MouseEvent) => { e.stopPropagation(); setDetailExercise(ex); } : undefined}
                             >
                               {ex?.name ?? se.exerciseId}
@@ -185,14 +185,14 @@ function HistoryPage() {
                       {session.exercises.map((se, j) => (
                         <div key={j} className="border-l-2 border-border pl-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-white text-sm">
-                              <span className="text-gray-500 mr-2">{j + 1}.</span>
+                            <span className="text-foreground text-sm">
+                              <span className="text-muted-foreground mr-2">{j + 1}.</span>
                               {(() => {
                                 const ex = getExerciseById(se.exerciseId);
                                 return ex ? (
                                   <button
                                     onClick={() => setDetailExercise(ex)}
-                                    className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                                    className="text-primary hover:text-primary-hover transition-colors"
                                   >
                                     {ex.name}
                                   </button>
@@ -201,7 +201,7 @@ function HistoryPage() {
                             </span>
                             <span className="text-muted-foreground text-xs">
                               {se.actualSeconds != null
-                                ? <>{formatDuration(se.actualSeconds)} <span className="text-gray-500">/ {se.duration} min</span></>
+                                ? <>{formatDuration(se.actualSeconds)} <span className="text-muted-foreground">/ {se.duration} min</span></>
                                 : <>{se.duration} min</>
                               }
                             </span>
@@ -215,7 +215,7 @@ function HistoryPage() {
                       {/* Session notes */}
                       {session.notes && (
                         <div className="border-t pt-3 mt-3">
-                          <p className="text-gray-500 text-xs mb-1">Session notes</p>
+                          <p className="text-muted-foreground text-xs mb-1">Session notes</p>
                           <p className="text-secondary-foreground text-sm">{session.notes}</p>
                         </div>
                       )}
@@ -229,8 +229,8 @@ function HistoryPage() {
                               value={templateName}
                               onChange={(e) => setTemplateName(e.target.value)}
                               placeholder="Favorite name..."
-                              className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
-                              autoFocus
+                              className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                              autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- conditionally rendered after user action
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleSaveAsTemplate(i);
                                 if (e.key === 'Escape') { setSavingIndex(null); setTemplateName(''); }
@@ -247,13 +247,13 @@ function HistoryPage() {
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                             <button
                               onClick={() => { setSavingIndex(i); setTemplateName(''); }}
-                              className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
+                              className="inline-flex items-center gap-1 text-star hover:text-star/80 text-xs transition-colors"
                             >
                               <Star className="w-4 h-4 fill-current" /> Save as favorite
                             </button>
                             <button
                               onClick={() => handleDeleteSession(i)}
-                              className="text-muted-foreground hover:text-red-400 text-xs transition-colors"
+                              className="text-muted-foreground hover:text-destructive text-xs transition-colors"
                             >
                               Delete session
                             </button>

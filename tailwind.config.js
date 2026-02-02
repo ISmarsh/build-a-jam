@@ -1,5 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  // Class-based dark mode: the useTheme hook toggles a "dark" class on <html>.
+  // CSS variables in index.css define per-theme colors (purple light, cobalt dark).
+  // Components use semantic classes like text-primary, bg-primary, hover:text-primary-hover.
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -15,6 +19,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -40,6 +45,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        star: "hsl(var(--star))",
       },
       borderColor: {
         DEFAULT: "hsl(var(--border))",

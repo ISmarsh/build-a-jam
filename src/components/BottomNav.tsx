@@ -12,7 +12,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Menu, X, Star, Clock, ScrollText, Github, PlusCircle, CirclePlay } from 'lucide-react';
+import { Home, Menu, X, Star, Clock, ScrollText, Github, PlusCircle, CirclePlay, Sun, Moon } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 
 const menuItems = [
@@ -21,15 +21,20 @@ const menuItems = [
   { to: '/credits', icon: ScrollText, label: 'Credits & Licenses' },
 ] as const;
 
-function BottomNav() {
+interface BottomNavProps {
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
+}
+
+function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { state } = useSession();
   const location = useLocation();
 
-  // Close menu on any navigation
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location.pathname]);
+  // Close menu on any navigation — reacting to route changes is a legitimate
+  // use of setState-in-effect (syncing UI state with an external value).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
   // Three session states:
   // 1. No session → PlusCircle → /prep
@@ -51,8 +56,9 @@ function BottomNav() {
 
   return (
     <>
-      {/* Backdrop overlay */}
+      {/* Backdrop overlay — not keyboard-interactive; users dismiss via Escape or menu items */}
       {menuOpen && (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
         <div
           className="fixed inset-0 bg-black/50 z-40 sm:hidden"
           onClick={() => setMenuOpen(false)}
@@ -69,7 +75,7 @@ function BottomNav() {
                 key={to}
                 to={to}
                 role="menuitem"
-                className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-white hover:bg-muted transition-colors"
+                className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <Icon className="w-5 h-5" />
                 <span>{label}</span>
@@ -80,11 +86,19 @@ function BottomNav() {
               target="_blank"
               rel="noopener noreferrer"
               role="menuitem"
-              className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-white hover:bg-muted transition-colors"
+              className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               <Github className="w-5 h-5" />
               <span>GitHub</span>
             </a>
+            <button
+              onClick={onToggleTheme}
+              role="menuitem"
+              className="w-full flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+            </button>
           </div>
         )}
 
@@ -101,8 +115,8 @@ function BottomNav() {
             }}
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               location.pathname === '/'
-                ? 'text-indigo-400'
-                : 'text-muted-foreground hover:text-white'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
             aria-label="Home"
           >
@@ -112,7 +126,7 @@ function BottomNav() {
           {/* Menu — spans available space */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted-foreground hover:text-white transition-colors border-x"
+            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted-foreground hover:text-foreground transition-colors border-x"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             aria-controls="bottom-nav-menu"
@@ -130,10 +144,10 @@ function BottomNav() {
             to={sessionUrl}
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               hasActiveSession
-                ? 'text-indigo-400 hover:text-indigo-300'
+                ? 'text-primary hover:text-primary-hover'
                 : location.pathname === '/prep'
-                  ? 'text-indigo-400'
-                  : 'text-muted-foreground hover:text-white'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
             }`}
             aria-label={hasActiveSession ? 'Resume session' : 'Build a session'}
           >

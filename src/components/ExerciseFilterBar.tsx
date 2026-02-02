@@ -110,7 +110,7 @@ function ExerciseFilterBar({
           {searchText && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white px-2"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground px-2"
               aria-label="Clear search"
             >
               <X className="w-5 h-5" />

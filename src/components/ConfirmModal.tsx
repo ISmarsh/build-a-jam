@@ -63,7 +63,7 @@ function ConfirmModal({
     <AlertDialog open={true} onOpenChange={(open) => { if (!open) onCancel(); }}>
       <AlertDialogContent className="bg-card max-w-sm">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-white">{title}</AlertDialogTitle>
+          <AlertDialogTitle className="text-foreground">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-muted-foreground">
             {message}
           </AlertDialogDescription>

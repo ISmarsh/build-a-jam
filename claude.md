@@ -187,17 +187,24 @@ fixed, actionable (make the change), or dismiss with explanation.
 Before merging or marking a PR as ready, **ask the user** before running
 these heavier wrap-up tasks (they touch many files and use significant context):
 
-1. **Review all markdown** — check README.md, CLAUDE.md, and
+1. **Run build and lint** — `npm run build && npm run lint` must both pass
+   with zero errors before merging.
+2. **Run accessibility audit** — `npm run audit:a11y` runs Playwright + axe-core
+   against all pages in both themes at mobile and desktop widths. Output goes to
+   `C:/temp/axe-audit.json`. Zero violations is the goal; document any accepted
+   exceptions in the PR description.
+3. **Review all markdown** — check README.md, CLAUDE.md, and
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.
-2. **Check for code duplication** — scan for duplicated logic across
+4. **Check for code duplication** — scan for duplicated logic across
    components that should be extracted into shared helpers or hooks.
-3. **Check for obsolete code** — look for unused imports, dead functions,
+5. **Check for obsolete code** — look for unused imports, dead functions,
    stale comments, or references to removed features.
 
-These tasks are expensive in context and time, so always confirm with the
+Tasks 3–5 are expensive in context and time, so always confirm with the
 user before starting them. A simple "Want me to run the wrap-up checks
-(markdown review, duplication scan, dead code check)?" is enough.
+(markdown review, duplication scan, dead code check)?" is enough. Tasks 1–2
+(build + lint, a11y audit) should always be run without asking.
 
 ## Important Context
 

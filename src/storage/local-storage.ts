@@ -14,6 +14,10 @@ import type { StorageProvider } from '../types';
 
 const PREFIX = 'build-a-jam:';
 
+// Methods are async to satisfy the StorageProvider interface (future backends
+// like Google Drive will need actual async I/O). localStorage is synchronous,
+// so these don't need await — that's intentional.
+/* eslint-disable @typescript-eslint/require-await */
 export const localStorageProvider: StorageProvider = {
   async load<T>(key: string): Promise<T | null> {
     try {

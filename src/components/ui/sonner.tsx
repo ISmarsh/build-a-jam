@@ -38,7 +38,7 @@ function Toaster(props: ToasterProps) {
             "group toast group-[.toaster]:bg-gray-800 group-[.toaster]:text-gray-100 group-[.toaster]:border-gray-700 group-[.toaster]:shadow-lg group-[.toaster]:!w-fit group-[.toaster]:inset-x-0 group-[.toaster]:mx-auto",
           description: "group-[.toast]:text-gray-400",
           actionButton:
-            "group-[.toast]:bg-indigo-600 group-[.toast]:text-white",
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
             "group-[.toast]:bg-gray-700 group-[.toast]:text-gray-300",
         },

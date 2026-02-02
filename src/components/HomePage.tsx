@@ -65,7 +65,7 @@ function HomePage() {
   };
 
   return (
-    <main className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <ExerciseFilterBar
         selectedSource={selectedSource}
         onSourceChange={handleSourceChange}
@@ -98,7 +98,7 @@ function HomePage() {
       </ExerciseFilterBar>
 
       <div>
-        <h2 className="mb-3 text-xl sm:text-2xl font-semibold text-white">
+        <h2 className="mb-3 text-xl sm:text-2xl font-semibold text-foreground">
           Exercises ({filteredExercises.length})
         </h2>
         <ExerciseList
@@ -111,7 +111,7 @@ function HomePage() {
           }}
         />
       </div>
-    </main>
+    </div>
   );
 }
 

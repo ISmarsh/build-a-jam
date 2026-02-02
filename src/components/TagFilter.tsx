@@ -40,8 +40,8 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
   const hasMore = allTags.length > featuredTags.length;
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-secondary-foreground font-medium">Filter by tags:</label>
+    <div className="flex flex-col gap-2" role="group" aria-label="Filter by tags">
+      <span className="text-secondary-foreground font-medium">Filter by tags:</span>
       <div className="flex flex-wrap gap-2">
         {displayedTags.map((tag) => {
           const isSelected = selectedTags.includes(tag);
@@ -62,7 +62,7 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
         {hasMore && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="text-indigo-400 hover:text-indigo-300 text-sm px-2 py-1 transition-colors"
+            className="text-primary hover:text-primary-hover text-sm px-2 py-1 transition-colors"
           >
             {showAll ? 'show less' : `+${allTags.length - featuredTags.length} more`}
           </button>

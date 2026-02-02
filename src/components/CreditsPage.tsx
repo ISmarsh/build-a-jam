@@ -51,7 +51,7 @@ const dataSources: Attribution[] = [
 function CreditsPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-2">
+      <h1 className="text-3xl font-bold text-foreground mb-2">
         Credits &amp; Licenses
       </h1>
       <p className="text-muted-foreground mb-8">
@@ -60,7 +60,7 @@ function CreditsPage() {
           href="https://opensource.org/licenses/MIT"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-indigo-400 hover:text-indigo-300 underline"
+          className="text-primary hover:text-primary-hover underline"
         >
           MIT License
         </a>
@@ -76,25 +76,25 @@ function CreditsPage() {
           >
             <CardHeader>
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <CardTitle className="text-indigo-500">
+                <CardTitle className="text-primary">
                   <a
                     href={source.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-indigo-400 underline"
+                    className="hover:text-primary-hover underline"
                   >
                     {source.source}
                   </a>
                 </CardTitle>
                 <Badge
                   variant="outline"
-                  className="bg-secondary text-green-400 border-green-600"
+                  className="text-green-700 dark:text-green-400 border-green-700 dark:border-green-600"
                 >
                   <a
                     href={source.licenseUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-green-300"
+                    className="hover:text-green-600 dark:hover:text-green-300"
                   >
                     {source.license}
                   </a>
@@ -114,7 +114,7 @@ function CreditsPage() {
                   <ul className="space-y-2">
                     {source.modifications.map((mod, index) => (
                       <li key={index} className="text-sm text-muted-foreground">
-                        <span className="text-gray-500">{mod.date}:</span>{' '}
+                        <span className="text-muted-foreground">{mod.date}:</span>{' '}
                         {mod.description}
                       </li>
                     ))}
@@ -126,14 +126,14 @@ function CreditsPage() {
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t text-gray-500 text-sm">
+      <div className="mt-8 pt-6 border-t text-muted-foreground text-sm">
         <p>
           For full licensing details see{' '}
           <a
             href="https://github.com/ISmarsh/build-a-jam/blob/main/LICENSE-DATA"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 underline"
+            className="text-primary hover:text-primary-hover underline"
           >
             LICENSE-DATA
           </a>{' '}

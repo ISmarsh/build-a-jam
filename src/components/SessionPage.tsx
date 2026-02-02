@@ -15,10 +15,10 @@
  *    - Before the effect re-runs (if deps changed)
  *    This prevents memory leaks from orphaned intervals.
  *
- * 3. WHY useRef FOR THE TIMER?
- *    We use useRef for the interval ID and cumulative time because
- *    changing a ref doesn't trigger a re-render. We only need re-renders
- *    when the elapsed seconds change, not when we store/clear the interval.
+ * 3. WHY useRef FOR THE INTERVAL ID?
+ *    We use useRef for the interval ID because changing a ref doesn't
+ *    trigger a re-render. We only need re-renders when the elapsed seconds
+ *    change, not when we store/clear the interval.
  *
  * 4. REDIRECT VIA <Navigate>:
  *    Instead of using useEffect + navigate() for redirects, we return a
@@ -43,8 +43,8 @@ function SessionPage() {
   const [showDescription, setShowDescription] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Track cumulative time across exercises (doesn't need re-renders)
-  const cumulativeSecondsRef = useRef(0);
+  // Track cumulative time across all exercises in the session
+  const [cumulativeSeconds, setCumulativeSeconds] = useState(0);
 
   const session = state.currentSession;
   const exerciseIndex = state.currentExerciseIndex;
@@ -55,7 +55,7 @@ function SessionPage() {
 
     intervalRef.current = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
-      cumulativeSecondsRef.current += 1;
+      setCumulativeSeconds((prev) => prev + 1);
     }, 1000);
 
     // Cleanup: clear the interval when pausing, unmounting, or re-running
@@ -84,7 +84,7 @@ function SessionPage() {
   // Total session time
   const totalSessionMinutes = session.exercises.reduce((sum, ex) => sum + ex.duration, 0);
   const totalSessionSeconds = totalSessionMinutes * 60;
-  const totalElapsed = cumulativeSecondsRef.current;
+  const totalElapsed = cumulativeSeconds;
 
   function handleNextExercise() {
     // Save actual time spent on this exercise before moving on
@@ -115,7 +115,7 @@ function SessionPage() {
       </p>
       <div className="w-full bg-secondary rounded-full h-2 mb-8">
         <div
-          className="bg-indigo-500 h-2 rounded-full transition-all duration-300"
+          className="bg-primary h-2 rounded-full transition-all duration-300"
           style={{ width: `${((idx + 1) / totalExercises) * 100}%` }}
         />
       </div>
@@ -123,7 +123,7 @@ function SessionPage() {
       {/* Current exercise */}
       <Card className="mb-8">
         <CardContent className="py-8 text-left">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-primary mb-2">
             {currentExercise?.name ?? currentSessionExercise.exerciseId}
           </h1>
           {currentExercise?.summary && (
@@ -133,7 +133,7 @@ function SessionPage() {
             <>
               <button
                 onClick={() => setShowDescription((prev) => !prev)}
-                className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-sm mb-2 transition-colors"
+                className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm mb-2 transition-colors"
               >
                 {showDescription ? (
                   <>Hide details <ChevronUp className="w-4 h-4" /></>
@@ -157,7 +157,7 @@ function SessionPage() {
             }
             placeholder="Quick notes..."
             rows={2}
-            className="w-full mt-4 bg-secondary border border-input rounded-lg p-3 text-secondary-foreground placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-y"
+            className="w-full mt-4 bg-secondary border border-input rounded-lg p-3 text-secondary-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors resize-y"
           />
         </CardContent>
       </Card>
@@ -166,7 +166,7 @@ function SessionPage() {
       <div className="mb-8">
         <p
           className={`text-6xl font-mono font-bold mb-2 ${
-            isOverTime ? 'text-red-400' : 'text-white'
+            isOverTime ? 'text-destructive' : 'text-primary'
           }`}
         >
           {formatDuration(elapsedSeconds)}
@@ -174,7 +174,7 @@ function SessionPage() {
         <p className="text-muted-foreground">
           Target: {currentSessionExercise.duration} min ({formatDuration(targetSeconds)})
         </p>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Session: {formatDuration(totalElapsed)} / {formatDuration(totalSessionSeconds)}
         </p>
       </div>
