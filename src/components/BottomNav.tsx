@@ -93,7 +93,12 @@ function BottomNav() {
           {/* Home */}
           <Link
             to="/"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={(e) => {
+              if (location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               location.pathname === '/'
                 ? 'text-indigo-400'

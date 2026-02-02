@@ -147,21 +147,19 @@ export function filterExercises(
   selectedTags: string[],
   searchText: string,
 ): Exercise[] {
+  const hasSearch = searchText.trim() !== '';
+  const searchLower = hasSearch ? searchText.toLowerCase() : '';
+
   return exerciseList.filter((exercise) => {
     const matchesTags =
       selectedTags.length === 0 ||
       selectedTags.every((tag) => exercise.tags.includes(tag));
 
     const matchesSearch =
-      searchText.trim() === '' ||
-      (() => {
-        const searchLower = searchText.toLowerCase();
-        return (
-          exercise.name.toLowerCase().includes(searchLower) ||
-          (exercise.summary?.toLowerCase().includes(searchLower) ?? false) ||
-          exercise.tags.some((tag) => tag.toLowerCase().includes(searchLower))
-        );
-      })();
+      !hasSearch ||
+      exercise.name.toLowerCase().includes(searchLower) ||
+      (exercise.summary?.toLowerCase().includes(searchLower) ?? false) ||
+      exercise.tags.some((tag) => tag.toLowerCase().includes(searchLower));
 
     return matchesTags && matchesSearch;
   });
