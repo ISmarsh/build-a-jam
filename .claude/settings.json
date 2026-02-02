@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run scrape:*)",
-      "WebFetch(domain:improvencyclopedia.org)"
+      "WebFetch(domain:improvencyclopedia.org)",
+      "Read(//c/Dev/build-a-jam/**)"
     ],
     "additionalDirectories": [
       "c:\\Dev\\build-a-jam\\src\\data",
