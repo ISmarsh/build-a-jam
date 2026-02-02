@@ -155,8 +155,28 @@ fixed, actionable (make the change), or dismiss with explanation.
 - Multiple threads can be resolved in a single batched mutation using aliases:
   `t1: resolveReviewThread(...) t2: resolveReviewThread(...)`
 
+**Fetching unresolved threads** (GraphQL — preferred over REST):
+- Always filter to **unresolved threads only** when checking PR reviews.
+  The REST endpoint (`/pulls/{pr}/comments`) returns all comments with no
+  resolved/unresolved filter. Use the GraphQL `reviewThreads` query instead:
+  ```
+  gh api graphql -f query='query {
+    repository(owner: "ISmarsh", name: "build-a-jam") {
+      pullRequest(number: PR_NUMBER) {
+        reviewThreads(first: 100) {
+          nodes {
+            id isResolved
+            comments(first: 1) { nodes { body path line } }
+          }
+        }
+      }
+    }
+  }'
+  ```
+- Filter the result for `isResolved: false` to get only unresolved threads.
+
 **Typical PR review workflow**:
-1. Fetch unresolved threads → triage comments
+1. Fetch unresolved threads (GraphQL) → triage comments
 2. Fix actionable items in code
 3. Reply to each comment (explain fix or dismissal reason)
 4. Resolve all threads via batched GraphQL mutation
