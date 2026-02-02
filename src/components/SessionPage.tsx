@@ -96,7 +96,7 @@ function SessionPage() {
     setShowDescription(false);
 
     // Scroll to top so the new exercise is visible
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Dispatch advances the index (or sets it to null on the last exercise)
     // The render-time <Navigate> guard handles routing to /notes

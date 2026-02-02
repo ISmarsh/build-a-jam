@@ -51,7 +51,7 @@ function BottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 sm:hidden z-50">
         {/* Expanding menu panel */}
         {menuOpen && (
-          <div className="bg-card border-t py-2" role="menu">
+          <div className="bg-card border-t py-2" role="menu" id="bottom-nav-menu" aria-label="Navigation menu">
             {menuItems.map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
@@ -97,6 +97,7 @@ function BottomNav() {
             className="flex-1 flex items-center justify-center gap-2 py-3 text-muted-foreground hover:text-white transition-colors border-x"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
+            aria-controls="bottom-nav-menu"
           >
             {menuOpen ? (
               <X className="w-5 h-5" />
@@ -106,13 +107,15 @@ function BottomNav() {
             <span className="text-sm font-medium">Menu</span>
           </button>
 
-          {/* Play / Resume session */}
+          {/* Build / Resume session — highlights when on /prep */}
           <Link
             to={sessionUrl}
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               hasActiveSession
                 ? 'text-indigo-400 hover:text-indigo-300'
-                : 'text-muted-foreground hover:text-white'
+                : location.pathname === '/prep'
+                  ? 'text-indigo-400'
+                  : 'text-muted-foreground hover:text-white'
             }`}
             aria-label={hasActiveSession ? 'Resume session' : 'Build a session'}
           >

@@ -89,7 +89,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
         </div>
 
         {/* Footer — always horizontal: source link left, close button right */}
-        <DialogFooter className="flex items-center justify-between p-6 pt-4 border-t">
+        <DialogFooter className="flex flex-row items-center justify-between p-6 pt-4 border-t">
           {exercise.sourceUrl ? (
             <a
               href={exercise.sourceUrl}
