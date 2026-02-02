@@ -28,6 +28,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, formatDuration } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
@@ -39,6 +40,7 @@ function SessionPage() {
   // Timer state: counts up in seconds
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Track cumulative time across exercises (doesn't need re-renders)
@@ -88,9 +90,13 @@ function SessionPage() {
     // Save actual time spent on this exercise before moving on
     dispatch({ type: 'SET_ACTUAL_DURATION', index: idx, actualSeconds: elapsedSeconds });
 
-    // Reset timer for next exercise
+    // Reset timer and collapse description for next exercise
     setElapsedSeconds(0);
     setIsPaused(false);
+    setShowDescription(false);
+
+    // Scroll to top so the new exercise is visible
+    window.scrollTo(0, 0);
 
     // Dispatch advances the index (or sets it to null on the last exercise)
     // The render-time <Navigate> guard handles routing to /notes
@@ -123,13 +129,25 @@ function SessionPage() {
           {currentExercise?.summary && (
             <p className="text-muted-foreground text-base mb-4 italic">{currentExercise.summary}</p>
           )}
-          {currentExercise?.description ? (
-            <div
-              className="text-secondary-foreground text-lg leading-relaxed prose-exercise"
-              dangerouslySetInnerHTML={{ __html: currentExercise.description }}
-            />
-          ) : (
-            <p className="text-gray-500 italic">No description available.</p>
+          {currentExercise?.description && (
+            <>
+              <button
+                onClick={() => setShowDescription((prev) => !prev)}
+                className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-sm mb-2 transition-colors"
+              >
+                {showDescription ? (
+                  <>Hide details <ChevronUp className="w-4 h-4" /></>
+                ) : (
+                  <>Show details <ChevronDown className="w-4 h-4" /></>
+                )}
+              </button>
+              {showDescription && (
+                <div
+                  className="text-secondary-foreground text-lg leading-relaxed prose-exercise"
+                  dangerouslySetInnerHTML={{ __html: currentExercise.description }}
+                />
+              )}
+            </>
           )}
           {/* Quick notes for this exercise */}
           <textarea
