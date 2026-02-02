@@ -22,6 +22,7 @@ import { getExerciseById } from '../data/exercises';
 import type { Exercise, Session } from '../types';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
+import { BREAK_EXERCISE_ID } from './SessionQueuePanel';
 import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import { Button } from './ui/button';
@@ -46,9 +47,22 @@ function FavoritesPage() {
     .map((id) => getExerciseById(id))
     .filter((ex): ex is Exercise => ex != null);
 
-  function handleStartTemplate(template: Session) {
+  function handleEditTemplate(template: Session) {
     dispatch({ type: 'LOAD_SESSION', session: template });
     void navigate('/prep');
+  }
+
+  function handleStartTemplate(template: Session) {
+    // Load the template and immediately start the session, skipping prep.
+    // LOAD_SESSION creates a new session (with a new ID) from the template,
+    // then START_SESSION sets currentExerciseIndex to 0. Both dispatches
+    // happen synchronously before navigate. SessionPage reads state from
+    // context (not from the URL param), so the ID in the URL is cosmetic.
+    dispatch({ type: 'LOAD_SESSION', session: template });
+    dispatch({ type: 'START_SESSION' });
+    // Use template.id in the URL as a readable reference — SessionPage
+    // will pick up the actual session from context state
+    void navigate(`/session/${template.id}`);
   }
 
   function handleDeleteTemplate(sessionId: string) {
@@ -132,7 +146,8 @@ function FavoritesPage() {
                           {!isExpanded && (
                             <div className="flex flex-wrap gap-1 mt-2 ml-5">
                               {template.exercises.map((se, j) => {
-                                const ex = getExerciseById(se.exerciseId);
+                                const isBreak = se.exerciseId === BREAK_EXERCISE_ID;
+                                const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                                 return (
                                   <Badge
                                     key={j}
@@ -151,7 +166,7 @@ function FavoritesPage() {
                                         : undefined
                                     }
                                   >
-                                    {ex?.name ?? se.exerciseId}
+                                    {isBreak ? 'Break' : (ex?.name ?? se.exerciseId)}
                                   </Badge>
                                 );
                               })}
@@ -163,7 +178,8 @@ function FavoritesPage() {
                         {isExpanded && (
                           <div className="mt-4 ml-5 space-y-3">
                             {template.exercises.map((se, j) => {
-                              const ex = getExerciseById(se.exerciseId);
+                              const isBreak = se.exerciseId === BREAK_EXERCISE_ID;
+                              const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                               return (
                                 <div
                                   key={j}
@@ -174,7 +190,9 @@ function FavoritesPage() {
                                       <span className="text-muted-foreground mr-2">
                                         {j + 1}.
                                       </span>
-                                      {ex ? (
+                                      {isBreak ? (
+                                        'Break'
+                                      ) : ex ? (
                                         <button
                                           onClick={() => setDetailExercise(ex)}
                                           className="text-primary hover:text-primary-hover transition-colors"
@@ -197,6 +215,9 @@ function FavoritesPage() {
                             <div className="border-t pt-3 mt-3 flex items-center gap-4">
                               <Button size="sm" onClick={() => handleStartTemplate(template)}>
                                 Start Session
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleEditTemplate(template)}>
+                                Edit in Prep
                               </Button>
                               <button
                                 onClick={() => handleDeleteTemplate(template.id)}

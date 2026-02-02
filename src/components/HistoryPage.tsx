@@ -24,6 +24,7 @@ import { useSession } from '../context/SessionContext';
 import { getExerciseById, formatDuration, formatDate, formatTime } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
+import { BREAK_EXERCISE_ID } from './SessionQueuePanel';
 import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import { Button } from './ui/button';
@@ -163,7 +164,8 @@ function HistoryPage() {
                     {!isExpanded && (
                       <div className="flex flex-wrap gap-1 mt-2 ml-5">
                         {session.exercises.map((se, j) => {
-                          const ex = getExerciseById(se.exerciseId);
+                          const isBreak = se.exerciseId === BREAK_EXERCISE_ID;
+                          const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                           return (
                             <Badge
                               key={j}
@@ -171,7 +173,7 @@ function HistoryPage() {
                               className={`border-input text-xs ${ex ? 'text-primary cursor-pointer hover:bg-secondary/80' : 'text-secondary-foreground'}`}
                               onClick={ex ? (e: React.MouseEvent) => { e.stopPropagation(); setDetailExercise(ex); } : undefined}
                             >
-                              {ex?.name ?? se.exerciseId}
+                              {isBreak ? 'Break' : (ex?.name ?? se.exerciseId)}
                             </Badge>
                           );
                         })}
@@ -188,6 +190,7 @@ function HistoryPage() {
                             <span className="text-foreground text-sm">
                               <span className="text-muted-foreground mr-2">{j + 1}.</span>
                               {(() => {
+                                if (se.exerciseId === BREAK_EXERCISE_ID) return 'Break';
                                 const ex = getExerciseById(se.exerciseId);
                                 return ex ? (
                                   <button

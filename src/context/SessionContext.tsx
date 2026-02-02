@@ -53,6 +53,10 @@ interface SessionState {
   currentSession: Session | null;
   /** Index of the exercise currently being run (null = not running) */
   currentExerciseIndex: number | null;
+  /** Timer state — persisted so it survives route changes */
+  timerElapsed: number;
+  timerCumulative: number;
+  timerPaused: boolean;
   /** Saved sessions (templates and one-offs) */
   sessions: Session[];
   /** History of completed sessions */
@@ -66,6 +70,9 @@ interface SessionState {
 const initialState: SessionState = {
   currentSession: null,
   currentExerciseIndex: null,
+  timerElapsed: 0,
+  timerCumulative: 0,
+  timerPaused: false,
   sessions: [],
   completedSessions: [],
   favoriteExerciseIds: [],
@@ -85,6 +92,7 @@ type SessionAction =
   | { type: 'SET_DURATION'; index: number; duration: number }
   | { type: 'SET_EXERCISE_NOTES'; index: number; notes: string }
   | { type: 'SET_ACTUAL_DURATION'; index: number; actualSeconds: number }
+  | { type: 'INSERT_EXERCISE'; exerciseId: string; duration: number; atIndex: number }
   | { type: 'REORDER_EXERCISES'; from: number; to: number }
   | { type: 'START_SESSION' }
   | { type: 'NEXT_EXERCISE' }
@@ -95,7 +103,11 @@ type SessionAction =
   | { type: 'CLEAR_COMPLETED_SESSIONS' }
   | { type: 'TOGGLE_FAVORITE_EXERCISE'; exerciseId: string }
   | { type: 'DELETE_SESSION_TEMPLATE'; sessionId: string }
-  | { type: 'SAVE_COMPLETED_AS_TEMPLATE'; completedSessionIndex: number; name: string };
+  | { type: 'SAVE_COMPLETED_AS_TEMPLATE'; completedSessionIndex: number; name: string }
+  | { type: 'TIMER_TICK' }
+  | { type: 'TIMER_PAUSE' }
+  | { type: 'TIMER_RESUME' }
+  | { type: 'TIMER_RESET' };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -118,15 +130,27 @@ function reorder<T>(list: T[], from: number, to: number): T[] {
 
 function sessionReducer(state: SessionState, action: SessionAction): SessionState {
   switch (action.type) {
-    case 'HYDRATE':
+    case 'HYDRATE': {
+      // Backfill slotId on any session exercises that were persisted before
+      // slotId was added (needed for drag-and-drop to work correctly)
+      const hydratedSession = action.currentSession
+        ? {
+            ...action.currentSession,
+            exercises: action.currentSession.exercises.map((ex) => ({
+              ...ex,
+              slotId: ex.slotId ?? generateId(),
+            })),
+          }
+        : null;
       return {
         ...state,
         sessions: action.sessions,
         completedSessions: action.completedSessions,
-        currentSession: action.currentSession,
+        currentSession: hydratedSession,
         favoriteExerciseIds: action.favoriteExerciseIds,
         loaded: true,
       };
+    }
 
     case 'CREATE_SESSION':
       return {
@@ -150,6 +174,12 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
           id: generateId(),
           createdAt: new Date().toISOString(),
           isTemplate: false,
+          // Ensure every exercise has a slotId for drag-and-drop stability.
+          // Templates saved before slotId was added won't have them.
+          exercises: action.session.exercises.map((ex) => ({
+            ...ex,
+            slotId: ex.slotId ?? generateId(),
+          })),
         },
         currentExerciseIndex: null,
       };
@@ -160,6 +190,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         exerciseId: action.exerciseId,
         duration: action.duration,
         order: state.currentSession.exercises.length,
+        slotId: generateId(),
       };
       return {
         ...state,
@@ -170,17 +201,77 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       };
     }
 
+    // INSERT_EXERCISE — positional insertion used during live queue editing.
+    // Unlike ADD_EXERCISE (which always appends), this inserts at a specific
+    // index and adjusts currentExerciseIndex if needed.
+    //
+    // ANGULAR vs REACT:
+    // Same pattern difference as ADD_EXERCISE. The key learning here is that
+    // the reducer handles *all* the index bookkeeping in one place — the
+    // component just says "insert at index 3" and the reducer figures out
+    // whether the active pointer needs to move.
+    case 'INSERT_EXERCISE': {
+      if (!state.currentSession) return state;
+      const newExercise: SessionExercise = {
+        exerciseId: action.exerciseId,
+        duration: action.duration,
+        order: 0, // recalculated below
+        slotId: generateId(),
+      };
+      const exercises = [...state.currentSession.exercises];
+      exercises.splice(action.atIndex, 0, newExercise);
+      const reordered = exercises.map((ex, i) => ({ ...ex, order: i }));
+
+      // If inserting at or before the current exercise, bump the index
+      let newIndex = state.currentExerciseIndex;
+      if (newIndex !== null && action.atIndex <= newIndex) {
+        newIndex = newIndex + 1;
+      }
+
+      return {
+        ...state,
+        currentSession: {
+          ...state.currentSession,
+          exercises: reordered,
+        },
+        currentExerciseIndex: newIndex,
+      };
+    }
+
     case 'REMOVE_EXERCISE': {
       if (!state.currentSession) return state;
       const filtered = state.currentSession.exercises
         .filter((_, i) => i !== action.index)
         .map((ex, i) => ({ ...ex, order: i }));
+
+      // LEARNING NOTE — INDEX MANAGEMENT IN REDUCERS:
+      // When a session is active, removing an exercise shifts indices.
+      // If we remove an exercise *before* the current one, the current
+      // pointer needs to shift down by 1 to keep pointing at the same
+      // exercise. Removing *after* the current one requires no change.
+      // Removing the *current* exercise is prevented in the UI, but we
+      // handle it defensively here anyway.
+      let newIndex = state.currentExerciseIndex;
+      if (newIndex !== null) {
+        if (action.index < newIndex) {
+          newIndex = newIndex - 1;
+        } else if (action.index === newIndex) {
+          // Defensive: current exercise removed — clamp to valid range
+          if (newIndex >= filtered.length) {
+            newIndex = filtered.length > 0 ? filtered.length - 1 : null;
+          }
+        }
+        // If queue is now empty, end the session
+        if (filtered.length === 0) newIndex = null;
+      }
+
       return {
         ...state,
         currentSession: {
           ...state.currentSession,
           exercises: filtered,
         },
+        currentExerciseIndex: newIndex,
       };
     }
 
@@ -228,12 +319,28 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
 
     case 'REORDER_EXERCISES': {
       if (!state.currentSession) return state;
+      const reorderedExercises = reorder(state.currentSession.exercises, action.from, action.to);
+
+      // Track where the currently-running exercise ended up after the move.
+      // This future-proofs for drag-and-drop reordering during a session.
+      let newIdx = state.currentExerciseIndex;
+      if (newIdx !== null) {
+        if (action.from === newIdx) {
+          newIdx = action.to;
+        } else if (action.from < newIdx && action.to >= newIdx) {
+          newIdx = newIdx - 1;
+        } else if (action.from > newIdx && action.to <= newIdx) {
+          newIdx = newIdx + 1;
+        }
+      }
+
       return {
         ...state,
         currentSession: {
           ...state.currentSession,
-          exercises: reorder(state.currentSession.exercises, action.from, action.to),
+          exercises: reorderedExercises,
         },
+        currentExerciseIndex: newIdx,
       };
     }
 
@@ -244,6 +351,9 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       return {
         ...state,
         currentExerciseIndex: 0,
+        timerElapsed: 0,
+        timerCumulative: 0,
+        timerPaused: false,
       };
 
     case 'NEXT_EXERCISE': {
@@ -253,7 +363,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         // Past the last exercise — session is done
         return { ...state, currentExerciseIndex: null };
       }
-      return { ...state, currentExerciseIndex: next };
+      return { ...state, currentExerciseIndex: next, timerElapsed: 0, timerPaused: false };
     }
 
     case 'COMPLETE_SESSION': {
@@ -340,6 +450,34 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         sessions: [...state.sessions, template],
       };
     }
+
+    // TIMER ACTIONS — these keep timer state in the reducer so it survives
+    // route changes. Without this, navigating away from SessionPage and back
+    // would reset the timer to 0 (because local useState resets on unmount).
+    //
+    // ANGULAR vs REACT:
+    // Angular: you'd store timer state in the service and it'd persist
+    // across route changes because services are singletons.
+    // React: components unmount on route change, losing local state.
+    // Moving timer state to context (which wraps the router) keeps it alive.
+    case 'TIMER_TICK':
+      if (state.timerPaused) return state;
+      return {
+        ...state,
+        // Defensive ?? 0 guards against HMR injecting new fields into
+        // already-running state where timerElapsed might be undefined
+        timerElapsed: (state.timerElapsed ?? 0) + 1,
+        timerCumulative: (state.timerCumulative ?? 0) + 1,
+      };
+
+    case 'TIMER_PAUSE':
+      return { ...state, timerPaused: true };
+
+    case 'TIMER_RESUME':
+      return { ...state, timerPaused: false };
+
+    case 'TIMER_RESET':
+      return { ...state, timerElapsed: 0 };
 
     default:
       return state;

@@ -24,45 +24,73 @@
  *    Instead of using useEffect + navigate() for redirects, we return a
  *    <Navigate> component during render. This avoids race conditions where
  *    a useEffect redirect fires after a programmatic navigate() call.
+ *
+ * 5. TIMER STATE IN CONTEXT:
+ *    Timer values (elapsed, cumulative, paused) live in SessionContext
+ *    instead of local useState. This is because navigating away from
+ *    SessionPage unmounts the component and loses local state. Context
+ *    persists across route changes since SessionProvider wraps the router.
+ *    Angular services are singletons that persist similarly — Context
+ *    gives us the same guarantee in React.
+ *
+ * 6. LIVE QUEUE EDITING:
+ *    The SessionQueuePanel and ExercisePickerDialog enable mid-session
+ *    queue modifications. The key pattern: the reducer handles all index
+ *    bookkeeping (INSERT_EXERCISE adjusts currentExerciseIndex, etc.)
+ *    so this component just dispatches actions and lets the reducer
+ *    figure out the new state. This is the same single-source-of-truth
+ *    pattern as Angular's NgRx selectors + effects.
  */
 
 import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Coffee } from 'lucide-react';
+import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, formatDuration } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
+import SessionQueuePanel, { BREAK_EXERCISE_ID } from './SessionQueuePanel';
+import ExercisePickerDialog from './ExercisePickerDialog';
+
+/** Default duration for breaks in minutes */
+const DEFAULT_BREAK_DURATION = 5;
+
+/** Default duration for exercises added mid-session in minutes */
+const DEFAULT_ADD_DURATION = 10;
 
 function SessionPage() {
   const { state, dispatch } = useSession();
 
-  // Timer state: counts up in seconds
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  // UI-only state (OK to lose on unmount — these reset naturally)
   const [showDescription, setShowDescription] = useState(false);
+  const [showExercisePicker, setShowExercisePicker] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Track cumulative time across all exercises in the session
-  const [cumulativeSeconds, setCumulativeSeconds] = useState(0);
+  // Timer state lives in context so it survives navigation
+  const elapsedSeconds = state.timerElapsed;
+  const cumulativeSeconds = state.timerCumulative;
+  const isPaused = state.timerPaused;
 
   const session = state.currentSession;
   const exerciseIndex = state.currentExerciseIndex;
 
-  // Timer effect — ticks every second when not paused
+  // Timer effect — dispatches TIMER_TICK every second when not paused.
+  // The interval runs as long as this component is mounted and unpaused.
+  // If the user navigates away, the interval stops (cleanup runs), but
+  // the accumulated time is preserved in context state.
   useEffect(() => {
     if (isPaused) return;
 
     intervalRef.current = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-      setCumulativeSeconds((prev) => prev + 1);
+      dispatch({ type: 'TIMER_TICK' });
     }, 1000);
 
     // Cleanup: clear the interval when pausing, unmounting, or re-running
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPaused]);
+  }, [isPaused, dispatch]);
 
   // Redirect guards via render — avoids useEffect race conditions
   if (!session) {
@@ -75,43 +103,83 @@ function SessionPage() {
   // Re-bind after null guard so TypeScript narrows the type to `number`
   const idx = exerciseIndex;
   const currentSessionExercise = session.exercises[idx];
-  const currentExercise = getExerciseById(currentSessionExercise.exerciseId);
+  const isBreak = currentSessionExercise.exerciseId === BREAK_EXERCISE_ID;
+  const currentExercise = isBreak ? undefined : getExerciseById(currentSessionExercise.exerciseId);
 
   const totalExercises = session.exercises.length;
+  // For the progress label, count only exercises (not breaks)
+  const totalNonBreaks = session.exercises.filter(e => e.exerciseId !== BREAK_EXERCISE_ID).length;
+  const currentExerciseNumber = session.exercises
+    .slice(0, idx + 1)
+    .filter(e => e.exerciseId !== BREAK_EXERCISE_ID).length;
   const targetSeconds = currentSessionExercise.duration * 60;
   const isOverTime = elapsedSeconds >= targetSeconds;
 
   // Total session time
   const totalSessionMinutes = session.exercises.reduce((sum, ex) => sum + ex.duration, 0);
   const totalSessionSeconds = totalSessionMinutes * 60;
-  const totalElapsed = cumulativeSeconds;
 
   function handleNextExercise() {
     // Save actual time spent on this exercise before moving on
     dispatch({ type: 'SET_ACTUAL_DURATION', index: idx, actualSeconds: elapsedSeconds });
 
-    // Reset timer and collapse description for next exercise
-    setElapsedSeconds(0);
-    setIsPaused(false);
+    // Collapse description for next exercise
     setShowDescription(false);
 
     // Scroll to top so the new exercise is visible
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Dispatch advances the index (or sets it to null on the last exercise)
-    // The render-time <Navigate> guard handles routing to /notes
+    // Dispatch advances the index (or sets it to null on the last exercise).
+    // NEXT_EXERCISE also resets timerElapsed and unpauses in the reducer.
+    // The render-time <Navigate> guard handles routing to /notes.
     dispatch({ type: 'NEXT_EXERCISE' });
   }
 
   function handleTogglePause() {
-    setIsPaused((prev) => !prev);
+    dispatch({ type: isPaused ? 'TIMER_RESUME' : 'TIMER_PAUSE' });
+  }
+
+  // --- Live queue editing handlers ---
+
+  function handleRemoveUpcoming(index: number) {
+    dispatch({ type: 'REMOVE_EXERCISE', index });
+    toast('Removed from queue');
+  }
+
+  function handleDurationChange(index: number, duration: number) {
+    dispatch({ type: 'SET_DURATION', index, duration });
+  }
+
+  function handleAddExercise(exerciseId: string) {
+    // Insert right after the current exercise
+    const insertAt = idx + 1;
+    dispatch({ type: 'INSERT_EXERCISE', exerciseId, duration: DEFAULT_ADD_DURATION, atIndex: insertAt });
+    const exercise = getExerciseById(exerciseId);
+    toast(`Added "${exercise?.name ?? exerciseId}" to queue`);
+  }
+
+  function handleAddBreak() {
+    const insertAt = idx + 1;
+    dispatch({ type: 'INSERT_EXERCISE', exerciseId: BREAK_EXERCISE_ID, duration: DEFAULT_BREAK_DURATION, atIndex: insertAt });
+    toast('Break added to queue');
+  }
+
+  function handleReorder(from: number, to: number) {
+    dispatch({ type: 'REORDER_EXERCISES', from, to });
+  }
+
+  function handleEditNotes(index: number, notes: string) {
+    dispatch({ type: 'SET_EXERCISE_NOTES', index, notes });
   }
 
   return (
     <div className="max-w-2xl mx-auto text-center">
-      {/* Progress indicator */}
+      {/* Progress indicator — breaks don't count in exercise numbering */}
       <p className="text-muted-foreground mb-2">
-        Exercise {idx + 1} of {totalExercises}
+        {isBreak
+          ? `Break · ${totalNonBreaks} exercise${totalNonBreaks !== 1 ? 's' : ''} total`
+          : `Exercise ${currentExerciseNumber} of ${totalNonBreaks}`
+        }
       </p>
       <div className="w-full bg-secondary rounded-full h-2 mb-8">
         <div
@@ -120,33 +188,49 @@ function SessionPage() {
         />
       </div>
 
-      {/* Current exercise */}
+      {/* Current exercise (or break) */}
       <Card className="mb-8">
         <CardContent className="py-8 text-left">
-          <h1 className="text-3xl font-bold text-primary mb-2">
-            {currentExercise?.name ?? currentSessionExercise.exerciseId}
-          </h1>
-          {currentExercise?.summary && (
-            <p className="text-muted-foreground text-base mb-4 italic">{currentExercise.summary}</p>
-          )}
-          {currentExercise?.description && (
+          {isBreak ? (
+            /* Break card — simpler layout, no description */
             <>
-              <button
-                onClick={() => setShowDescription((prev) => !prev)}
-                aria-expanded={showDescription}
-                className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm mb-2 transition-colors"
-              >
-                {showDescription ? (
-                  <>Hide details <ChevronUp className="w-4 h-4" /></>
-                ) : (
-                  <>Show details <ChevronDown className="w-4 h-4" /></>
-                )}
-              </button>
-              {showDescription && (
-                <div
-                  className="text-secondary-foreground text-lg leading-relaxed prose-exercise"
-                  dangerouslySetInnerHTML={{ __html: currentExercise.description }}
-                />
+              <div className="flex items-center gap-3 mb-2">
+                <Coffee className="w-8 h-8 text-primary" />
+                <h1 className="text-3xl font-bold text-primary">Break</h1>
+              </div>
+              <p className="text-muted-foreground text-base italic">
+                Take a breather. Stretch, hydrate, reset.
+              </p>
+            </>
+          ) : (
+            /* Regular exercise card */
+            <>
+              <h1 className="text-3xl font-bold text-primary mb-2">
+                {currentExercise?.name ?? currentSessionExercise.exerciseId}
+              </h1>
+              {currentExercise?.summary && (
+                <p className="text-muted-foreground text-base mb-4 italic">{currentExercise.summary}</p>
+              )}
+              {currentExercise?.description && (
+                <>
+                  <button
+                    onClick={() => setShowDescription((prev) => !prev)}
+                    aria-expanded={showDescription}
+                    className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm mb-2 transition-colors"
+                  >
+                    {showDescription ? (
+                      <>Hide details <ChevronUp className="w-4 h-4" /></>
+                    ) : (
+                      <>Show details <ChevronDown className="w-4 h-4" /></>
+                    )}
+                  </button>
+                  {showDescription && (
+                    <div
+                      className="text-secondary-foreground text-lg leading-relaxed prose-exercise"
+                      dangerouslySetInnerHTML={{ __html: currentExercise.description }}
+                    />
+                  )}
+                </>
               )}
             </>
           )}
@@ -176,7 +260,7 @@ function SessionPage() {
           Target: {currentSessionExercise.duration} min ({formatDuration(targetSeconds)})
         </p>
         <p className="text-muted-foreground text-sm mt-1">
-          Session: {formatDuration(totalElapsed)} / {formatDuration(totalSessionSeconds)}
+          Session: {formatDuration(cumulativeSeconds)} / {formatDuration(totalSessionSeconds)}
         </p>
       </div>
 
@@ -189,6 +273,26 @@ function SessionPage() {
           {idx + 1 >= totalExercises ? 'Wrap Up' : 'Next Exercise'}
         </Button>
       </div>
+
+      {/* Live queue editing panel */}
+      <SessionQueuePanel
+        exercises={session.exercises}
+        currentIndex={idx}
+        onRemove={handleRemoveUpcoming}
+        onDurationChange={handleDurationChange}
+        onReorder={handleReorder}
+        onAddExercise={() => setShowExercisePicker(true)}
+        onAddBreak={handleAddBreak}
+        onEditNotes={handleEditNotes}
+      />
+
+      {/* Exercise picker dialog */}
+      <ExercisePickerDialog
+        open={showExercisePicker}
+        onClose={() => setShowExercisePicker(false)}
+        onAdd={handleAddExercise}
+        existingExerciseIds={session.exercises.map(e => e.exerciseId)}
+      />
     </div>
   );
 }
