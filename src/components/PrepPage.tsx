@@ -29,6 +29,7 @@ import ExerciseDetailModal from './ExerciseDetailModal';
 import ConfirmModal from './ConfirmModal';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
 function PrepPage() {
   const { state, dispatch } = useSession();
@@ -265,19 +266,12 @@ function PrepPage() {
                   if (e.key === 'Escape') template.cancel();
                 }}
               />
-              <button
-                onClick={template.save}
-                disabled={!template.templateName.trim()}
-                className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm px-3 py-1 rounded transition-colors"
-              >
+              <Button size="sm" onClick={template.save} disabled={!template.templateName.trim()}>
                 Save
-              </button>
-              <button
-                onClick={template.cancel}
-                className="text-gray-400 hover:text-white text-sm transition-colors"
-              >
+              </Button>
+              <Button variant="ghost" size="sm" onClick={template.cancel}>
                 Cancel
-              </button>
+              </Button>
             </div>
           )}
 
@@ -362,12 +356,9 @@ function PrepPage() {
           )}
 
           {sessionExercises.length > 0 && (
-            <button
-              onClick={handleStartSession}
-              className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-            >
+            <Button size="lg" className="mt-6 w-full" onClick={handleStartSession}>
               Start Session ({totalMinutes} min)
-            </button>
+            </Button>
           )}
         </div>
       </div>

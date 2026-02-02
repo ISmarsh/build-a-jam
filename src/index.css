@@ -13,6 +13,37 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    /* shadcn/ui theme tokens — dark theme matching existing color scheme */
+    --background: 0 0% 10%;              /* #1a1a1a body bg */
+    --foreground: 0 0% 100%;             /* white */
+
+    --card: 217 33% 17%;                 /* gray-800 */
+    --card-foreground: 0 0% 100%;        /* white */
+
+    --popover: 217 33% 17%;              /* gray-800 */
+    --popover-foreground: 0 0% 100%;     /* white */
+
+    --primary: 239 84% 67%;              /* indigo-500 */
+    --primary-foreground: 0 0% 100%;     /* white */
+
+    --secondary: 217 19% 27%;            /* gray-700 */
+    --secondary-foreground: 214 14% 84%; /* gray-300 */
+
+    --muted: 217 33% 17%;               /* gray-800 */
+    --muted-foreground: 218 11% 65%;     /* gray-400 */
+
+    --accent: 217 19% 27%;              /* gray-700 */
+    --accent-foreground: 0 0% 100%;      /* white */
+
+    --destructive: 0 72% 51%;            /* red-600 */
+    --destructive-foreground: 0 0% 100%; /* white */
+
+    --border: 217 19% 27%;              /* gray-700 */
+    --input: 215 14% 34%;               /* gray-600 */
+    --ring: 239 84% 67%;                /* indigo-500 */
+
+    --radius: 0.5rem;
   }
 
   body {

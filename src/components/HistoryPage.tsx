@@ -26,6 +26,7 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
+import { Button } from './ui/button';
 import type { Exercise } from '../types';
 
 function HistoryPage() {
@@ -242,19 +243,12 @@ function HistoryPage() {
                                 if (e.key === 'Escape') { setSavingIndex(null); setTemplateName(''); }
                               }}
                             />
-                            <button
-                              onClick={() => handleSaveAsTemplate(i)}
-                              disabled={!templateName.trim()}
-                              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs px-3 py-1 rounded transition-colors"
-                            >
+                            <Button size="sm" onClick={() => handleSaveAsTemplate(i)} disabled={!templateName.trim()}>
                               Save
-                            </button>
-                            <button
-                              onClick={() => { setSavingIndex(null); setTemplateName(''); }}
-                              className="text-gray-400 hover:text-white text-xs transition-colors"
-                            >
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => { setSavingIndex(null); setTemplateName(''); }}>
                               Cancel
-                            </button>
+                            </Button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-4">

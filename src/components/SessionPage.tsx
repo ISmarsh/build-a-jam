@@ -31,6 +31,7 @@ import { Navigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, formatDuration } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
 
 function SessionPage() {
   const { state, dispatch } = useSession();
@@ -162,18 +163,12 @@ function SessionPage() {
 
       {/* Controls */}
       <div className="flex justify-center gap-4">
-        <button
-          onClick={handleTogglePause}
-          className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
+        <Button variant="secondary" size="lg" onClick={handleTogglePause}>
           {isPaused ? 'Resume' : 'Pause'}
-        </button>
-        <button
-          onClick={handleNextExercise}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
+        </Button>
+        <Button size="lg" onClick={handleNextExercise}>
           {idx + 1 >= totalExercises ? 'Finish Session' : 'Next Exercise'}
-        </button>
+        </Button>
       </div>
     </div>
   );

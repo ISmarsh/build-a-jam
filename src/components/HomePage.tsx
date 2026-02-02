@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import ExerciseList from './ExerciseList';
 import TagFilter from './TagFilter';
+import { Button } from './ui/button';
 import { filterBySource, getTagsForExercises, filterExercises, sortByFavorites, sourceCounts } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 
@@ -85,30 +86,23 @@ function HomePage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/prep"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
-          >
-            <span className="sm:hidden">Build!</span>
-            <span className="hidden sm:inline">Build a jam!</span>
-          </Link>
+          <Button asChild>
+            <Link to="/prep">
+              <span className="sm:hidden">Build!</span>
+              <span className="hidden sm:inline">Build a jam!</span>
+            </Link>
+          </Button>
           {/* Favorites & History — hidden on mobile, available via BottomNav menu */}
-          <Link
-            to="/favorites"
-            className="hidden sm:flex bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
-            aria-label="Favorites"
-            title="Favorites"
-          >
-            <Star className="w-5 h-5" />
-          </Link>
-          <Link
-            to="/history"
-            className="hidden sm:flex bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white p-2 rounded-lg transition-colors"
-            aria-label="Session history"
-            title="Session history"
-          >
-            <Clock className="w-5 h-5" />
-          </Link>
+          <Button variant="secondary" size="icon" className="hidden sm:flex" asChild>
+            <Link to="/favorites" aria-label="Favorites" title="Favorites">
+              <Star className="w-5 h-5" />
+            </Link>
+          </Button>
+          <Button variant="secondary" size="icon" className="hidden sm:flex" asChild>
+            <Link to="/history" aria-label="Session history" title="Session history">
+              <Clock className="w-5 h-5" />
+            </Link>
+          </Button>
         </div>
       </div>
 

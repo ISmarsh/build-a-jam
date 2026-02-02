@@ -24,6 +24,7 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
+import { Button } from './ui/button';
 
 function FavoritesPage() {
   const { state, dispatch } = useSession();
@@ -201,12 +202,9 @@ function FavoritesPage() {
 
                             {/* Actions */}
                             <div className="border-t border-gray-700 pt-3 mt-3 flex items-center gap-4">
-                              <button
-                                onClick={() => handleStartTemplate(template)}
-                                className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-                              >
+                              <Button size="sm" onClick={() => handleStartTemplate(template)}>
                                 Start Session
-                              </button>
+                              </Button>
                               <button
                                 onClick={() => handleDeleteTemplate(template.id)}
                                 className="text-gray-400 hover:text-red-400 text-xs transition-colors"

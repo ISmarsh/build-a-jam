@@ -33,6 +33,7 @@ import {
   DialogDescription,
   DialogClose,
 } from './ui/dialog';
+import { Button } from './ui/button';
 
 interface ExerciseDetailModalProps {
   exercise: Exercise;
@@ -102,9 +103,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
             <span />
           )}
           <DialogClose asChild>
-            <button className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-              Close
-            </button>
+            <Button variant="secondary">Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

@@ -27,6 +27,7 @@ import { useSession } from '../context/SessionContext';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
 import { getExerciseById, formatDuration } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
 
 function NotesPage() {
   const { state, dispatch } = useSession();
@@ -125,19 +126,12 @@ function NotesPage() {
                 if (e.key === 'Escape') template.cancel();
               }}
             />
-            <button
-              onClick={template.save}
-              disabled={!template.templateName.trim()}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm px-4 py-2 rounded transition-colors"
-            >
+            <Button size="sm" onClick={template.save} disabled={!template.templateName.trim()}>
               Save
-            </button>
-            <button
-              onClick={template.cancel}
-              className="text-gray-400 hover:text-white text-sm transition-colors"
-            >
+            </Button>
+            <Button variant="ghost" size="sm" onClick={template.cancel}>
               Cancel
-            </button>
+            </Button>
           </div>
         ) : (
           <button
@@ -151,18 +145,12 @@ function NotesPage() {
 
       {/* Actions */}
       <div className="flex gap-4 mt-6">
-        <button
-          onClick={handleSave}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
+        <Button size="lg" className="flex-1" onClick={handleSave}>
           Save Notes
-        </button>
-        <button
-          onClick={handleSkip}
-          className="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
+        </Button>
+        <Button variant="secondary" size="lg" onClick={handleSkip}>
           Skip
-        </button>
+        </Button>
       </div>
     </div>
   );
