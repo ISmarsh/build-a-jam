@@ -122,13 +122,14 @@ function NotesPage() {
 
       {/* Save as favorite toggle */}
       <button
+        type="button"
         onClick={handleToggleTemplate}
-        className="flex items-center gap-2 mt-4 cursor-pointer select-none text-sm transition-colors"
+        className="group flex items-center gap-2 mt-4 cursor-pointer select-none text-sm transition-colors"
       >
         <Star
-          className={`w-4 h-4 ${wantTemplate ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
+          className={`w-4 h-4 ${wantTemplate ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground group-hover:text-yellow-400'}`}
         />
-        <span className={wantTemplate ? 'text-yellow-400' : 'text-muted-foreground'}>
+        <span className={wantTemplate ? 'text-yellow-400' : 'text-muted-foreground group-hover:text-yellow-400'}>
           Save as favorite
         </span>
       </button>
