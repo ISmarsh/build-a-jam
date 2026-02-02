@@ -133,6 +133,7 @@ function SessionPage() {
             <>
               <button
                 onClick={() => setShowDescription((prev) => !prev)}
+                aria-expanded={showDescription}
                 className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm mb-2 transition-colors"
               >
                 {showDescription ? (

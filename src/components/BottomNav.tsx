@@ -10,7 +10,7 @@
  * Hidden on sm+ breakpoints where these links live in the top bar and footer.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Menu, X, Star, Clock, ScrollText, Github, PlusCircle, CirclePlay, Sun, Moon } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
@@ -35,6 +35,18 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
   // use of setState-in-effect (syncing UI state with an external value).
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+
+  // Close menu on Escape key — standard keyboard accessibility pattern
+  const handleEscape = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') setMenuOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (menuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [menuOpen, handleEscape]);
 
   // Three session states:
   // 1. No session → PlusCircle → /prep
