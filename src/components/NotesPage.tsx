@@ -33,6 +33,7 @@ function NotesPage() {
   const { state, dispatch } = useSession();
   const navigate = useNavigate();
   const [notes, setNotes] = useState('');
+  const [wantTemplate, setWantTemplate] = useState(false);
   const template = useTemplateSaver();
 
   const session = state.currentSession;
@@ -42,13 +43,22 @@ function NotesPage() {
     return <Navigate to="/" replace />;
   }
 
-  function handleSave() {
-    dispatch({ type: 'COMPLETE_SESSION', notes });
-    navigate('/');
+  function handleToggleTemplate() {
+    if (wantTemplate) {
+      setWantTemplate(false);
+      template.cancel();
+    } else {
+      setWantTemplate(true);
+      template.start(session.name ?? '');
+    }
   }
 
-  function handleSkip() {
-    dispatch({ type: 'COMPLETE_SESSION', notes: '' });
+  function handleComplete() {
+    // Save favorite first if requested
+    if (wantTemplate && template.templateName.trim()) {
+      template.save();
+    }
+    dispatch({ type: 'COMPLETE_SESSION', notes });
     navigate('/');
   }
 
@@ -110,47 +120,39 @@ function NotesPage() {
         className="w-full bg-card border rounded-lg p-4 text-secondary-foreground placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-y"
       />
 
-      {/* Actions — save-as-favorite inline with Save Notes / Skip */}
+      {/* Save as favorite toggle */}
+      <button
+        onClick={handleToggleTemplate}
+        className="flex items-center gap-2 mt-4 cursor-pointer select-none text-sm transition-colors"
+      >
+        <Star
+          className={`w-4 h-4 ${wantTemplate ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
+        />
+        <span className={wantTemplate ? 'text-yellow-400' : 'text-muted-foreground'}>
+          Save as favorite
+        </span>
+      </button>
+      {wantTemplate && (
+        <input
+          type="text"
+          value={template.templateName}
+          onChange={(e) => template.setTemplateName(e.target.value)}
+          placeholder="Favorite name..."
+          className="mt-2 w-full bg-secondary border border-input rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+          autoFocus
+        />
+      )}
+
+      {/* Actions */}
       <div className="mt-6">
-        {template.isSaving ? (
-          <div className="flex items-center gap-2 mb-4">
-            <input
-              type="text"
-              value={template.templateName}
-              onChange={(e) => template.setTemplateName(e.target.value)}
-              placeholder="Template name..."
-              className="flex-1 bg-secondary border border-input rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') template.save();
-                if (e.key === 'Escape') template.cancel();
-              }}
-            />
-            <Button size="sm" onClick={template.save} disabled={!template.templateName.trim()}>
-              Save
-            </Button>
-            <Button variant="ghost" size="sm" onClick={template.cancel}>
-              Cancel
-            </Button>
-          </div>
-        ) : null}
-        <div className="flex items-center gap-4">
-          {!template.isSaving && (
-            <button
-              onClick={() => template.start()}
-              className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-sm transition-colors shrink-0"
-              title="Save as favorite template"
-            >
-              <Star className="w-5 h-5 fill-current" />
-            </button>
-          )}
-          <Button size="lg" className="flex-1" onClick={handleSave}>
-            Save Notes
-          </Button>
-          <Button variant="secondary" size="lg" onClick={handleSkip}>
-            Skip
-          </Button>
-        </div>
+        <Button
+          size="lg"
+          className="w-full"
+          onClick={handleComplete}
+          disabled={wantTemplate && !template.templateName.trim()}
+        >
+          {wantTemplate ? 'Complete Session & Save Favorite' : 'Complete Session'}
+        </Button>
       </div>
     </div>
   );

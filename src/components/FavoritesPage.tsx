@@ -53,13 +53,13 @@ function FavoritesPage() {
 
   function handleDeleteTemplate(sessionId: string) {
     setConfirm({
-      title: 'Delete template?',
-      message: 'This will permanently remove this saved template.',
+      title: 'Delete favorite?',
+      message: 'This will permanently remove this saved favorite.',
       confirmLabel: 'Delete',
       onConfirm: () => {
         dispatch({ type: 'DELETE_SESSION_TEMPLATE', sessionId });
         setConfirm(null);
-        toast('Template deleted');
+        toast('Favorite deleted');
         if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
       },
     });
@@ -75,7 +75,7 @@ function FavoritesPage() {
         <div className="text-center py-12">
           <p className="text-muted-foreground text-lg mb-2">No favorites yet.</p>
           <p className="text-gray-500 mb-4">
-            Star exercises from the home page, or save session templates from the prep or history pages.
+            Star exercises from the home page, or save sessions as favorites from the prep or history pages.
           </p>
           <Link
             to="/"

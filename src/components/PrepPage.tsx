@@ -34,7 +34,7 @@ import { Button } from './ui/button';
 function PrepPage() {
   const { state, dispatch } = useSession();
   const navigate = useNavigate();
-  const [defaultDuration, setDefaultDuration] = useState(5);
+  const [defaultDuration, setDefaultDuration] = useState(10);
   const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -190,7 +190,7 @@ function PrepPage() {
                 <button
                   onClick={() => template.start(state.currentSession?.name ?? '')}
                   className="inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
-                  title="Save as favorite template"
+                  title="Save as favorite"
                 >
                   <Star className="w-4 h-4 fill-current" /> Save
                 </button>
@@ -220,7 +220,7 @@ function PrepPage() {
                 type="text"
                 value={template.templateName}
                 onChange={(e) => template.setTemplateName(e.target.value)}
-                placeholder="Template name..."
+                placeholder="Favorite name..."
                 className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
                 autoFocus
                 onKeyDown={(e) => {

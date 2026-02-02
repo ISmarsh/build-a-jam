@@ -31,11 +31,23 @@ function BottomNav() {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  const hasActiveSession =
+  // Three session states:
+  // 1. No session → PlusCircle → /prep
+  // 2. Mid-session (exerciseIndex set) → CirclePlay → /session/:id
+  // 3. Exercises done, notes phase (exerciseIndex null but exercises have actualSeconds) → CirclePlay → /notes/:id
+  const hasRunningSession =
     state.currentSession !== null && state.currentExerciseIndex !== null;
-  const sessionUrl = state.currentSession && hasActiveSession
-    ? `/session/${state.currentSession.id}`
-    : '/prep';
+  const hasFinishedExercises =
+    state.currentSession !== null &&
+    state.currentExerciseIndex === null &&
+    state.currentSession.exercises.some((ex) => ex.actualSeconds != null);
+  const hasActiveSession = hasRunningSession || hasFinishedExercises;
+
+  const sessionUrl = hasRunningSession
+    ? `/session/${state.currentSession!.id}`
+    : hasFinishedExercises
+      ? `/notes/${state.currentSession!.id}`
+      : '/prep';
 
   return (
     <>
@@ -81,6 +93,7 @@ function BottomNav() {
           {/* Home */}
           <Link
             to="/"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className={`flex items-center justify-center px-4 py-3 transition-colors ${
               location.pathname === '/'
                 ? 'text-indigo-400'

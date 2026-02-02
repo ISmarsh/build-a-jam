@@ -228,7 +228,7 @@ function HistoryPage() {
                               type="text"
                               value={templateName}
                               onChange={(e) => setTemplateName(e.target.value)}
-                              placeholder="Template name..."
+                              placeholder="Favorite name..."
                               className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
                               autoFocus
                               onKeyDown={(e) => {

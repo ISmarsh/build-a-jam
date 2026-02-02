@@ -185,7 +185,7 @@ function SessionPage() {
           {isPaused ? 'Resume' : 'Pause'}
         </Button>
         <Button size="lg" onClick={handleNextExercise}>
-          {idx + 1 >= totalExercises ? 'Finish Session' : 'Next Exercise'}
+          {idx + 1 >= totalExercises ? 'Wrap Up' : 'Next Exercise'}
         </Button>
       </div>
     </div>
