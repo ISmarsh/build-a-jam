@@ -18,13 +18,15 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { getExerciseById, formatDuration } from '../data/exercises';
+import { getExerciseById, formatDuration, formatDate, formatTime } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
+import { Button } from './ui/button';
 import type { Exercise } from '../types';
 
 function HistoryPage() {
@@ -45,23 +47,6 @@ function HistoryPage() {
 
   // Show newest first
   const sessions = [...state.completedSessions].reverse();
-
-  function formatDate(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-  }
-
-  function formatTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  }
 
   function handleDeleteSession(reversedIndex: number) {
     // Convert reversed index back to the original completedSessions index
@@ -106,19 +91,12 @@ function HistoryPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        &larr; Back to exercises
-      </Link>
-
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white">Session History</h1>
+        <h1 className="text-3xl font-bold text-foreground">Session History</h1>
         {sessions.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="text-gray-400 hover:text-red-400 text-sm transition-colors"
+            className="text-muted-foreground hover:text-destructive text-sm transition-colors"
           >
             Clear All
           </button>
@@ -127,12 +105,12 @@ function HistoryPage() {
 
       {sessions.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-lg mb-4">No sessions yet.</p>
+          <p className="text-muted-foreground text-lg mb-4">No sessions yet.</p>
           <Link
             to="/prep"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover transition-colors"
           >
-            Build your first jam &rarr;
+            Build your first jam <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       ) : (
@@ -151,7 +129,7 @@ function HistoryPage() {
             const isExpanded = expandedIndex === i;
 
             return (
-              <Card key={i} className="bg-gray-800 border-gray-700">
+              <Card key={i}>
                 <CardContent className="py-4">
                   {/* Header — clickable to expand/collapse */}
                   <button
@@ -160,22 +138,22 @@ function HistoryPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-500 text-sm transition-transform inline-block" style={{ transform: isExpanded ? 'rotate(90deg)' : undefined }}>
-                          &#9654;
-                        </span>
-                        <span className="text-white font-semibold">
+                        <ChevronRight
+                          className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        />
+                        <span className="text-foreground font-semibold">
                           {formatDate(session.completedAt)}
                         </span>
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-muted-foreground text-sm">
                           {formatTime(session.completedAt)}
                         </span>
                       </div>
-                      <span className="text-gray-400 text-sm">
+                      <span className="text-muted-foreground text-sm">
                         {session.exercises.length} exercise
                         {session.exercises.length !== 1 && 's'}
                         {' · '}
                         {hasActualTime
-                          ? <>{formatDuration(actualTotalSeconds)} <span className="text-gray-500">/ {plannedMinutes} min planned</span></>
+                          ? <>{formatDuration(actualTotalSeconds)} <span className="text-muted-foreground">/ {plannedMinutes} min planned</span></>
                           : <>{plannedMinutes} min</>
                         }
                       </span>
@@ -190,7 +168,7 @@ function HistoryPage() {
                             <Badge
                               key={j}
                               variant="outline"
-                              className={`bg-gray-700 border-gray-600 text-xs ${ex ? 'text-indigo-400 cursor-pointer hover:bg-gray-600' : 'text-gray-300'}`}
+                              className={`border-input text-xs ${ex ? 'text-primary cursor-pointer hover:bg-secondary/80' : 'text-secondary-foreground'}`}
                               onClick={ex ? (e: React.MouseEvent) => { e.stopPropagation(); setDetailExercise(ex); } : undefined}
                             >
                               {ex?.name ?? se.exerciseId}
@@ -205,84 +183,77 @@ function HistoryPage() {
                   {isExpanded && (
                     <div className="mt-4 ml-5 space-y-3">
                       {session.exercises.map((se, j) => (
-                        <div key={j} className="border-l-2 border-gray-700 pl-3">
+                        <div key={j} className="border-l-2 border-border pl-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-white text-sm">
-                              <span className="text-gray-500 mr-2">{j + 1}.</span>
+                            <span className="text-foreground text-sm">
+                              <span className="text-muted-foreground mr-2">{j + 1}.</span>
                               {(() => {
                                 const ex = getExerciseById(se.exerciseId);
                                 return ex ? (
                                   <button
                                     onClick={() => setDetailExercise(ex)}
-                                    className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                                    className="text-primary hover:text-primary-hover transition-colors"
                                   >
                                     {ex.name}
                                   </button>
                                 ) : se.exerciseId;
                               })()}
                             </span>
-                            <span className="text-gray-400 text-xs">
+                            <span className="text-muted-foreground text-xs">
                               {se.actualSeconds != null
-                                ? <>{formatDuration(se.actualSeconds)} <span className="text-gray-500">/ {se.duration} min</span></>
+                                ? <>{formatDuration(se.actualSeconds)} <span className="text-muted-foreground">/ {se.duration} min</span></>
                                 : <>{se.duration} min</>
                               }
                             </span>
                           </div>
                           {se.notes && (
-                            <p className="text-gray-400 text-sm mt-1">{se.notes}</p>
+                            <p className="text-muted-foreground text-sm mt-1">{se.notes}</p>
                           )}
                         </div>
                       ))}
 
                       {/* Session notes */}
                       {session.notes && (
-                        <div className="border-t border-gray-700 pt-3 mt-3">
-                          <p className="text-gray-500 text-xs mb-1">Session notes</p>
-                          <p className="text-gray-300 text-sm">{session.notes}</p>
+                        <div className="border-t pt-3 mt-3">
+                          <p className="text-muted-foreground text-xs mb-1">Session notes</p>
+                          <p className="text-secondary-foreground text-sm">{session.notes}</p>
                         </div>
                       )}
 
                       {/* Actions: save as template + delete */}
-                      <div className="border-t border-gray-700 pt-3 mt-3">
+                      <div className="border-t pt-3 mt-3">
                         {savingIndex === i ? (
                           <div className="flex items-center gap-2">
                             <input
                               type="text"
                               value={templateName}
                               onChange={(e) => setTemplateName(e.target.value)}
-                              placeholder="Template name..."
-                              className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
-                              autoFocus
+                              placeholder="Favorite name..."
+                              className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                              autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- conditionally rendered after user action
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleSaveAsTemplate(i);
                                 if (e.key === 'Escape') { setSavingIndex(null); setTemplateName(''); }
                               }}
                             />
-                            <button
-                              onClick={() => handleSaveAsTemplate(i)}
-                              disabled={!templateName.trim()}
-                              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs px-3 py-1 rounded transition-colors"
-                            >
+                            <Button size="sm" onClick={() => handleSaveAsTemplate(i)} disabled={!templateName.trim()}>
                               Save
-                            </button>
-                            <button
-                              onClick={() => { setSavingIndex(null); setTemplateName(''); }}
-                              className="text-gray-400 hover:text-white text-xs transition-colors"
-                            >
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => { setSavingIndex(null); setTemplateName(''); }}>
                               Cancel
-                            </button>
+                            </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-4">
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                             <button
                               onClick={() => { setSavingIndex(i); setTemplateName(''); }}
-                              className="text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
+                              className="inline-flex items-center gap-1 text-star hover:text-star/80 text-xs transition-colors"
                             >
-                              &#9733; Save as favorite
+                              <Star className="w-4 h-4 fill-current" /> Save as favorite
                             </button>
                             <button
                               onClick={() => handleDeleteSession(i)}
-                              className="text-gray-400 hover:text-red-400 text-xs transition-colors"
+                              className="text-muted-foreground hover:text-destructive text-xs transition-colors"
                             >
                               Delete session
                             </button>

@@ -6,33 +6,113 @@
 /*
  * Custom base styles
  * These override/extend Tailwind's defaults
+ *
+ * THEME ARCHITECTURE:
+ * - :root contains LIGHT theme values (shadcn/ui convention)
+ * - .dark overrides with DARK theme values
+ * - Tailwind classes (bg-background, text-foreground, etc.) automatically
+ *   pick up the right values based on which class is on <html>
+ * - The useTheme hook toggles the "dark" class on <html>
+ *
+ * Angular comparison: Angular Material also uses CSS custom properties for
+ * theming, but wraps them in overlay mixins. React + Tailwind is more direct —
+ * just swap the variable values via a CSS class.
  */
 @layer base {
+  /* LIGHT theme (default) */
   :root {
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    --background: 0 0% 100%;              /* white */
+    --foreground: 224 71% 4%;             /* near-black */
+
+    --card: 295 25% 97%;                  /* faint lavender — matches purple primary */
+    --card-foreground: 224 71% 4%;        /* near-black */
+
+    --popover: 0 0% 100%;                 /* white */
+    --popover-foreground: 224 71% 4%;     /* near-black */
+
+    --primary: 295 43% 40%;              /* #8B3A93 — matched to image sample */
+    --primary-foreground: 0 0% 100%;      /* white — text on primary bg */
+    --primary-hover: 295 43% 48%;        /* #A646AF — lighter hover state */
+
+    --secondary: 220 14% 96%;            /* slate-100 */
+    --secondary-foreground: 220 9% 43%;  /* slate-500 darkened — 4.7:1 on secondary bg */
+
+    --muted: 220 14% 96%;               /* slate-100 */
+    --muted-foreground: 220 9% 44%;      /* slate-500 darkened — 4.6:1 on lavender card bg */
+
+    --accent: 220 14% 96%;              /* slate-100 */
+    --accent-foreground: 224 71% 4%;     /* near-black */
+
+    --destructive: 0 72% 51%;            /* red-600 (same both themes) */
+    --destructive-foreground: 0 0% 100%; /* white */
+
+    --border: 220 13% 83%;              /* slate-300ish — visible card edges on white */
+    --input: 220 13% 75%;               /* slate-400ish — clear input borders */
+    --ring: 295 43% 40%;                /* matches --primary */
+    --star: 32 95% 44%;                 /* amber-600 #d97706 — 3.2:1 on white */
+
+    --radius: 0.5rem;
+  }
+
+  /* DARK theme */
+  .dark {
+    --background: 0 0% 10%;              /* #1a1a1a body bg */
+    --foreground: 220 10% 93%;           /* soft off-white — avoids stark #fff */
+
+    --card: 217 33% 17%;                 /* gray-800 */
+    --card-foreground: 220 10% 93%;      /* soft off-white */
+
+    --popover: 217 33% 17%;              /* gray-800 */
+    --popover-foreground: 220 10% 93%;   /* soft off-white */
+
+    --primary: 216 85% 65%;              /* #5A97F2 — bright cobalt (65% for 4.5:1 on card bg) */
+    --primary-foreground: 222 47% 11%;   /* slate-900 — dark text on bright cobalt buttons */
+    --primary-hover: 216 86% 73%;        /* #83B5F6 — lighter hover state */
+
+    --secondary: 217 19% 27%;            /* gray-700 */
+    --secondary-foreground: 214 14% 84%; /* gray-300 */
+
+    --muted: 217 33% 17%;               /* gray-800 */
+    --muted-foreground: 218 11% 65%;     /* gray-400 */
+
+    --accent: 217 19% 27%;              /* gray-700 */
+    --accent-foreground: 220 10% 93%;    /* soft off-white */
+
+    --destructive: 0 72% 51%;            /* red-600 */
+    --destructive-foreground: 220 10% 93%; /* soft off-white */
+
+    --border: 217 19% 27%;              /* gray-700 */
+    --input: 215 14% 34%;               /* gray-600 */
+    --ring: 216 85% 65%;                /* matches --primary */
+    --star: 48 96% 53%;                 /* yellow-400 #facc15 — vivid on dark */
   }
 
   body {
     margin: 0;
     font-family: system-ui, -apple-system, sans-serif;
     min-height: 100vh;
-    background-color: #1a1a1a;
-    color: #ffffff;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    overflow-x: hidden;
   }
 }
 
 /*
  * Custom prose styles for exercise descriptions
  * Applied to modal content that renders HTML from scraped sources
+ *
+ * Uses theme-aware colors so content is readable in both light and dark mode.
  */
 @layer components {
-  /* Dark scrollbar for modals and overflow containers */
+  /* Themed scrollbar for modals and overflow containers */
   .scrollbar-dark {
     scrollbar-width: thin;
-    scrollbar-color: #4b5563 transparent; /* gray-600 track */
+    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
   }
 
   .scrollbar-dark::-webkit-scrollbar {
@@ -44,18 +124,18 @@
   }
 
   .scrollbar-dark::-webkit-scrollbar-thumb {
-    background-color: #4b5563; /* gray-600 */
+    background-color: hsl(var(--muted-foreground) / 0.4);
     border-radius: 4px;
   }
 
   .scrollbar-dark::-webkit-scrollbar-thumb:hover {
-    background-color: #6b7280; /* gray-500 */
+    background-color: hsl(var(--muted-foreground) / 0.6);
   }
 
   .prose-exercise {
-    /* Headings - all headings get indigo color and bold weight */
+    /* Headings - all headings get accent color and bold weight */
     & h1, & h2, & h3, & h4, & h5, & h6 {
-      color: #a5b4fc; /* indigo-300 */
+      color: hsl(var(--primary));
       font-weight: 700;
       letter-spacing: -0.025em;
     }
@@ -65,7 +145,7 @@
       font-size: 1.5rem; /* text-2xl */
       margin-top: 2rem; /* mt-8 */
       margin-bottom: 1rem; /* mb-4 */
-      border-bottom: 1px solid rgba(99, 102, 241, 0.3); /* border-indigo-600/30 */
+      border-bottom: 1px solid hsl(var(--primary) / 0.3);
       padding-bottom: 0.75rem; /* pb-3 */
     }
 
@@ -82,7 +162,7 @@
 
     /* Paragraphs */
     & p {
-      color: #d1d5db; /* gray-300 */
+      color: hsl(var(--foreground) / 0.8);
       font-size: 1rem; /* text-base */
       margin-top: 0.75rem;
       margin-bottom: 0.75rem;
@@ -95,7 +175,7 @@
 
     /* Unordered and ordered lists */
     & ul {
-      color: #d1d5db; /* gray-300 */
+      color: hsl(var(--foreground) / 0.8);
       margin-top: 1rem;
       margin-bottom: 1rem;
       padding-left: 1.5rem;
@@ -103,7 +183,7 @@
     }
 
     & ol {
-      color: #d1d5db; /* gray-300 */
+      color: hsl(var(--foreground) / 0.8);
       margin-top: 1rem;
       margin-bottom: 1rem;
       padding-left: 1.5rem;
@@ -112,7 +192,7 @@
 
     /* List items */
     & li {
-      color: #d1d5db; /* gray-300 */
+      color: hsl(var(--foreground) / 0.8);
       margin-top: 0.375rem;
       margin-bottom: 0.375rem;
       line-height: 1.625; /* leading-relaxed */
@@ -120,42 +200,42 @@
 
     /* Strong/bold text */
     & strong {
-      color: #c7d2fe; /* indigo-200 */
+      color: hsl(var(--primary) / 0.85);
       font-weight: 600;
     }
 
     /* Emphasis/italic text */
     & em {
-      color: #e5e7eb; /* gray-200 */
+      color: hsl(var(--foreground) / 0.9);
       font-style: italic;
     }
 
     /* Blockquotes */
     & blockquote {
-      border-left: 4px solid #6366f1; /* indigo-500 */
+      border-left: 4px solid hsl(var(--primary));
       padding-left: 1rem;
       font-style: italic;
-      color: #9ca3af; /* gray-400 */
+      color: hsl(var(--muted-foreground));
     }
 
     /* Inline code */
     & code {
-      color: #a5b4fc; /* indigo-300 */
-      background-color: #111827; /* gray-900 */
+      color: hsl(var(--primary));
+      background-color: hsl(var(--muted));
       padding: 0.125rem 0.375rem;
       border-radius: 0.25rem;
     }
 
     /* Links */
     & a {
-      color: #818cf8; /* indigo-400 */
+      color: hsl(var(--primary));
       text-decoration: underline;
       text-underline-offset: 2px;
       transition: color 0.15s;
     }
 
     & a:hover {
-      color: #a5b4fc; /* indigo-300 */
+      color: hsl(var(--primary) / 0.8);
     }
   }
 }

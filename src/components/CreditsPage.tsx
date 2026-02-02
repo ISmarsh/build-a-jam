@@ -15,7 +15,7 @@
  * - In React, static imports are simpler for bundled data
  */
 
-import { Link } from 'react-router-dom';
+
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
@@ -51,24 +51,16 @@ const dataSources: Attribution[] = [
 function CreditsPage() {
   return (
     <div>
-      {/* Link component — like Angular's routerLink directive */}
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        &larr; Back to exercises
-      </Link>
-
-      <h1 className="text-3xl font-bold text-white mb-2">
+      <h1 className="text-3xl font-bold text-foreground mb-2">
         Credits &amp; Licenses
       </h1>
-      <p className="text-gray-400 mb-8">
+      <p className="text-muted-foreground mb-8">
         Build-a-Jam application code is licensed under the{' '}
         <a
           href="https://opensource.org/licenses/MIT"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-indigo-400 hover:text-indigo-300 underline"
+          className="text-primary hover:text-primary-hover underline"
         >
           MIT License
         </a>
@@ -81,29 +73,28 @@ function CreditsPage() {
         {dataSources.map((source) => (
           <Card
             key={source.source}
-            className="bg-gray-800 border-gray-700"
           >
             <CardHeader>
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <CardTitle className="text-indigo-500">
+                <CardTitle className="text-primary">
                   <a
                     href={source.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-indigo-400 underline"
+                    className="hover:text-primary-hover underline"
                   >
                     {source.source}
                   </a>
                 </CardTitle>
                 <Badge
                   variant="outline"
-                  className="bg-gray-700 text-green-400 border-green-600"
+                  className="text-green-700 dark:text-green-400 border-green-700 dark:border-green-600"
                 >
                   <a
                     href={source.licenseUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-green-300"
+                    className="hover:text-green-600 dark:hover:text-green-300"
                   >
                     {source.license}
                   </a>
@@ -111,19 +102,19 @@ function CreditsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-300 mb-4">{source.note}</p>
+              <p className="text-secondary-foreground mb-4">{source.note}</p>
 
               {/* Conditional rendering - only show if modifications exist */}
               {/* Like Angular's *ngIf */}
               {source.modifications && source.modifications.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <h3 className="text-sm font-semibold text-gray-400 mb-2">
+                <div className="mt-4 pt-4 border-t">
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-2">
                     Modifications:
                   </h3>
                   <ul className="space-y-2">
                     {source.modifications.map((mod, index) => (
-                      <li key={index} className="text-sm text-gray-400">
-                        <span className="text-gray-500">{mod.date}:</span>{' '}
+                      <li key={index} className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground">{mod.date}:</span>{' '}
                         {mod.description}
                       </li>
                     ))}
@@ -135,14 +126,14 @@ function CreditsPage() {
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-gray-700 text-gray-500 text-sm">
+      <div className="mt-8 pt-6 border-t text-muted-foreground text-sm">
         <p>
           For full licensing details see{' '}
           <a
             href="https://github.com/ISmarsh/build-a-jam/blob/main/LICENSE-DATA"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 underline"
+            className="text-primary hover:text-primary-hover underline"
           >
             LICENSE-DATA
           </a>{' '}

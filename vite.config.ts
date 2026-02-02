@@ -13,6 +13,11 @@ export default defineConfig(({ command }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // The exercise JSON data pushes the main chunk past 500 kB.
+    // This is expected for bundled static data — suppress the warning.
+    chunkSizeWarningLimit: 2200,
+  },
   server: {
     port: 5173,
     strictPort: true, // Fail if port is in use instead of auto-incrementing

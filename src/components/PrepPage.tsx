@@ -16,23 +16,25 @@
  */
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { FEATURED_TAGS, getExerciseById, filterBySource, sourceCounts } from '../data/exercises';
+import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 import type { Exercise } from '../types';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
-import TagFilter from './TagFilter';
+import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import ConfirmModal from './ConfirmModal';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
 function PrepPage() {
   const { state, dispatch } = useSession();
   const navigate = useNavigate();
-  const [defaultDuration, setDefaultDuration] = useState(5);
+  const [defaultDuration, setDefaultDuration] = useState(10);
   const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -70,36 +72,15 @@ function PrepPage() {
 
   function handleStartSession() {
     dispatch({ type: 'START_SESSION' });
-    navigate(`/session/${state.currentSession!.id}`);
+    void navigate(`/session/${state.currentSession!.id}`);
   }
 
-  // Filter by source first, then tags and search (shared logic in exercises.ts)
+  // COMPUTED VALUES: source filtering → tag computation → text/tag filtering → sort
   const sourceFilteredExercises = filterBySource(selectedSource);
-  const tagsInSource = new Set(sourceFilteredExercises.flatMap((ex) => ex.tags));
-  const featuredTags = FEATURED_TAGS.filter((tag) => tagsInSource.has(tag));
-  const allTags = Array.from(tagsInSource).sort();
-
-  const filteredExercises = sourceFilteredExercises.filter((exercise) => {
-    const matchesTags = selectedTags.length === 0 ||
-      selectedTags.every((tag) => exercise.tags.includes(tag));
-
-    const matchesSearch = searchText.trim() === '' || (() => {
-      const searchLower = searchText.toLowerCase();
-      return exercise.name.toLowerCase().includes(searchLower) ||
-        exercise.summary?.toLowerCase().includes(searchLower) ||
-        exercise.tags.some(tag => tag.toLowerCase().includes(searchLower));
-    })();
-
-    return matchesTags && matchesSearch;
-  });
-
-  // SORTING: Favorited exercises float to the top
+  const { featuredTags, allTags } = getTagsForExercises(sourceFilteredExercises);
+  const filteredExercises = filterExercises(sourceFilteredExercises, selectedTags, searchText);
   const favoriteIds = state.favoriteExerciseIds;
-  const sortedExercises = [...filteredExercises].sort((a, b) => {
-    const aFav = favoriteIds.includes(a.id) ? 0 : 1;
-    const bFav = favoriteIds.includes(b.id) ? 0 : 1;
-    return aFav - bFav;
-  });
+  const sortedExercises = sortByFavorites(filteredExercises, favoriteIds);
 
   function handleTagToggle(tag: string) {
     setSelectedTags((prev) =>
@@ -114,86 +95,49 @@ function PrepPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        &larr; Back to exercises
-      </Link>
-
-      <h1 className="text-3xl font-bold text-white mb-6">Build Your Session</h1>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left column: exercise library with filtering */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">
-              Exercises ({filteredExercises.length})
-            </h2>
-            <div className="flex items-center gap-2">
-              <label className="text-gray-400 text-sm">Source:</label>
-              <select
-                value={selectedSource}
-                onChange={handleSourceChange}
-                className="bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="all">All ({sourceCounts.all})</option>
-                <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
-                <option value="improwiki">improwiki.com ({sourceCounts.improwiki})</option>
-              </select>
-            </div>
-          </div>
-
-          <TagFilter
+          <ExerciseFilterBar
+            selectedSource={selectedSource}
+            onSourceChange={handleSourceChange}
             featuredTags={featuredTags}
             allTags={allTags}
             selectedTags={selectedTags}
             onTagToggle={handleTagToggle}
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            idPrefix="prep"
           />
 
-          <div className="relative mt-4 mb-4">
+          <div className="flex items-center gap-2 my-4">
+            <label htmlFor="default-duration" className="text-muted-foreground text-sm">Default duration:</label>
             <input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search exercises..."
-              className="bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500 text-sm"
-            />
-            {searchText && (
-              <button
-                onClick={() => setSearchText('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xl leading-none px-2"
-                aria-label="Clear search"
-              >
-                ×
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 mb-4">
-            <label className="text-gray-400 text-sm">Default duration:</label>
-            <input
+              id="default-duration"
               type="number"
               min={1}
               max={60}
               value={defaultDuration}
               onChange={(e) => setDefaultDuration(Math.max(1, Number(e.target.value)))}
-              className="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-center text-sm"
+              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
             />
-            <span className="text-gray-400 text-sm">min</span>
+            <span className="text-muted-foreground text-sm">min</span>
           </div>
 
+          <h2 className="text-xl font-semibold text-foreground mb-3">
+            Exercises ({filteredExercises.length})
+          </h2>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-dark">
             {sortedExercises.map((exercise) => (
-              <Card key={exercise.id} className="bg-gray-800 border-gray-700">
+              <Card key={exercise.id}>
                 <CardHeader className="py-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-indigo-500 text-base">
+                    <CardTitle className="text-primary text-base">
                       {exercise.name}
                     </CardTitle>
                     <button
                       onClick={() => handleAddExercise(exercise.id)}
-                      className="text-indigo-400 hover:text-indigo-300 text-sm shrink-0"
+                      className="text-primary hover:text-primary-hover text-sm shrink-0"
                     >
                       + Add
                     </button>
@@ -201,7 +145,7 @@ function PrepPage() {
                 </CardHeader>
                 <CardContent className="pt-0 pb-3">
                   {exercise.summary && (
-                    <p className="text-gray-400 text-sm line-clamp-2">
+                    <p className="text-muted-foreground text-sm line-clamp-2">
                       {exercise.summary}
                     </p>
                   )}
@@ -211,7 +155,7 @@ function PrepPage() {
                         <Badge
                           key={tag}
                           variant="outline"
-                          className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                          className="text-primary border-input text-xs"
                         >
                           {tag}
                         </Badge>
@@ -219,9 +163,9 @@ function PrepPage() {
                     </div>
                     <button
                       onClick={() => setDetailExercise(exercise)}
-                      className="text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
+                      className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
                     >
-                      Details &rarr;
+                      Details <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </CardContent>
@@ -233,10 +177,10 @@ function PrepPage() {
         {/* Right column: session queue */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">
+            <h2 className="text-xl font-semibold text-foreground">
               Session Queue
               {sessionExercises.length > 0 && (
-                <span className="text-gray-400 text-base font-normal ml-2">
+                <span className="text-muted-foreground text-base font-normal ml-2">
                   {sessionExercises.length} exercise{sessionExercises.length !== 1 && 's'}
                   {' · '}{totalMinutes} min
                 </span>
@@ -246,10 +190,10 @@ function PrepPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => template.start(state.currentSession?.name ?? '')}
-                  className="text-yellow-400 hover:text-yellow-300 text-sm transition-colors"
-                  title="Save as favorite template"
+                  className="inline-flex items-center gap-1 text-star hover:text-star/80 text-sm transition-colors"
+                  title="Save as favorite"
                 >
-                  &#9733; Save
+                  <Star className="w-4 h-4 fill-current" /> Save
                 </button>
                 <button
                   onClick={() => setConfirm({
@@ -262,7 +206,7 @@ function PrepPage() {
                       toast('Queue cleared');
                     },
                   })}
-                  className="text-gray-400 hover:text-red-400 text-sm transition-colors"
+                  className="text-muted-foreground hover:text-destructive text-sm transition-colors"
                 >
                   Clear
                 </button>
@@ -277,32 +221,25 @@ function PrepPage() {
                 type="text"
                 value={template.templateName}
                 onChange={(e) => template.setTemplateName(e.target.value)}
-                placeholder="Template name..."
-                className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white text-sm focus:outline-none focus:border-indigo-500"
-                autoFocus
+                placeholder="Favorite name..."
+                className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- conditionally rendered after user action
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') template.save();
                   if (e.key === 'Escape') template.cancel();
                 }}
               />
-              <button
-                onClick={template.save}
-                disabled={!template.templateName.trim()}
-                className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm px-3 py-1 rounded transition-colors"
-              >
+              <Button size="sm" onClick={template.save} disabled={!template.templateName.trim()}>
                 Save
-              </button>
-              <button
-                onClick={template.cancel}
-                className="text-gray-400 hover:text-white text-sm transition-colors"
-              >
+              </Button>
+              <Button variant="ghost" size="sm" onClick={template.cancel}>
                 Cancel
-              </button>
+              </Button>
             </div>
           )}
 
           {sessionExercises.length === 0 ? (
-            <p className="text-gray-500 italic">
+            <p className="text-muted-foreground italic">
               No exercises yet. Add some from the library.
             </p>
           ) : (
@@ -310,12 +247,12 @@ function PrepPage() {
               {sessionExercises.map((se, index) => {
                 const exercise = getExerciseById(se.exerciseId);
                 return (
-                  <Card key={index} className="bg-gray-800 border-gray-700">
+                  <Card key={index}>
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <span className="text-gray-500 text-sm mr-2">{index + 1}.</span>
-                          <span className="text-white">
+                          <span className="text-muted-foreground text-sm mr-2">{index + 1}.</span>
+                          <span className="text-foreground">
                             {exercise?.name ?? se.exerciseId}
                           </span>
                         </div>
@@ -328,9 +265,10 @@ function PrepPage() {
                             onChange={(e) =>
                               handleDurationChange(index, Math.max(1, Number(e.target.value)))
                             }
-                            className="w-16 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-center text-sm"
+                            aria-label={`Duration for ${exercise?.name ?? 'exercise'} in minutes`}
+                            className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
                           />
-                          <span className="text-gray-400 text-sm">min</span>
+                          <span className="text-muted-foreground text-sm">min</span>
                           <button
                             onClick={() => setConfirm({
                               title: 'Remove exercise?',
@@ -341,7 +279,7 @@ function PrepPage() {
                                 setConfirm(null);
                               },
                             })}
-                            className="text-red-400 hover:text-red-300 text-sm ml-2"
+                            className="text-destructive hover:text-destructive/80 text-sm ml-2"
                             aria-label={`Remove ${exercise?.name ?? 'exercise'}`}
                           >
                             Remove
@@ -349,7 +287,7 @@ function PrepPage() {
                         </div>
                       </div>
                       {exercise?.summary && (
-                        <p className="text-gray-400 text-sm mt-1 ml-5 line-clamp-1">
+                        <p className="text-muted-foreground text-sm mt-1 ml-5 line-clamp-1">
                           {exercise.summary}
                         </p>
                       )}
@@ -359,7 +297,7 @@ function PrepPage() {
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                              className="text-primary border-input text-xs"
                             >
                               {tag}
                             </Badge>
@@ -368,9 +306,9 @@ function PrepPage() {
                         {exercise && (
                           <button
                             onClick={() => setDetailExercise(exercise)}
-                            className="text-indigo-400 hover:text-indigo-300 text-xs shrink-0 ml-2 transition-colors"
+                            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
                           >
-                            Details &rarr;
+                            Details <ArrowRight className="w-3 h-3" />
                           </button>
                         )}
                       </div>
@@ -382,12 +320,9 @@ function PrepPage() {
           )}
 
           {sessionExercises.length > 0 && (
-            <button
-              onClick={handleStartSession}
-              className="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-            >
+            <Button size="lg" className="mt-6 w-full" onClick={handleStartSession}>
               Start Session ({totalMinutes} min)
-            </button>
+            </Button>
           )}
         </div>
       </div>

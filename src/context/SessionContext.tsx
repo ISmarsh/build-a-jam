@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- context files export hooks alongside providers */
 /**
  * SessionContext — manages the Prep → Session → Notes workflow state
  *
@@ -377,19 +378,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         favoriteExerciseIds: favoriteExerciseIds ?? [],
       });
     }
-    hydrate();
+    void hydrate();
   }, [storage]);
 
   // Persist on every state change (after initial hydration)
   useEffect(() => {
     if (!state.loaded) return;
-    storage.save(STORAGE_KEYS.SESSIONS, state.sessions);
-    storage.save(STORAGE_KEYS.COMPLETED_SESSIONS, state.completedSessions);
-    storage.save(STORAGE_KEYS.FAVORITE_EXERCISE_IDS, state.favoriteExerciseIds);
+    void storage.save(STORAGE_KEYS.SESSIONS, state.sessions);
+    void storage.save(STORAGE_KEYS.COMPLETED_SESSIONS, state.completedSessions);
+    void storage.save(STORAGE_KEYS.FAVORITE_EXERCISE_IDS, state.favoriteExerciseIds);
     if (state.currentSession) {
-      storage.save(STORAGE_KEYS.CURRENT_SESSION, state.currentSession);
+      void storage.save(STORAGE_KEYS.CURRENT_SESSION, state.currentSession);
     } else {
-      storage.remove(STORAGE_KEYS.CURRENT_SESSION);
+      void storage.remove(STORAGE_KEYS.CURRENT_SESSION);
     }
   }, [state.sessions, state.completedSessions, state.currentSession, state.favoriteExerciseIds, state.loaded, storage]);
 

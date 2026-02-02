@@ -43,7 +43,7 @@ function ExerciseList({ exercises, favoriteIds, onToggleFavorite }: ExerciseList
   // Early return pattern - like *ngIf but at component level
   if (exercises.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400 text-lg">
+      <div className="text-center py-12 text-muted-foreground text-lg">
         <p>No exercises found. Try adjusting your filters.</p>
       </div>
     );

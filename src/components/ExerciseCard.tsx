@@ -25,8 +25,9 @@
  *    - This is a practical React pattern
  */
 
+import { ArrowRight, Star } from 'lucide-react';
 import type { Exercise } from '../types';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
 // Props interface - like defining @Input() properties in Angular
@@ -43,10 +44,13 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
   const displayText = exercise.summary;
 
   return (
-    <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:border-indigo-500 bg-gray-800 border-gray-700 flex flex-col">
+    <Card
+      className="transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30 hover:border-primary flex flex-col cursor-pointer"
+      onClick={onClick}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-indigo-500">{exercise.name}</CardTitle>
+          <CardTitle className="text-primary">{exercise.name}</CardTitle>
           {onToggleFavorite && (
             <button
               onClick={(e) => {
@@ -58,45 +62,44 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
               title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
               {isFavorite ? (
-                <span className="text-yellow-400">&#9733;</span>
+                <Star className="w-5 h-5 text-star fill-star" />
               ) : (
-                <span className="text-gray-500 hover:text-yellow-400">&#9734;</span>
+                <Star className="w-5 h-5 text-muted-foreground hover:text-star" />
               )}
             </button>
           )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4 flex-1">
-        <p className="text-gray-300 leading-relaxed">
+        <p className="text-secondary-foreground leading-relaxed">
           {displayText}
         </p>
 
-        {/* List rendering with Badge component */}
+        {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {exercise.tags.map((tag) => (
             <Badge
               key={tag}
               variant="outline"
-              className="bg-gray-700 text-indigo-400 border-gray-600"
+              className="text-primary border-input"
             >
               {tag}
             </Badge>
           ))}
         </div>
-      </CardContent>
 
-      {/* CardFooter with action button - clearer CTA than inline text */}
-      <CardFooter className="pt-4">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick?.();
-          }}
-          className="w-full bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 font-semibold py-2 px-4 rounded-lg transition-colors border border-indigo-600/30"
-        >
-          View Details
-        </button>
-      </CardFooter>
+        {/* Details link — pinned bottom-right, keyboard-accessible */}
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-card rounded-sm"
+            aria-label={`View details for ${exercise.name}`}
+          >
+            Details <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+      </CardContent>
     </Card>
   );
 }

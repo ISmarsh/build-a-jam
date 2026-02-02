@@ -24,7 +24,6 @@
 
 import { useState } from 'react';
 import Button from './ui/TagButton';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface TagFilterProps {
   featuredTags: string[];   // Curated subset shown by default
@@ -41,45 +40,41 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
   const hasMore = allTags.length > featuredTags.length;
 
   return (
-    <Card className="bg-gray-800 border-gray-700">
-      <CardHeader>
-        <CardTitle className="text-white">Filter by Tags</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          {displayedTags.map((tag) => {
-            const isSelected = selectedTags.includes(tag);
+    <div className="flex flex-col gap-2" role="group" aria-label="Filter by tags">
+      <span className="text-secondary-foreground font-medium">Filter by tags:</span>
+      <div className="flex flex-wrap gap-2">
+        {displayedTags.map((tag) => {
+          const isSelected = selectedTags.includes(tag);
 
-            return (
-              <Button
-                key={tag}
-                variant="tag"
-                active={isSelected}
-                onClick={() => onTagToggle(tag)}
-              >
-                {tag}
-              </Button>
-            );
-          })}
-
-          {/* Show more/less toggle */}
-          {hasMore && (
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="text-indigo-400 hover:text-indigo-300 text-sm px-2 py-1 transition-colors"
+          return (
+            <Button
+              key={tag}
+              variant="tag"
+              active={isSelected}
+              onClick={() => onTagToggle(tag)}
             >
-              {showAll ? 'show less' : `+${allTags.length - featuredTags.length} more`}
-            </button>
-          )}
-        </div>
+              {tag}
+            </Button>
+          );
+        })}
 
-        {selectedTags.length > 0 && (
-          <p className="text-gray-400 text-sm italic">
-            Filtering by: {selectedTags.join(', ')}
-          </p>
+        {/* Show more/less toggle */}
+        {hasMore && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-primary hover:text-primary-hover text-sm px-2 py-1 transition-colors"
+          >
+            {showAll ? 'show less' : `+${allTags.length - featuredTags.length} more`}
+          </button>
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {selectedTags.length > 0 && (
+        <p className="text-muted-foreground text-sm italic">
+          Filtering by: {selectedTags.join(', ')}
+        </p>
+      )}
+    </div>
   );
 }
 

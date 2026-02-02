@@ -2,6 +2,8 @@
  * Footer Component
  *
  * Site-wide footer with links to the credits page and GitHub repo.
+ * Hidden on mobile (BottomNav provides navigation there).
+ * Sticky on desktop so it stays visible at the bottom.
  *
  * ANGULAR vs REACT:
  * - Angular: routerLink directive for internal navigation
@@ -13,11 +15,11 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="py-6 border-t border-gray-700 text-center text-gray-500 text-sm flex-shrink-0">
+    <footer className="hidden sm:block sticky bottom-0 py-6 border-t text-center text-muted-foreground text-sm flex-shrink-0 bg-background">
       <div className="flex justify-center gap-4 flex-wrap">
         <Link
           to="/credits"
-          className="text-gray-400 hover:text-indigo-400 transition-colors underline"
+          className="text-muted-foreground hover:text-primary transition-colors underline"
         >
           Credits &amp; Licenses
         </Link>
@@ -26,7 +28,7 @@ function Footer() {
           href="https://github.com/ISmarsh/build-a-jam"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-gray-400 hover:text-indigo-400 transition-colors underline"
+          className="text-muted-foreground hover:text-primary transition-colors underline"
         >
           GitHub
         </a>

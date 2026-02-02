@@ -39,6 +39,7 @@ This project also serves as a learning resource for transitioning from Angular t
 ### Prerequisites
 
 - Node.js 20+ and npm
+- [GitHub CLI](https://cli.github.com/) (`gh`) — optional but recommended for PR workflows
 
 ### Installation
 
@@ -60,51 +61,22 @@ npm run build    # Type-check and build for production
 npm run preview  # Preview production build
 npm run lint     # Run ESLint
 npm run scrape   # Run all data scrapers + post-processing
+npm run audit:a11y  # Run accessibility audit (Playwright + axe-core)
 ```
 
 ## Project Structure
 
-```
-src/
-├── components/
-│   ├── ui/                    # shadcn/ui primitives (Card, Badge, Dialog, etc.)
-│   ├── HomePage.tsx           # Exercise browsing (source filter, tag filter, search)
-│   ├── PrepPage.tsx           # Session builder (add exercises, set durations)
-│   ├── SessionPage.tsx        # Active session (timer, current exercise)
-│   ├── NotesPage.tsx          # Post-session reflections
-│   ├── HistoryPage.tsx        # Past sessions with save-as-template
-│   ├── FavoritesPage.tsx      # Starred exercises and saved templates
-│   ├── CreditsPage.tsx        # Licensing and attribution
-│   ├── ExerciseCard.tsx       # Exercise card (shadcn Card + Badge)
-│   ├── ExerciseList.tsx       # Exercise grid
-│   ├── ExerciseDetailModal.tsx # Full exercise detail (Radix Dialog)
-│   ├── ConfirmModal.tsx       # Destructive action confirmation (Radix AlertDialog)
-│   ├── TagFilter.tsx          # Tag chip filter with "show more"
-│   └── Footer.tsx             # Site-wide footer
-├── context/
-│   └── SessionContext.tsx     # Session state (useReducer + Context)
-├── hooks/
-│   └── useTemplateSaver.ts    # Shared template-saving logic
-├── storage/
-│   ├── StorageContext.tsx      # StorageProvider + useStorage hook
-│   └── local-storage.ts       # localStorage implementation
-├── data/
-│   ├── exercises.ts           # Exercise loading, filtering, tag constants
-│   ├── learnimprov-exercises.json
-│   └── improwiki-exercises.json
-├── types.ts                   # Shared TypeScript types
-├── App.tsx                    # Layout shell + route definitions
-└── main.tsx                   # Entry point (BrowserRouter)
+| Directory | Contents |
+|-----------|----------|
+| `src/components/` | Page components and UI (React + shadcn/ui) |
+| `src/components/ui/` | shadcn/ui primitives (Card, Badge, Dialog, etc.) |
+| `src/context/` | Session state management (useReducer + Context) |
+| `src/hooks/` | Custom React hooks |
+| `src/storage/` | Persistence layer (localStorage, swappable) |
+| `src/data/` | Exercise JSON data and loader module |
+| `scripts/` | Data scrapers and post-processing pipeline |
 
-scripts/
-├── scrape-all.mjs             # Orchestrator: runs scrapers + post-processing
-├── scrape-learnimprov.mjs     # learnimprov.com scraper
-├── scrape-improwiki.mjs       # improwiki.com scraper
-├── scraper-utils.mjs          # Shared fetch, cache, retry utilities
-├── normalize-tags.mjs         # Tag deduplication and filtering
-├── cleanup-scraped-data.mjs   # Description cleaning and non-exercise filtering
-└── SCRAPING-GUIDE.md          # Full scraper documentation
-```
+See [CLAUDE.md](CLAUDE.md) for detailed file-by-file documentation.
 
 ## Data Sources and Licensing
 
@@ -119,6 +91,48 @@ This project uses a **dual-license** structure:
 | [improwiki.com](https://improwiki.com/en) | CC BY-SA 3.0 DE | ~200 |
 
 Run `npm run scrape` to re-fetch exercise data. See [scripts/SCRAPING-GUIDE.md](scripts/SCRAPING-GUIDE.md) for details.
+
+## Developing with Claude Code
+
+This project is developed with [Claude Code](https://claude.com/claude-code). Project-specific context lives in [CLAUDE.md](CLAUDE.md).
+
+**CLI tool availability**: Claude Code's bash shell may not inherit your full
+system PATH. Use a `SessionStart` hook to add missing tools automatically:
+
+1. Create `~/.claude/hooks/setup-path.sh`:
+
+```bash
+#!/bin/bash
+if [ -n "$CLAUDE_ENV_FILE" ]; then
+  # Add any CLI tools not found in Claude Code's default PATH
+  if [ -d "/c/Program Files/GitHub CLI" ]; then
+    echo 'export PATH="$PATH:/c/Program Files/GitHub CLI"' >> "$CLAUDE_ENV_FILE"
+  fi
+fi
+exit 0
+```
+
+2. Register it in `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/setup-path.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Tools added to `CLAUDE_ENV_FILE` persist for the entire session.
 
 ## License
 

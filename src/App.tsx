@@ -21,6 +21,8 @@
 
 import { Routes, Route, Link } from 'react-router-dom';
 import { SessionProvider } from './context/SessionContext';
+import { useTheme } from './hooks/useTheme';
+import { Sun, Moon } from 'lucide-react';
 import { Toaster } from './components/ui/sonner';
 import HomePage from './components/HomePage';
 import PrepPage from './components/PrepPage';
@@ -30,22 +32,37 @@ import HistoryPage from './components/HistoryPage';
 import FavoritesPage from './components/FavoritesPage';
 import CreditsPage from './components/CreditsPage';
 import Footer from './components/Footer';
+import BottomNav from './components/BottomNav';
 
 function App() {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <SessionProvider>
-      <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <header className="text-center mb-12 pb-8 border-b-2 border-indigo-500 flex-shrink-0">
-          <Link to="/" className="hover:opacity-80 transition-opacity">
-            <h1 className="text-5xl font-bold mb-2 text-indigo-500">Build-a-Jam</h1>
-          </Link>
-          <p className="text-gray-400 text-lg">
+      <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8 sm:px-6 lg:px-8">
+        <header className="text-center mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-primary flex-shrink-0">
+          {/* Three-column flex: invisible spacer | title | toggle button.
+              The spacer matches the toggle width so the title stays centered. */}
+          <div className="flex justify-between items-start">
+            <div className="w-9" aria-hidden="true" />
+            <Link to="/" className="hover:opacity-80 transition-opacity">
+              <h1 className="text-3xl sm:text-5xl font-bold mb-2 text-primary">Build-a-Jam</h1>
+            </Link>
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
+          <p className="text-muted-foreground text-sm sm:text-lg">
             Your improv exercise library - Plan sessions with confidence
           </p>
         </header>
 
         {/* ROUTES: Main content area that grows to push footer down */}
-        <div className="flex-1 mb-8">
+        <main className="flex-1 mb-8">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/prep" element={<PrepPage />} />
@@ -55,10 +72,11 @@ function App() {
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/credits" element={<CreditsPage />} />
           </Routes>
-        </div>
+        </main>
 
         <Footer />
       </div>
+      <BottomNav theme={theme} onToggleTheme={toggleTheme} />
       <Toaster position="bottom-center" duration={3000} richColors />
     </SessionProvider>
   );

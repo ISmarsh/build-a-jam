@@ -15,6 +15,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById } from '../data/exercises';
@@ -23,6 +24,7 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
+import { Button } from './ui/button';
 
 function FavoritesPage() {
   const { state, dispatch } = useSession();
@@ -46,18 +48,18 @@ function FavoritesPage() {
 
   function handleStartTemplate(template: Session) {
     dispatch({ type: 'LOAD_SESSION', session: template });
-    navigate('/prep');
+    void navigate('/prep');
   }
 
   function handleDeleteTemplate(sessionId: string) {
     setConfirm({
-      title: 'Delete template?',
-      message: 'This will permanently remove this saved template.',
+      title: 'Delete favorite?',
+      message: 'This will permanently remove this saved favorite.',
       confirmLabel: 'Delete',
       onConfirm: () => {
         dispatch({ type: 'DELETE_SESSION_TEMPLATE', sessionId });
         setConfirm(null);
-        toast('Template deleted');
+        toast('Favorite deleted');
         if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
       },
     });
@@ -67,26 +69,19 @@ function FavoritesPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="mb-6 inline-block text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        &larr; Back to exercises
-      </Link>
-
-      <h1 className="text-3xl font-bold text-white mb-6">Favorites</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-6">Favorites</h1>
 
       {isEmpty ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-lg mb-2">No favorites yet.</p>
-          <p className="text-gray-500 mb-4">
-            Star exercises from the home page, or save session templates from the prep or history pages.
+          <p className="text-muted-foreground text-lg mb-2">No favorites yet.</p>
+          <p className="text-muted-foreground mb-4">
+            Star exercises from the home page, or save sessions as favorites from the prep or history pages.
           </p>
           <Link
             to="/"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover transition-colors"
           >
-            Browse exercises &rarr;
+            Browse exercises <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       ) : (
@@ -94,7 +89,7 @@ function FavoritesPage() {
           {/* Section 1: Session Templates */}
           {templates.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
                 Saved Sessions ({templates.length})
               </h2>
               <div className="space-y-4">
@@ -106,7 +101,7 @@ function FavoritesPage() {
                   const isExpanded = expandedTemplateId === template.id;
 
                   return (
-                    <Card key={template.id} className="bg-gray-800 border-gray-700">
+                    <Card key={template.id}>
                       <CardContent className="py-4">
                         {/* Header — clickable to expand/collapse */}
                         <button
@@ -117,20 +112,15 @@ function FavoritesPage() {
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span
-                                className="text-gray-500 text-sm transition-transform inline-block"
-                                style={{
-                                  transform: isExpanded ? 'rotate(90deg)' : undefined,
-                                }}
-                              >
-                                &#9654;
-                              </span>
-                              <span className="text-yellow-400 mr-1">&#9733;</span>
-                              <span className="text-white font-semibold">
+                              <ChevronRight
+                                className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                              />
+                              <Star className="w-4 h-4 text-star fill-star" />
+                              <span className="text-foreground font-semibold">
                                 {template.name ?? 'Untitled'}
                               </span>
                             </div>
-                            <span className="text-gray-400 text-sm">
+                            <span className="text-muted-foreground text-sm">
                               {template.exercises.length} exercise
                               {template.exercises.length !== 1 && 's'}
                               {' · '}
@@ -147,10 +137,10 @@ function FavoritesPage() {
                                   <Badge
                                     key={j}
                                     variant="outline"
-                                    className={`bg-gray-700 border-gray-600 text-xs ${
+                                    className={`border-input text-xs ${
                                       ex
-                                        ? 'text-indigo-400 cursor-pointer hover:bg-gray-600'
-                                        : 'text-gray-300'
+                                        ? 'text-primary cursor-pointer hover:bg-secondary/80'
+                                        : 'text-secondary-foreground'
                                     }`}
                                     onClick={
                                       ex
@@ -177,17 +167,17 @@ function FavoritesPage() {
                               return (
                                 <div
                                   key={j}
-                                  className="border-l-2 border-gray-700 pl-3"
+                                  className="border-l-2 border-border pl-3"
                                 >
                                   <div className="flex items-center justify-between">
-                                    <span className="text-white text-sm">
-                                      <span className="text-gray-500 mr-2">
+                                    <span className="text-foreground text-sm">
+                                      <span className="text-muted-foreground mr-2">
                                         {j + 1}.
                                       </span>
                                       {ex ? (
                                         <button
                                           onClick={() => setDetailExercise(ex)}
-                                          className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                                          className="text-primary hover:text-primary-hover transition-colors"
                                         >
                                           {ex.name}
                                         </button>
@@ -195,7 +185,7 @@ function FavoritesPage() {
                                         se.exerciseId
                                       )}
                                     </span>
-                                    <span className="text-gray-400 text-xs">
+                                    <span className="text-muted-foreground text-xs">
                                       {se.duration} min
                                     </span>
                                   </div>
@@ -204,16 +194,13 @@ function FavoritesPage() {
                             })}
 
                             {/* Actions */}
-                            <div className="border-t border-gray-700 pt-3 mt-3 flex items-center gap-4">
-                              <button
-                                onClick={() => handleStartTemplate(template)}
-                                className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-                              >
+                            <div className="border-t pt-3 mt-3 flex items-center gap-4">
+                              <Button size="sm" onClick={() => handleStartTemplate(template)}>
                                 Start Session
-                              </button>
+                              </Button>
                               <button
                                 onClick={() => handleDeleteTemplate(template.id)}
-                                className="text-gray-400 hover:text-red-400 text-xs transition-colors"
+                                className="text-muted-foreground hover:text-destructive text-xs transition-colors"
                               >
                                 Delete
                               </button>
@@ -231,12 +218,12 @@ function FavoritesPage() {
           {/* Section 2: Favorite Exercises */}
           {favoriteExercises.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
                 Starred Exercises ({favoriteExercises.length})
               </h2>
               <div className="space-y-3">
                 {favoriteExercises.map((exercise) => (
-                  <Card key={exercise.id} className="bg-gray-800 border-gray-700">
+                  <Card key={exercise.id}>
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -248,14 +235,14 @@ function FavoritesPage() {
                               });
                               toast('Removed from favorites');
                             }}
-                            className="text-yellow-400 hover:text-gray-400 text-lg shrink-0 transition-colors"
+                            className="text-star hover:text-muted-foreground shrink-0 transition-colors"
                             title="Remove from favorites"
                           >
-                            &#9733;
+                            <Star className="w-5 h-5 fill-current" />
                           </button>
                           <button
                             onClick={() => setDetailExercise(exercise)}
-                            className="text-indigo-400 hover:text-indigo-300 transition-colors text-left truncate"
+                            className="text-primary hover:text-primary-hover transition-colors text-left truncate"
                           >
                             {exercise.name}
                           </button>
@@ -265,7 +252,7 @@ function FavoritesPage() {
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="bg-gray-700 text-indigo-400 border-gray-600 text-xs"
+                              className="text-primary border-input text-xs"
                             >
                               {tag}
                             </Badge>
@@ -273,7 +260,7 @@ function FavoritesPage() {
                         </div>
                       </div>
                       {exercise.summary && (
-                        <p className="text-gray-400 text-sm mt-1 ml-8 line-clamp-1">
+                        <p className="text-muted-foreground text-sm mt-1 ml-8 line-clamp-1">
                           {exercise.summary}
                         </p>
                       )}

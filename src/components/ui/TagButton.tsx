@@ -57,16 +57,16 @@ function Button({
         variant === 'default' && [
           'px-4 py-2 rounded-lg',
           active
-            ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-            : 'bg-gray-700 text-gray-200 hover:bg-gray-600',
+            ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ],
 
         // Variant: tag-style button (pill-shaped)
         variant === 'tag' && [
           'px-4 py-2 border-2 rounded-full text-sm',
           active
-            ? 'bg-indigo-500 border-indigo-500 text-white font-bold'
-            : 'bg-transparent border-indigo-500 text-indigo-500 hover:bg-indigo-500/10 hover:-translate-y-0.5',
+            ? 'bg-primary border-primary text-primary-foreground font-bold'
+            : 'bg-transparent border-primary text-primary hover:bg-primary/10 hover:-translate-y-0.5',
         ],
 
         // Merge any additional classes passed in

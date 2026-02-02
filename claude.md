@@ -53,20 +53,23 @@ src/
 │   ├── HistoryPage.tsx        # Past sessions with save-as-template
 │   ├── FavoritesPage.tsx      # Starred exercises and saved templates
 │   ├── CreditsPage.tsx        # Licensing & attribution display
+│   ├── BottomNav.tsx          # Mobile bottom navigation bar
 │   ├── Footer.tsx             # Site-wide footer (credits link, GitHub link)
 │   ├── ExerciseCard.tsx       # Exercise card (shadcn Card + Badge)
 │   ├── ExerciseList.tsx       # Exercise grid
+│   ├── ExerciseFilterBar.tsx  # Source, tag, and text search filter controls
 │   ├── ExerciseDetailModal.tsx # Full exercise detail (Radix Dialog)
 │   ├── ConfirmModal.tsx       # Destructive action confirmation (Radix AlertDialog)
 │   └── TagFilter.tsx          # Tag chip filter with "show more"
 ├── context/
 │   └── SessionContext.tsx     # Session state (useReducer + Context)
 ├── hooks/
-│   └── useTemplateSaver.ts    # Shared template-saving logic
+│   ├── useTemplateSaver.ts    # Shared template-saving logic
+│   └── useTheme.ts            # Light/dark theme toggle with localStorage
 ├── storage/
 │   ├── StorageContext.tsx      # StorageProvider context + useStorage hook
 │   └── local-storage.ts       # localStorage implementation
-├── data/                      # Exercise data files (JSON + TS module)
+├── data/                      # Exercise data files (JSON + TS module + inferred-tags.json)
 ├── types.ts                   # Shared TypeScript types
 ├── App.tsx                    # Layout shell + route definitions + providers
 └── main.tsx                   # Entry point (BrowserRouter lives here)
@@ -82,7 +85,7 @@ src/
 ### Styling Approach
 - Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
 - shadcn/ui for reusable primitives (Card, Badge, Dialog, AlertDialog, Sonner) — components live in `src/components/ui/`
-- Explicit Tailwind classes on each component (no CSS-variable theming yet)
+- Light/dark theme via CSS custom properties + `useTheme` hook (`:root` = light, `.dark` = dark)
 
 ## Tech Stack Decisions
 
@@ -126,6 +129,94 @@ src/
 - Be descriptive about what was learned
 - Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Atomic commits per feature/concept
+
+### GitHub CLI (`gh`) setup
+
+The `gh` CLI should be installed and available in PATH. It's used for
+PR management, review comment workflows, and GraphQL API calls.
+
+### Working with PR review comments
+
+**Copilot auto-review**: This repo has GitHub Copilot configured to review PRs
+automatically. Copilot comments should be triaged into categories: already
+fixed, actionable (make the change), or dismiss with explanation.
+
+**Replying to comments** (`gh api`):
+- `POST /repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies` posts a reply
+- Replies are attributed to the authenticated user (the repo owner), not a bot
+- Replying does **not** resolve the thread — threads stay "unresolved" in the
+  GitHub UI
+
+**Resolving threads** (GraphQL):
+- Use the `resolveReviewThread` mutation to mark threads as resolved
+- First fetch thread IDs from review threads:
+  `gh api repos/{owner}/{repo}/pulls/{pr}/threads`
+  (thread IDs look like `PRRT_kwDORDVJ7s5sSJ8u`)
+- Then resolve: `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } } }'`
+- Multiple threads can be resolved in a single batched mutation using aliases:
+  `t1: resolveReviewThread(...) t2: resolveReviewThread(...)`
+
+**Fetching unresolved threads** (GraphQL — preferred over REST):
+- Always filter to **unresolved threads only** when checking PR reviews.
+  The REST endpoint (`/pulls/{pr}/comments`) returns all comments with no
+  resolved/unresolved filter. Use the GraphQL `reviewThreads` query instead:
+  ```
+  gh api graphql -f query='query {
+    repository(owner: "ISmarsh", name: "build-a-jam") {
+      pullRequest(number: PR_NUMBER) {
+        reviewThreads(first: 100) {
+          nodes {
+            id isResolved
+            comments(first: 1) { nodes { body path line } }
+          }
+        }
+      }
+    }
+  }'
+  ```
+- Filter the result for `isResolved: false` to get only unresolved threads.
+
+**Replying to comments — escaping pitfalls**:
+- The `-f body=` value is parsed by the shell. Backticks, double quotes,
+  backslashes, and `$` all cause issues.
+- **Avoid backticks** in reply text. Use plain-English descriptions instead of
+  inline code formatting (e.g., "the ring token" not `` `ring` ``).
+- To get comment database IDs (needed for the REST reply endpoint), include
+  `databaseId` in the GraphQL query on comment nodes.
+- Use the GraphQL `comments(first: 1) { nodes { databaseId } }` field to get
+  numeric IDs, then reply via
+  `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body="..."`.
+
+**Typical PR review workflow**:
+1. Fetch unresolved threads (GraphQL) → triage comments
+2. Fix actionable items in code
+3. Reply to each comment (explain fix or dismissal reason)
+4. Resolve all threads via batched GraphQL mutation
+5. Commit and push fixes
+
+### PR wrap-up checklist
+
+Before merging or marking a PR as ready, **ask the user** before running
+these heavier wrap-up tasks (they touch many files and use significant context):
+
+1. **Run build and lint** — `npm run build && npm run lint` must both pass
+   with zero errors before merging.
+2. **Run accessibility audit** — `npm run audit:a11y` runs Playwright + axe-core
+   against all pages in both themes at mobile and desktop widths. Output goes to
+   `C:/temp/axe-audit.json`. Zero violations is the goal; document any accepted
+   exceptions in the PR description.
+3. **Review all markdown** — check README.md, CLAUDE.md, and
+   scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
+   descriptions, and project structure match the current codebase.
+4. **Check for code duplication** — scan for duplicated logic across
+   components that should be extracted into shared helpers or hooks.
+5. **Check for obsolete code** — look for unused imports, dead functions,
+   stale comments, or references to removed features.
+
+Tasks 3–5 are expensive in context and time, so always confirm with the
+user before starting them. A simple "Want me to run the wrap-up checks
+(markdown review, duplication scan, dead code check)?" is enough. Tasks 1–2
+(build + lint, a11y audit) should always be run without asking.
 
 ## Important Context
 
@@ -473,7 +564,7 @@ and the full pipeline.
 - Scraped exercise data from learnimprov.com and improwiki.com
 - Post-processing pipeline (tag normalization, description cleanup)
 - Dual licensing: MIT for code, CC BY-SA for data
-- Dark theme with Tailwind CSS + shadcn/ui components
+- Light/dark theme toggle with localStorage persistence via `useTheme` hook
 - Responsive design, deployed to GitHub Pages
 
 **What's next**:

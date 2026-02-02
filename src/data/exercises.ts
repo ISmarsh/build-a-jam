@@ -122,3 +122,82 @@ export function getAllTags(): string[] {
     new Set(exercises.flatMap(ex => ex.tags))
   ).sort();
 }
+
+/**
+ * Compute the featured and full tag lists for a given set of exercises.
+ * Used by both HomePage and PrepPage when the source filter changes.
+ */
+export function getTagsForExercises(exerciseList: Exercise[]): {
+  featuredTags: string[];
+  allTags: string[];
+} {
+  const tagsInSource = new Set(exerciseList.flatMap((ex) => ex.tags));
+  return {
+    featuredTags: FEATURED_TAGS.filter((tag) => tagsInSource.has(tag)),
+    allTags: Array.from(tagsInSource).sort(),
+  };
+}
+
+/**
+ * Filter exercises by selected tags and search text.
+ * Shared by HomePage and PrepPage.
+ */
+export function filterExercises(
+  exerciseList: Exercise[],
+  selectedTags: string[],
+  searchText: string,
+): Exercise[] {
+  const hasSearch = searchText.trim() !== '';
+  const searchLower = hasSearch ? searchText.toLowerCase() : '';
+
+  return exerciseList.filter((exercise) => {
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.every((tag) => exercise.tags.includes(tag));
+
+    const matchesSearch =
+      !hasSearch ||
+      exercise.name.toLowerCase().includes(searchLower) ||
+      (exercise.summary?.toLowerCase().includes(searchLower) ?? false) ||
+      exercise.tags.some((tag) => tag.toLowerCase().includes(searchLower));
+
+    return matchesTags && matchesSearch;
+  });
+}
+
+/**
+ * Sort exercises so favorites appear first.
+ */
+export function sortByFavorites(
+  exerciseList: Exercise[],
+  favoriteIds: string[],
+): Exercise[] {
+  return [...exerciseList].sort((a, b) => {
+    const aFav = favoriteIds.includes(a.id) ? 0 : 1;
+    const bFav = favoriteIds.includes(b.id) ? 0 : 1;
+    return aFav - bFav;
+  });
+}
+
+/**
+ * Format an ISO date string as a short readable date (e.g., "Mon, Jan 6").
+ */
+export function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+/**
+ * Format an ISO date string as a short time (e.g., "3:42 PM").
+ */
+export function formatTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
