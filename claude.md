@@ -64,7 +64,8 @@ src/
 ├── context/
 │   └── SessionContext.tsx     # Session state (useReducer + Context)
 ├── hooks/
-│   └── useTemplateSaver.ts    # Shared template-saving logic
+│   ├── useTemplateSaver.ts    # Shared template-saving logic
+│   └── useTheme.ts            # Light/dark theme toggle with localStorage
 ├── storage/
 │   ├── StorageContext.tsx      # StorageProvider context + useStorage hook
 │   └── local-storage.ts       # localStorage implementation
@@ -84,7 +85,7 @@ src/
 ### Styling Approach
 - Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
 - shadcn/ui for reusable primitives (Card, Badge, Dialog, AlertDialog, Sonner) — components live in `src/components/ui/`
-- Explicit Tailwind classes on each component (no CSS-variable theming yet)
+- Light/dark theme via CSS custom properties + `useTheme` hook (`:root` = light, `.dark` = dark)
 
 ## Tech Stack Decisions
 
@@ -552,7 +553,7 @@ and the full pipeline.
 - Scraped exercise data from learnimprov.com and improwiki.com
 - Post-processing pipeline (tag normalization, description cleanup)
 - Dual licensing: MIT for code, CC BY-SA for data
-- Dark theme with Tailwind CSS + shadcn/ui components
+- Light/dark theme toggle with localStorage persistence via `useTheme` hook
 - Responsive design, deployed to GitHub Pages
 
 **What's next**:

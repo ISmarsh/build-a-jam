@@ -61,6 +61,7 @@ npm run build    # Type-check and build for production
 npm run preview  # Preview production build
 npm run lint     # Run ESLint
 npm run scrape   # Run all data scrapers + post-processing
+npm run audit:a11y  # Run accessibility audit (Playwright + axe-core)
 ```
 
 ## Project Structure
