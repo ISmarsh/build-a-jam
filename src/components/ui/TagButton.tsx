@@ -58,7 +58,7 @@ function Button({
           'px-4 py-2 rounded-lg',
           active
             ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-            : 'bg-secondary text-gray-200 hover:bg-gray-600',
+            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ],
 
         // Variant: tag-style button (pill-shaped)

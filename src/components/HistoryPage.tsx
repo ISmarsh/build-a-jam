@@ -168,7 +168,7 @@ function HistoryPage() {
                             <Badge
                               key={j}
                               variant="outline"
-                              className={`bg-secondary border-input text-xs ${ex ? 'text-indigo-400 cursor-pointer hover:bg-gray-600' : 'text-secondary-foreground'}`}
+                              className={`bg-secondary border-input text-xs ${ex ? 'text-indigo-400 cursor-pointer hover:bg-secondary/80' : 'text-secondary-foreground'}`}
                               onClick={ex ? (e: React.MouseEvent) => { e.stopPropagation(); setDetailExercise(ex); } : undefined}
                             >
                               {ex?.name ?? se.exerciseId}

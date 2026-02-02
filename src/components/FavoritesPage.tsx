@@ -139,7 +139,7 @@ function FavoritesPage() {
                                     variant="outline"
                                     className={`bg-secondary border-input text-xs ${
                                       ex
-                                        ? 'text-indigo-400 cursor-pointer hover:bg-gray-600'
+                                        ? 'text-indigo-400 cursor-pointer hover:bg-secondary/80'
                                         : 'text-secondary-foreground'
                                     }`}
                                     onClick={
