@@ -21,7 +21,7 @@
  *    This keeps the same interface — zero consumer changes needed.
  */
 
-import { ArrowRight } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import type { Exercise } from '../types';
 import { Badge } from './ui/badge';
 import {
@@ -97,7 +97,7 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-sm transition-colors"
             >
-              View on source site <ArrowRight className="w-4 h-4" />
+              View on source site <ExternalLink className="w-4 h-4" />
             </a>
           ) : (
             <span />
