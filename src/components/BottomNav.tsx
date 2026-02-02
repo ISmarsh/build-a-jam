@@ -51,11 +51,12 @@ function BottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 sm:hidden z-50">
         {/* Expanding menu panel */}
         {menuOpen && (
-          <div className="bg-card border-t py-2">
+          <div className="bg-card border-t py-2" role="menu">
             {menuItems.map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
                 to={to}
+                role="menuitem"
                 className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-white hover:bg-muted transition-colors"
               >
                 <Icon className="w-5 h-5" />
@@ -66,6 +67,7 @@ function BottomNav() {
               href="https://github.com/ISmarsh/build-a-jam"
               target="_blank"
               rel="noopener noreferrer"
+              role="menuitem"
               className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-white hover:bg-muted transition-colors"
             >
               <Github className="w-5 h-5" />

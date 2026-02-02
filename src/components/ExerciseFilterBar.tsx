@@ -94,7 +94,7 @@ function ExerciseFilterBar({
       />
 
       {/* Search input */}
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <label htmlFor={searchId} className="text-secondary-foreground font-medium">
           Search exercises:
         </label>
