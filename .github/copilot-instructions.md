@@ -1,5 +1,9 @@
 # Copilot Code Review Instructions
 
+> **Generic guidance**: See [templates/claude-guidance/copilot-instructions.md](../templates/claude-guidance/copilot-instructions.md)
+> for universal review guidelines (bugs, security, accessibility).
+> This file contains project-specific additions.
+
 ## Project context
 
 This is a learning project (Angular developer learning React). One active

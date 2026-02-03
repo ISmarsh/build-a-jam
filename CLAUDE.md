@@ -1,5 +1,9 @@
 # Build-a-Jam - Claude Context
 
+> **Generic guidance**: See [templates/claude-guidance/CLAUDE.md](templates/claude-guidance/CLAUDE.md)
+> for universal development practices (git workflow, PR reviews, code principles).
+> This file contains project-specific context that extends that guidance.
+
 ## Project Purpose
 
 Build-a-Jam is both a **functional tool** and a **learning project**:

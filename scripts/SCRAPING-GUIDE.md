@@ -1,5 +1,9 @@
 # Scraping Guide
 
+> **Generic guidance**: See [../templates/scraper-utils/SCRAPING-GUIDE.md](../templates/scraper-utils/SCRAPING-GUIDE.md)
+> for universal scraping best practices (architecture, caching, rate limiting, anti-patterns).
+> This file contains project-specific scraper documentation.
+
 How to run, maintain, and extend the exercise data scrapers.
 
 ## Quick Reference
