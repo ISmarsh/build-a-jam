@@ -188,19 +188,21 @@ function NotesPage() {
           </button>
         )}
 
-        {/* Always show "Save as new" option */}
-        <button
-          type="button"
-          onClick={() => handleSetSaveMode('new')}
-          className="group flex items-center gap-2 cursor-pointer select-none text-sm transition-colors"
-        >
-          <Star
-            className={`w-4 h-4 ${saveMode === 'new' ? 'fill-star text-star' : 'text-muted-foreground group-hover:text-star'}`}
-          />
-          <span className={saveMode === 'new' ? 'text-star' : 'text-muted-foreground group-hover:text-star'}>
-            Save as new favorite
-          </span>
-        </button>
+        {/* Show "Save as new" if session is fresh OR if it was modified from a template */}
+        {(!sourceTemplate || wasModified) && (
+          <button
+            type="button"
+            onClick={() => handleSetSaveMode('new')}
+            className="group flex items-center gap-2 cursor-pointer select-none text-sm transition-colors"
+          >
+            <Star
+              className={`w-4 h-4 ${saveMode === 'new' ? 'fill-star text-star' : 'text-muted-foreground group-hover:text-star'}`}
+            />
+            <span className={saveMode === 'new' ? 'text-star' : 'text-muted-foreground group-hover:text-star'}>
+              Save as new favorite
+            </span>
+          </button>
+        )}
 
         {/* Name input for new template */}
         {saveMode === 'new' && (
