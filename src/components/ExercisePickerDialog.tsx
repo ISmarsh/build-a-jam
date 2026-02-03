@@ -25,15 +25,9 @@
 import { useState } from 'react';
 import { ArrowRight, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  filterBySource,
-  getTagsForExercises,
-  filterExercises,
-  sortByFavorites,
-} from '../data/exercises';
-import type { SourceFilter } from '../data/exercises';
 import type { Exercise } from '../types';
 import { useSession } from '../context/SessionContext';
+import { useExerciseFilter } from '../hooks/useExerciseFilter';
 import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import ExerciseFormDialog from './ExerciseFormDialog';
@@ -63,29 +57,10 @@ function ExercisePickerDialog({
   onAdd,
   existingExerciseIds,
 }: ExercisePickerDialogProps) {
-  const { state, dispatch } = useSession();
-  const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [searchText, setSearchText] = useState('');
+  const { dispatch } = useSession();
+  const exerciseFilter = useExerciseFilter();
   const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-
-  // Same filter pipeline used by HomePage and PrepPage
-  const sourceFiltered = filterBySource(selectedSource);
-  const { featuredTags, allTags } = getTagsForExercises(sourceFiltered);
-  const filtered = filterExercises(sourceFiltered, selectedTags, searchText);
-  const sorted = sortByFavorites(filtered, state.favoriteExerciseIds);
-
-  function handleSourceChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedSource(event.target.value as SourceFilter);
-    setSelectedTags([]);
-  }
-
-  function handleTagToggle(tag: string) {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  }
 
   return (
     <>
@@ -100,20 +75,20 @@ function ExercisePickerDialog({
 
           <div className="flex-1 overflow-y-auto min-h-0">
             <ExerciseFilterBar
-              selectedSource={selectedSource}
-              onSourceChange={handleSourceChange}
-              featuredTags={featuredTags}
-              allTags={allTags}
-              selectedTags={selectedTags}
-              onTagToggle={handleTagToggle}
-              searchText={searchText}
-              onSearchChange={setSearchText}
+              selectedSource={exerciseFilter.selectedSource}
+              onSourceChange={exerciseFilter.handleSourceChange}
+              featuredTags={exerciseFilter.featuredTags}
+              allTags={exerciseFilter.allTags}
+              selectedTags={exerciseFilter.selectedTags}
+              onTagToggle={exerciseFilter.handleTagToggle}
+              searchText={exerciseFilter.searchText}
+              onSearchChange={exerciseFilter.setSearchText}
               idPrefix="session-picker"
             />
 
             <div className="flex items-center justify-between mt-3 mb-2">
               <p className="text-muted-foreground text-sm">
-                {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
+                {exerciseFilter.filtered.length} exercise{exerciseFilter.filtered.length !== 1 ? 's' : ''}
               </p>
               <Button
                 variant="outline"
@@ -126,7 +101,7 @@ function ExercisePickerDialog({
 
             {/* Compact exercise list */}
             <div className="space-y-2">
-              {sorted.map((exercise) => {
+              {exerciseFilter.sorted.map((exercise) => {
                 const inQueue = existingExerciseIds.includes(exercise.id);
                 return (
                   <Card key={exercise.id}>

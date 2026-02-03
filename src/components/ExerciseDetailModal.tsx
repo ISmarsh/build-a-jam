@@ -50,7 +50,7 @@ function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDe
       <DialogContent
         className="bg-card max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-dark p-0 gap-0"
       >
-        {/* Header — title and close share a flex row for natural alignment */}
+        {/* Headerlet's — title and close share a flex row for natural alignment */}
         <DialogHeader className="px-6 py-4 border-b border-border">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="text-2xl font-bold text-primary">

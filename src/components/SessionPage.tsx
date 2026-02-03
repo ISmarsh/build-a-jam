@@ -47,10 +47,10 @@ import { Navigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Coffee } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { getExerciseById, formatDuration } from '../data/exercises';
+import { getExerciseById, formatDuration, BREAK_EXERCISE_ID } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import SessionQueuePanel, { BREAK_EXERCISE_ID } from './SessionQueuePanel';
+import SessionQueuePanel from './SessionQueuePanel';
 import ExercisePickerDialog from './ExercisePickerDialog';
 
 /** Default duration for breaks in minutes */

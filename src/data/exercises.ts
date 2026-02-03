@@ -24,7 +24,7 @@
  * shared across all importers.
  */
 
-import type { Exercise } from '../types';
+import type { Exercise, SessionExercise } from '../types';
 
 // Import scraped exercise data
 // Vite handles these as static imports and includes them in the bundle
@@ -40,7 +40,7 @@ import improwikiData from './improwiki-exercises.json';
  * In React, plain data imports work great for static data like this.
  * Later we can add filtering, search, and other transformations.
  */
-export const exercises: Exercise[] = [
+const exercises: Exercise[] = [
   // Spread operator (...) unpacks arrays - like concat but cleaner
   ...learnimprovData.exercises,
   ...improwikiData.exercises,
@@ -89,6 +89,22 @@ function allExercises(): Exercise[] {
  */
 export function getExerciseById(id: string): Exercise | undefined {
   return allExercises().find(ex => ex.id === id);
+}
+
+// ---------------------------------------------------------------------------
+// Break exercises & name resolution
+// ---------------------------------------------------------------------------
+
+/** Sentinel exercise ID used for break items in session queues. */
+export const BREAK_EXERCISE_ID = 'break';
+
+/**
+ * Get the display name for a session exercise, handling breaks and missing data.
+ * Centralises the "break or lookup" pattern used across many components.
+ */
+export function getExerciseName(se: SessionExercise): string {
+  if (se.exerciseId === BREAK_EXERCISE_ID) return 'Break';
+  return getExerciseById(se.exerciseId)?.name ?? se.exerciseId;
 }
 
 /**
@@ -168,19 +184,6 @@ export const FEATURED_TAGS: string[] = [
   "pairs",
   "focus",
 ];
-
-/**
- * Helper to get all unique tags across all exercises, sorted alphabetically.
- * This is useful for building tag filter UI.
- */
-export function getAllTags(): string[] {
-  // flatMap is like map + flatten - extracts all tags into a flat array
-  // Set automatically deduplicates
-  // Array.from converts Set back to array so we can sort it
-  return Array.from(
-    new Set(allExercises().flatMap(ex => ex.tags))
-  ).sort();
-}
 
 /**
  * Compute the featured and full tag lists for a given set of exercises.

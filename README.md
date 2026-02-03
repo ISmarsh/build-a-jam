@@ -14,6 +14,8 @@ This project also serves as a learning resource for transitioning from Angular t
 - **Vite** — build tool and dev server
 - **Tailwind CSS** + **shadcn/ui** — styling and component primitives
 - **Radix UI** — accessible Dialog, AlertDialog
+- **@dnd-kit** — drag-and-drop for session queue reordering
+- **Lucide React** — icons
 - **Sonner** — toast notifications
 - **React Router** — client-side routing
 - **Cheerio** — server-side HTML scraping (dev only)
@@ -21,17 +23,20 @@ This project also serves as a learning resource for transitioning from Angular t
 ## Features
 
 - Browse 300+ improv exercises from multiple sources
-- Filter by source (learnimprov.com, improwiki.com)
+- Create, edit, and delete your own custom exercises
+- Filter by source (learnimprov.com, improwiki.com, My Exercises)
 - Filter by tags (warm-up, scene, connection, heightening, energy, focus, listening, and more)
 - Full-text search across names, descriptions, and tags
 - Favorite exercises and save session templates
 - **Prep → Session → Notes** workflow:
-  - **Prep**: Build a session queue, set per-exercise durations
-  - **Session**: Run through exercises with a countdown timer
+  - **Prep**: Build a session queue, set per-exercise durations, drag-and-drop reorder
+  - **Session**: Run through exercises with a countdown timer, live queue editing
   - **Notes**: Write post-session reflections, save to history
+- Session queue supports break items between exercises
 - Session history with delete and clear
 - Exercise detail modals with full HTML descriptions
-- Responsive dark theme
+- Light and dark themes with toggle
+- Responsive mobile design
 - Data persistence via localStorage
 
 ## Getting Started

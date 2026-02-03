@@ -21,68 +21,35 @@ import { Link } from 'react-router-dom';
 import { Star, Clock, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
+import { useExerciseFilter } from '../hooks/useExerciseFilter';
 import ExerciseList from './ExerciseList';
 import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseFormDialog from './ExerciseFormDialog';
 import ConfirmModal from './ConfirmModal';
 import { Button } from './ui/button';
-import { filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
-import type { SourceFilter } from '../data/exercises';
 import type { Exercise } from '../types';
 
 function HomePage() {
-  // SESSION CONTEXT: access favorite exercise IDs
   const { state, dispatch } = useSession();
   const favoriteIds = state.favoriteExerciseIds;
-
-  // STATE: tag selection for filtering
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-  // STATE: source selection (new - shows one source at a time)
-  const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
-
-  // STATE: text search filter
-  const [searchText, setSearchText] = useState('');
+  const exerciseFilter = useExerciseFilter();
 
   // STATE: custom exercise create/edit/delete
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
 
-  // COMPUTED VALUES: source filtering → tag computation → text/tag filtering → sort
-  const sourceFilteredExercises = filterBySource(selectedSource);
-  const { featuredTags, allTags } = getTagsForExercises(sourceFilteredExercises);
-  const filteredExercises = filterExercises(sourceFilteredExercises, selectedTags, searchText);
-  const sortedExercises = sortByFavorites(filteredExercises, favoriteIds);
-
-  // EVENT HANDLER: Toggle tag selection
-  const handleTagToggle = (tag: string) => {
-    setSelectedTags((prevTags) => {
-      if (prevTags.includes(tag)) {
-        return prevTags.filter((t) => t !== tag);
-      }
-      return [...prevTags, tag];
-    });
-  };
-
-  // EVENT HANDLER: Change source filter
-  const handleSourceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSource(event.target.value as SourceFilter);
-    // Clear tag selections when changing source
-    setSelectedTags([]);
-  };
-
   return (
     <div className="flex flex-col gap-8">
       <ExerciseFilterBar
-        selectedSource={selectedSource}
-        onSourceChange={handleSourceChange}
-        featuredTags={featuredTags}
-        allTags={allTags}
-        selectedTags={selectedTags}
-        onTagToggle={handleTagToggle}
-        searchText={searchText}
-        onSearchChange={setSearchText}
+        selectedSource={exerciseFilter.selectedSource}
+        onSourceChange={exerciseFilter.handleSourceChange}
+        featuredTags={exerciseFilter.featuredTags}
+        allTags={exerciseFilter.allTags}
+        selectedTags={exerciseFilter.selectedTags}
+        onTagToggle={exerciseFilter.handleTagToggle}
+        searchText={exerciseFilter.searchText}
+        onSearchChange={exerciseFilter.setSearchText}
         idPrefix="home"
       >
         {/* Action buttons rendered in the header row */}
@@ -108,7 +75,7 @@ function HomePage() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
-            Exercises ({filteredExercises.length})
+            Exercises ({exerciseFilter.filtered.length})
           </h2>
           <Button
             variant="outline"
@@ -119,7 +86,7 @@ function HomePage() {
           </Button>
         </div>
         <ExerciseList
-          exercises={sortedExercises}
+          exercises={exerciseFilter.sorted}
           favoriteIds={favoriteIds}
           onToggleFavorite={(id) => {
             const wasFavorite = favoriteIds.includes(id);
