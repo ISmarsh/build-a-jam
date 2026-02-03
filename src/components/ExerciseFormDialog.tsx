@@ -25,7 +25,7 @@
 
 import { useState } from 'react';
 import type { Exercise } from '../types';
-import { getExerciseById } from '../data/exercises';
+import { getCustomExercises } from '../data/exercises';
 import {
   Dialog,
   DialogContent,
@@ -139,12 +139,14 @@ function ExerciseFormDialog({
       return;
     }
 
-    // Check for duplicate names (only for new exercises, or if name changed)
+    // Check for duplicate names among custom exercises (by slug comparison).
+    // Only check for new exercises, or if the name changed during editing.
     if (!isEditing || trimmedName !== existingExercise?.name) {
-      const testId = `custom:${slugify(trimmedName)}`;
-      // Check if an exercise with a similar slug already exists
-      const existing = getExerciseById(testId);
-      if (existing && existing.id !== existingExercise?.id) {
+      const newSlug = slugify(trimmedName);
+      const duplicate = getCustomExercises().find(ex =>
+        ex.id !== existingExercise?.id && slugify(ex.name) === newSlug
+      );
+      if (duplicate) {
         setError('An exercise with a similar name already exists.');
         return;
       }

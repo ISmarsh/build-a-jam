@@ -73,6 +73,11 @@ export function registerCustomExercises(updated: Exercise[]): void {
   recomputeSourceCounts();
 }
 
+/** Get the current list of custom exercises (read-only snapshot). */
+export function getCustomExercises(): readonly Exercise[] {
+  return customExercises;
+}
+
 /** Get all exercises: static (scraped) + custom (user-created). */
 function allExercises(): Exercise[] {
   return [...exercises, ...customExercises];
