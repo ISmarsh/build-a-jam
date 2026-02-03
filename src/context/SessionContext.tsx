@@ -154,6 +154,7 @@ type SessionAction =
   | { type: 'TOGGLE_FAVORITE_EXERCISE'; exerciseId: string }
   | { type: 'DELETE_SESSION_TEMPLATE'; sessionId: string }
   | { type: 'RENAME_SESSION_TEMPLATE'; sessionId: string; name: string }
+  | { type: 'UPDATE_SESSION_TEMPLATE'; sessionId: string }
   | { type: 'SAVE_COMPLETED_AS_TEMPLATE'; completedSessionIndex: number; name: string }
   | { type: 'TIMER_TICK' }
   | { type: 'TIMER_PAUSE' }
@@ -332,6 +333,8 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
           id: generateId(),
           createdAt: new Date().toISOString(),
           isTemplate: false,
+          // Track which template this session came from (for update flow in NotesPage)
+          sourceTemplateId: action.session.isTemplate ? action.session.id : undefined,
           // Ensure every exercise has a slotId for drag-and-drop stability.
           // Templates saved before slotId was added won't have them.
           exercises: ensureSlotIds(action.session.exercises),
@@ -593,6 +596,28 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
           s.id === action.sessionId ? { ...s, name: action.name } : s
         ),
       };
+
+    // UPDATE_SESSION_TEMPLATE — replace an existing template's exercises with current session
+    // Used when user loads a template, modifies it during session, and wants to save changes
+    // back to the original template instead of creating a new one.
+    case 'UPDATE_SESSION_TEMPLATE': {
+      if (!state.currentSession) return state;
+      return {
+        ...state,
+        sessions: state.sessions.map(s =>
+          s.id === action.sessionId
+            ? {
+                ...s,
+                exercises: state.currentSession!.exercises.map(({ exerciseId, duration, order }) => ({
+                  exerciseId,
+                  duration,
+                  order,
+                })),
+              }
+            : s
+        ),
+      };
+    }
 
     case 'SAVE_COMPLETED_AS_TEMPLATE': {
       const completed = state.completedSessions[action.completedSessionIndex];
