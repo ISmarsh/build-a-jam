@@ -25,10 +25,11 @@
  *    WYSIWYG experience where users see formatting as they type.
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Exercise } from '../types';
-import { getCustomExercises } from '../data/exercises';
+import { getCustomExercises, filterBySource, getTagsForExercises } from '../data/exercises';
 import RichTextEditor from './RichTextEditor';
+import TagInput from './TagInput';
 import {
   Dialog,
   DialogContent,
@@ -72,18 +73,6 @@ function generateCustomId(name: string): string {
   return `custom:${slug}-${suffix}`;
 }
 
-/**
- * Parse a comma-separated tag string into a normalized tag array.
- * Lowercase, trimmed, deduplicated, empty strings removed.
- */
-function parseTags(input: string): string[] {
-  const tags = input
-    .split(',')
-    .map(t => t.trim().toLowerCase())
-    .filter(t => t.length > 0);
-  return [...new Set(tags)];
-}
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -100,9 +89,16 @@ function ExerciseFormDialog({
   // Note: description is now stored as HTML directly (Tiptap handles it natively)
   const [name, setName] = useState(existingExercise?.name ?? '');
   const [description, setDescription] = useState(existingExercise?.description ?? '');
-  const [tags, setTags] = useState(existingExercise?.tags.join(', ') ?? '');
+  const [tags, setTags] = useState<string[]>(existingExercise?.tags ?? []);
   const [summary, setSummary] = useState(existingExercise?.summary ?? '');
   const [error, setError] = useState('');
+
+  // Get all available tags from the exercise library for autocomplete
+  const availableTags = useMemo(() => {
+    const allExercises = filterBySource('all');
+    const { allTags } = getTagsForExercises(allExercises);
+    return allTags;
+  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -129,7 +125,7 @@ function ExerciseFormDialog({
     const exercise: Exercise = {
       id: existingExercise?.id ?? generateCustomId(trimmedName),
       name: trimmedName,
-      tags: parseTags(tags),
+      tags, // Already an array from TagInput
       description, // Tiptap outputs HTML directly
       summary: summary.trim() || undefined,
       isCustom: true,
@@ -165,6 +161,7 @@ function ExerciseFormDialog({
               onChange={(e) => { setName(e.target.value); setError(''); }}
               placeholder="e.g., Zip Zap Zop"
               className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors"
+              autoComplete="off"
               autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- dialog just opened
             />
           </div>
@@ -181,6 +178,7 @@ function ExerciseFormDialog({
               onChange={(e) => setSummary(e.target.value)}
               placeholder="Brief one-liner about what the exercise does"
               className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors"
+              autoComplete="off"
             />
           </div>
 
@@ -195,18 +193,18 @@ function ExerciseFormDialog({
             </RichTextEditor>
           </div>
 
-          {/* Tags (comma-separated) */}
+          {/* Tags with autocomplete */}
           <div>
-            <label htmlFor="exercise-tags" className="block text-sm font-medium text-foreground mb-1">
-              Tags <span className="text-muted-foreground font-normal">(comma-separated)</span>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TagInput uses aria-labelledby */}
+            <label id="exercise-tags-label" className="block text-sm font-medium text-foreground mb-1">
+              Tags <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
-            <input
-              id="exercise-tags"
-              type="text"
+            <TagInput
               value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="warm-up, circle, listening"
-              className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors"
+              onChange={setTags}
+              suggestions={availableTags}
+              placeholder="Add tags..."
+              labelId="exercise-tags-label"
             />
           </div>
 
