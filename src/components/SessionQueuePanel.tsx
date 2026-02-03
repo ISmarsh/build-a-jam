@@ -46,6 +46,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { ChevronDown, ChevronUp, Check, Play, Coffee, Plus, X, GripVertical } from 'lucide-react';
 import type { SessionExercise } from '../types';
 import { BREAK_EXERCISE_ID, getExerciseName, formatDuration } from '../data/exercises';
+import { type ConfirmConfig, confirmRemove } from '../lib/confirmations';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import ConfirmModal from './ConfirmModal';
@@ -194,12 +195,7 @@ function SessionQueuePanel({
 }: SessionQueuePanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [editingNotesIndex, setEditingNotesIndex] = useState<number | null>(null);
-  const [confirm, setConfirm] = useState<{
-    title: string;
-    message: string;
-    confirmLabel: string;
-    onConfirm: () => void;
-  } | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmConfig | null>(null);
 
   // Precompute exercise numbers (excluding breaks) for display.
   // E.g., [Exercise=1, Break=undefined, Exercise=2, Exercise=3, Break=undefined]
@@ -378,15 +374,10 @@ function SessionQueuePanel({
                       isBreak={isBreak}
                       onDurationChange={onDurationChange}
                       onRequestRemove={() =>
-                        setConfirm({
-                          title: 'Remove from queue?',
-                          message: `Remove "${name}" from the session?`,
-                          confirmLabel: 'Remove',
-                          onConfirm: () => {
-                            onRemove(realIndex);
-                            setConfirm(null);
-                          },
-                        })
+                        setConfirm(confirmRemove(name, () => {
+                          onRemove(realIndex);
+                          setConfirm(null);
+                        }))
                       }
                     />
                   );

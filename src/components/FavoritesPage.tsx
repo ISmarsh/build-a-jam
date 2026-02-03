@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, BREAK_EXERCISE_ID } from '../data/exercises';
 import type { Exercise, Session } from '../types';
+import { type ConfirmConfig, confirmDelete } from '../lib/confirmations';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import ConfirmModal from './ConfirmModal';
@@ -31,12 +32,7 @@ function FavoritesPage() {
   const navigate = useNavigate();
   const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
   const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
-  const [confirm, setConfirm] = useState<{
-    title: string;
-    message: string;
-    confirmLabel: string;
-    onConfirm: () => void;
-  } | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmConfig | null>(null);
   // Renaming state — null when not renaming, otherwise the template ID being edited
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -68,17 +64,12 @@ function FavoritesPage() {
   }
 
   function handleDeleteTemplate(sessionId: string) {
-    setConfirm({
-      title: 'Delete favorite?',
-      message: 'This will permanently remove this saved favorite.',
-      confirmLabel: 'Delete',
-      onConfirm: () => {
-        dispatch({ type: 'DELETE_SESSION_TEMPLATE', sessionId });
-        setConfirm(null);
-        toast('Favorite deleted');
-        if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
-      },
-    });
+    setConfirm(confirmDelete('favorite', () => {
+      dispatch({ type: 'DELETE_SESSION_TEMPLATE', sessionId });
+      setConfirm(null);
+      toast('Favorite deleted');
+      if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
+    }));
   }
 
   function handleStartRename(template: Session) {

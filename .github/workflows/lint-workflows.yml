@@ -1,0 +1,23 @@
+name: Lint Workflows
+
+on:
+  # Only run when workflow files change
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+  # Also on push to main for workflow changes
+  push:
+    branches: ['main']
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2
