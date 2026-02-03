@@ -46,6 +46,51 @@ const STORAGE_KEYS = {
   CUSTOM_EXERCISES: 'custom-exercises',
 } as const;
 
+// Runtime session state (exercise index, timer) lives in sessionStorage
+// instead of localStorage. This state is ephemeral and tab-scoped:
+// - Survives HMR and page refreshes (same tab) — fixes the navigation bug
+// - Auto-cleans when the tab closes — no stale "exercise 3, 47s elapsed"
+// - Doesn't leak across tabs — opening a second tab won't resume mid-session
+//
+// ANGULAR vs REACT:
+// Angular services are singletons that survive route changes and HMR
+// (the DI container keeps them alive). React re-initializes useReducer
+// on HMR, losing in-memory state. sessionStorage bridges that gap for
+// state that's too transient for localStorage but must survive reloads.
+const SESSION_RUNTIME_KEY = 'session-runtime';
+
+interface SessionRuntimeState {
+  currentExerciseIndex: number | null;
+  timerElapsed: number;
+  timerCumulative: number;
+  timerPaused: boolean;
+}
+
+function saveRuntimeState(runtime: SessionRuntimeState): void {
+  try {
+    sessionStorage.setItem(SESSION_RUNTIME_KEY, JSON.stringify(runtime));
+  } catch {
+    // sessionStorage full or unavailable — non-critical, just skip
+  }
+}
+
+function loadRuntimeState(): SessionRuntimeState | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_RUNTIME_KEY);
+    return raw ? (JSON.parse(raw) as SessionRuntimeState) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearRuntimeState(): void {
+  try {
+    sessionStorage.removeItem(SESSION_RUNTIME_KEY);
+  } catch {
+    // non-critical
+  }
+}
+
 // ---------------------------------------------------------------------------
 // State shape
 // ---------------------------------------------------------------------------
@@ -155,6 +200,14 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
             exercises: ensureSlotIds(action.currentSession.exercises),
           }
         : null;
+
+      // Restore runtime state (exercise index, timer) from sessionStorage.
+      // This survives HMR and page refreshes without polluting localStorage.
+      const runtime = loadRuntimeState();
+      // Only restore if there's an active session — stale runtime state from
+      // a previous session should be ignored.
+      const hasActiveSession = hydratedSession !== null;
+
       return {
         ...state,
         sessions: action.sessions,
@@ -162,6 +215,11 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         currentSession: hydratedSession,
         favoriteExerciseIds: action.favoriteExerciseIds,
         customExercises: action.customExercises ?? [],
+        // Restore runtime state if we have an active session
+        currentExerciseIndex: hasActiveSession && runtime ? runtime.currentExerciseIndex : null,
+        timerElapsed: hasActiveSession && runtime ? runtime.timerElapsed : 0,
+        timerCumulative: hasActiveSession && runtime ? runtime.timerCumulative : 0,
+        timerPaused: hasActiveSession && runtime ? runtime.timerPaused : false,
         loaded: true,
       };
     }
@@ -578,6 +636,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       void storage.remove(STORAGE_KEYS.CURRENT_SESSION);
     }
   }, [state.sessions, state.completedSessions, state.currentSession, state.favoriteExerciseIds, state.customExercises, state.loaded, storage]);
+
+  // Persist runtime session state (exercise index, timer) to sessionStorage.
+  // This runs on every tick, but sessionStorage writes are synchronous and fast
+  // (~0.01ms), so the overhead is negligible compared to the 1-second timer interval.
+  useEffect(() => {
+    if (!state.loaded) return;
+    if (state.currentExerciseIndex !== null) {
+      saveRuntimeState({
+        currentExerciseIndex: state.currentExerciseIndex,
+        timerElapsed: state.timerElapsed,
+        timerCumulative: state.timerCumulative,
+        timerPaused: state.timerPaused,
+      });
+    } else {
+      // Session not running (idle, completed, or cleared) — clean up
+      clearRuntimeState();
+    }
+  }, [state.loaded, state.currentExerciseIndex, state.timerElapsed, state.timerCumulative, state.timerPaused]);
 
   // Bridge React state → module-level data in exercises.ts.
   // This lets getExerciseById(), filterBySource(), etc. see custom exercises

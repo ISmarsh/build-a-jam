@@ -19,7 +19,7 @@
  *    AppComponent template with a <router-outlet>.
  */
 
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { SessionProvider } from './context/SessionContext';
 import { useTheme } from './hooks/useTheme';
 import { Sun, Moon } from 'lucide-react';
@@ -36,30 +36,41 @@ import BottomNav from './components/BottomNav';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+
+  // Hide the full header during session workflow (prep, active session, notes)
+  // to maximize screen real estate on mobile. The bottom nav still provides
+  // navigation, and the theme toggle moves there on these views.
+  const isSessionView =
+    location.pathname === '/prep' ||
+    location.pathname.startsWith('/session/') ||
+    location.pathname.startsWith('/notes/');
 
   return (
     <SessionProvider>
       <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8 sm:px-6 lg:px-8">
-        <header className="text-center mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-primary flex-shrink-0">
-          {/* Three-column flex: invisible spacer | title | toggle button.
-              The spacer matches the toggle width so the title stays centered. */}
-          <div className="flex justify-between items-start">
-            <div className="w-9" aria-hidden="true" />
-            <Link to="/" className="hover:opacity-80 transition-opacity">
-              <h1 className="text-3xl sm:text-5xl font-bold mb-2 text-primary">Build-a-Jam</h1>
-            </Link>
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-          </div>
-          <p className="text-muted-foreground text-sm sm:text-lg">
-            Your improv exercise library - Plan sessions with confidence
-          </p>
-        </header>
+        {!isSessionView && (
+          <header className="text-center mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-primary flex-shrink-0">
+            {/* Three-column flex: invisible spacer | title | toggle button.
+                The spacer matches the toggle width so the title stays centered. */}
+            <div className="flex justify-between items-start">
+              <div className="w-9" aria-hidden="true" />
+              <Link to="/" className="hover:opacity-80 transition-opacity">
+                <h1 className="text-3xl sm:text-5xl font-bold mb-2 text-primary">Build-a-Jam</h1>
+              </Link>
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </div>
+            <p className="text-muted-foreground text-sm sm:text-lg">
+              Your improv exercise library - Plan sessions with confidence
+            </p>
+          </header>
+        )}
 
         {/* ROUTES: Main content area that grows to push footer down */}
         <main className="flex-1 mb-8">

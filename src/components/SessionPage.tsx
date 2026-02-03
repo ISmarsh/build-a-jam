@@ -65,6 +65,11 @@ function SessionPage() {
   // UI-only state (OK to lose on unmount — these reset naturally)
   const [showDescription, setShowDescription] = useState(false);
   const [showExercisePicker, setShowExercisePicker] = useState(false);
+  // Current timestamp, updated by the timer effect. Used to estimate
+  // exercise/session end times. Stored in state (not computed via
+  // Date.now() in render) because the React compiler requires render
+  // to be pure — Date.now() is an impure function.
+  const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Timer state lives in context so it survives navigation
@@ -75,6 +80,12 @@ function SessionPage() {
   const session = state.currentSession;
   const exerciseIndex = state.currentExerciseIndex;
 
+  // Compute isOverTime early so we can use it in a hook (hooks must be
+  // called unconditionally, before any early returns).
+  const currentExerciseDuration = session?.exercises[exerciseIndex ?? 0]?.duration ?? 0;
+  const targetSecondsEarly = currentExerciseDuration * 60;
+  const isOverTimeEarly = exerciseIndex !== null && elapsedSeconds >= targetSecondsEarly;
+
   // Timer effect — dispatches TIMER_TICK every second when not paused.
   // The interval runs as long as this component is mounted and unpaused.
   // If the user navigates away, the interval stops (cleanup runs), but
@@ -84,6 +95,7 @@ function SessionPage() {
 
     intervalRef.current = setInterval(() => {
       dispatch({ type: 'TIMER_TICK' });
+      setNow(Date.now()); // update timestamp for end time estimates
     }, 1000);
 
     // Cleanup: clear the interval when pausing, unmounting, or re-running
@@ -91,6 +103,33 @@ function SessionPage() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isPaused, dispatch]);
+
+  // Vibrate when hitting target duration — gives tactile feedback so you
+  // don't have to watch the screen. Uses the Vibration API, which is
+  // supported on Android browsers but not iOS Safari. Falls back gracefully.
+  //
+  // REACT LEARNING NOTE — RULES OF HOOKS:
+  // Hooks must be called unconditionally (before any early returns). That's
+  // why we compute isOverTimeEarly above the guards. The prevIsOverTimeRef
+  // pattern tracks the previous value so we only vibrate on the false→true
+  // transition, not on every render where isOverTime is true.
+  const prevIsOverTimeRef = useRef(false);
+  useEffect(() => {
+    if (isOverTimeEarly && !prevIsOverTimeRef.current) {
+      // Just crossed the threshold — vibrate for 200ms
+      navigator.vibrate?.(200);
+    }
+    prevIsOverTimeRef.current = isOverTimeEarly;
+  }, [isOverTimeEarly]);
+
+  // Wait for hydration before applying redirect guards.
+  // On HMR or page refresh, useReducer reinitializes with default state
+  // (currentExerciseIndex: null) before the HYDRATE action restores values
+  // from storage. Without this guard, the null index would trigger the
+  // "session complete" redirect below, bouncing the user to /notes mid-session.
+  if (!state.loaded) {
+    return null;
+  }
 
   // Redirect guards via render — avoids useEffect race conditions
   if (!session) {
@@ -247,17 +286,17 @@ function SessionPage() {
         </CardContent>
       </Card>
 
-      {/* Timer */}
+      {/* Timer — countdown from target, goes negative when over */}
       <div className="mb-8">
         <p
           className={`text-6xl font-mono font-bold mb-2 ${
             isOverTime ? 'text-destructive' : 'text-primary'
           }`}
         >
-          {formatDuration(elapsedSeconds)}
+          {isOverTime ? '-' : ''}{formatDuration(Math.abs(targetSeconds - elapsedSeconds))}
         </p>
         <p className="text-muted-foreground">
-          Target: {currentSessionExercise.duration} min ({formatDuration(targetSeconds)})
+          {currentSessionExercise.duration} min target
         </p>
         <p className="text-muted-foreground text-sm mt-1">
           Session: {formatDuration(cumulativeSeconds)} / {formatDuration(totalSessionSeconds)}
@@ -278,6 +317,8 @@ function SessionPage() {
       <SessionQueuePanel
         exercises={session.exercises}
         currentIndex={idx}
+        timerElapsed={elapsedSeconds}
+        now={now}
         onRemove={handleRemoveUpcoming}
         onDurationChange={handleDurationChange}
         onReorder={handleReorder}
