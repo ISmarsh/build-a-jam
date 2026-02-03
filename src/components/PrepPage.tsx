@@ -17,12 +17,29 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Star } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { ArrowRight, GripVertical, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
-import type { Exercise } from '../types';
+import type { Exercise, SessionExercise } from '../types';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
 import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseDetailModal from './ExerciseDetailModal';
@@ -30,6 +47,117 @@ import ConfirmModal from './ConfirmModal';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { BREAK_EXERCISE_ID } from './SessionQueuePanel';
+
+// ---------------------------------------------------------------------------
+// SortablePrepItem — a single draggable exercise in the prep queue
+// ---------------------------------------------------------------------------
+
+interface SortablePrepItemProps {
+  id: string;
+  index: number;
+  se: SessionExercise;
+  onDurationChange: (index: number, duration: number) => void;
+  onRequestRemove: () => void;
+  onShowDetail: (exercise: Exercise) => void;
+}
+
+function SortablePrepItem({
+  id,
+  index,
+  se,
+  onDurationChange,
+  onRequestRemove,
+  onShowDetail,
+}: SortablePrepItemProps) {
+  const exercise = se.exerciseId === BREAK_EXERCISE_ID ? undefined : getExerciseById(se.exerciseId);
+  const name = se.exerciseId === BREAK_EXERCISE_ID ? 'Break' : (exercise?.name ?? se.exerciseId);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.5 : undefined,
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style}>
+      <CardContent className="py-3">
+        <div className="flex items-center justify-between gap-3">
+          {/* Drag handle */}
+          <button
+            {...attributes}
+            {...listeners}
+            className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+            aria-label={`Drag to reorder ${name}`}
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <span className="text-muted-foreground text-sm mr-2">{index + 1}.</span>
+            <span className="text-foreground">{name}</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <input
+              type="number"
+              min={1}
+              max={60}
+              value={se.duration}
+              onChange={(e) =>
+                onDurationChange(index, Math.max(1, Number(e.target.value)))
+              }
+              aria-label={`Duration for ${name} in minutes`}
+              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
+            />
+            <span className="text-muted-foreground text-sm">min</span>
+            <button
+              onClick={onRequestRemove}
+              className="text-destructive hover:text-destructive/80 shrink-0 transition-colors ml-1"
+              aria-label={`Remove ${name}`}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        {exercise?.summary && (
+          <p className="text-muted-foreground text-sm mt-1 ml-8 line-clamp-1">
+            {exercise.summary}
+          </p>
+        )}
+        <div className="flex items-end justify-between mt-1 ml-8">
+          <div className="flex flex-wrap gap-1">
+            {exercise?.tags?.map((tag) => (
+              <Badge
+                key={tag}
+                variant="outline"
+                className="text-primary border-input text-xs"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          {exercise && (
+            <button
+              onClick={() => onShowDetail(exercise)}
+              className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
+            >
+              Details <ArrowRight className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function PrepPage() {
   const { state, dispatch } = useSession();
@@ -68,6 +196,24 @@ function PrepPage() {
 
   function handleDurationChange(index: number, duration: number) {
     dispatch({ type: 'SET_DURATION', index, duration });
+  }
+
+  // Stable IDs for dnd-kit — slotId is generated when exercises are added
+  const sortableIds = sessionExercises.map((se, i) => se.slotId ?? `prep-${i}`);
+
+  // Sensors for drag-and-drop (same setup as SessionQueuePanel)
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const fromIndex = sortableIds.indexOf(String(active.id));
+    const toIndex = sortableIds.indexOf(String(over.id));
+    if (fromIndex === -1 || toIndex === -1) return;
+    dispatch({ type: 'REORDER_EXERCISES', from: fromIndex, to: toIndex });
   }
 
   function handleStartSession() {
@@ -243,80 +389,46 @@ function PrepPage() {
               No exercises yet. Add some from the library.
             </p>
           ) : (
-            <div className="space-y-3">
-              {sessionExercises.map((se, index) => {
-                const exercise = getExerciseById(se.exerciseId);
-                return (
-                  <Card key={index}>
-                    <CardContent className="py-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <span className="text-muted-foreground text-sm mr-2">{index + 1}.</span>
-                          <span className="text-foreground">
-                            {exercise?.name ?? se.exerciseId}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <input
-                            type="number"
-                            min={1}
-                            max={60}
-                            value={se.duration}
-                            onChange={(e) =>
-                              handleDurationChange(index, Math.max(1, Number(e.target.value)))
-                            }
-                            aria-label={`Duration for ${exercise?.name ?? 'exercise'} in minutes`}
-                            className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
-                          />
-                          <span className="text-muted-foreground text-sm">min</span>
-                          <button
-                            onClick={() => setConfirm({
-                              title: 'Remove exercise?',
-                              message: `Remove "${exercise?.name ?? 'exercise'}" from the queue?`,
-                              confirmLabel: 'Remove',
-                              onConfirm: () => {
-                                handleRemoveExercise(index);
-                                setConfirm(null);
-                              },
-                            })}
-                            className="text-destructive hover:text-destructive/80 text-sm ml-2"
-                            aria-label={`Remove ${exercise?.name ?? 'exercise'}`}
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                      {exercise?.summary && (
-                        <p className="text-muted-foreground text-sm mt-1 ml-5 line-clamp-1">
-                          {exercise.summary}
-                        </p>
-                      )}
-                      <div className="flex items-end justify-between mt-1 ml-5">
-                        <div className="flex flex-wrap gap-1">
-                          {exercise?.tags?.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="outline"
-                              className="text-primary border-input text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        {exercise && (
-                          <button
-                            onClick={() => setDetailExercise(exercise)}
-                            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
-                          >
-                            Details <ArrowRight className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+            >
+              <SortableContext
+                items={sortableIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {sessionExercises.map((se, index) => {
+                    const name = se.exerciseId === BREAK_EXERCISE_ID
+                      ? 'Break'
+                      : (getExerciseById(se.exerciseId)?.name ?? se.exerciseId);
+                    return (
+                      <SortablePrepItem
+                        key={sortableIds[index]}
+                        id={sortableIds[index]}
+                        index={index}
+                        se={se}
+                        onDurationChange={handleDurationChange}
+                        onShowDetail={(exercise) => setDetailExercise(exercise)}
+                        onRequestRemove={() =>
+                          setConfirm({
+                            title: 'Remove exercise?',
+                            message: `Remove "${name}" from the queue?`,
+                            confirmLabel: 'Remove',
+                            onConfirm: () => {
+                              handleRemoveExercise(index);
+                              setConfirm(null);
+                            },
+                          })
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           )}
 
           {sessionExercises.length > 0 && (

@@ -21,7 +21,7 @@
  *    This keeps the same interface — zero consumer changes needed.
  */
 
-import { ExternalLink, X } from 'lucide-react';
+import { ExternalLink, Pencil, Trash2, X } from 'lucide-react';
 import type { Exercise } from '../types';
 import { Badge } from './ui/badge';
 import {
@@ -38,9 +38,13 @@ import { Button } from './ui/button';
 interface ExerciseDetailModalProps {
   exercise: Exercise;
   onClose: () => void;
+  /** Called when user clicks "Edit" — only shown for custom exercises */
+  onEdit?: () => void;
+  /** Called when user clicks "Delete" — only shown for custom exercises */
+  onDelete?: () => void;
 }
 
-function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
+function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDetailModalProps) {
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent
@@ -94,20 +98,35 @@ function ExerciseDetailModal({ exercise, onClose }: ExerciseDetailModalProps) {
           )}
         </div>
 
-        {/* Footer — always horizontal: source link left, close button right */}
+        {/* Footer — source link or edit/delete for custom, close button right */}
         <DialogFooter className="flex flex-row items-center justify-between px-6 py-3 border-t border-border">
-          {exercise.sourceUrl ? (
-            <a
-              href={exercise.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm transition-colors"
-            >
-              Source <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          ) : (
-            <span />
-          )}
+          <div className="flex items-center gap-2">
+            {exercise.isCustom ? (
+              <>
+                {onEdit && (
+                  <Button variant="outline" size="sm" onClick={onEdit}>
+                    <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive">
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                  </Button>
+                )}
+              </>
+            ) : exercise.sourceUrl ? (
+              <a
+                href={exercise.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm transition-colors"
+              >
+                Source <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            ) : (
+              <span />
+            )}
+          </div>
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>
           </DialogClose>

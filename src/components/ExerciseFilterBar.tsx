@@ -80,6 +80,9 @@ function ExerciseFilterBar({
             <option value="all">All Sources ({sourceCounts.all})</option>
             <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
             <option value="improwiki">improwiki.com ({sourceCounts.improwiki})</option>
+            {sourceCounts.custom > 0 && (
+              <option value="custom">My Exercises ({sourceCounts.custom})</option>
+            )}
           </select>
         </div>
         {children}

@@ -25,6 +25,7 @@ export interface Exercise {
   alternativeNames?: string[];   // other names this exercise goes by
   sourceUrl?: string;            // attribution link back to origin site
   rawTags?: string[];            // original tags from source (before normalization)
+  isCustom?: boolean;            // true for user-created exercises
 }
 
 // ---------------------------------------------------------------------------
