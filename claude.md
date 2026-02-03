@@ -223,6 +223,10 @@ fixed, actionable (make the change), or dismiss with explanation.
 - Build, lint, and tests — runs on every push via GitHub Actions
 - Accessibility audit — Playwright + axe-core runs in CI, fails on violations
 
+**While CI is running:** Check for Copilot review comments. Copilot typically
+posts reviews within a minute of pushing, so triage can happen in parallel
+with CI. This is a good use of waiting time.
+
 **Manual checks (ask user before running — expensive in context):**
 
 1. **Triage Copilot review comments** — Copilot auto-reviews PRs. Fetch
