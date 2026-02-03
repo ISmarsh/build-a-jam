@@ -60,6 +60,7 @@ export interface Session {
   exercises: SessionExercise[];
   createdAt: string;             // ISO 8601
   isTemplate: boolean;           // true = saved for reuse
+  sourceTemplateId?: string;     // ID of template this session was loaded from (for update flow)
 }
 
 /**

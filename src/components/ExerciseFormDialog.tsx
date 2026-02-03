@@ -23,7 +23,8 @@
  *    wrapping in <p> tags to prevent injection.
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { Bold, List, ListOrdered } from 'lucide-react';
 import type { Exercise } from '../types';
 import { getCustomExercises } from '../data/exercises';
 import {
@@ -70,31 +71,120 @@ function generateCustomId(name: string): string {
 }
 
 /**
- * Convert plain text to safe HTML.
- * Escapes HTML entities to prevent XSS, then wraps in <p> tags
- * and converts newlines to <br /> for display.
+ * Convert plain text with simple markdown to safe HTML.
+ * Escapes HTML entities to prevent XSS, then:
+ * - Converts **text** to <strong>text</strong>
+ * - Converts • bullets to proper list items
+ * - Converts numbered steps (1. 2. 3.) to ordered list
+ * - Wraps in <p> tags with <br /> for line breaks
  */
 function plainTextToHtml(text: string): string {
   if (!text.trim()) return '';
-  const escaped = text
+
+  // First escape HTML entities
+  let escaped = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-  return `<p>${escaped.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br />')}</p>`;
+
+  // Convert **text** to <strong>text</strong>
+  escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+  // Process lines to detect lists
+  const lines = escaped.split('\n');
+  const result: string[] = [];
+  let inBulletList = false;
+  let inNumberedList = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Bullet point line
+    if (trimmed.startsWith('• ')) {
+      if (!inBulletList) {
+        if (inNumberedList) { result.push('</ol>'); inNumberedList = false; }
+        result.push('<ul>');
+        inBulletList = true;
+      }
+      result.push(`<li>${trimmed.slice(2)}</li>`);
+      continue;
+    }
+
+    // Numbered step line (1. 2. 3. etc.)
+    const numberedMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
+    if (numberedMatch) {
+      if (!inNumberedList) {
+        if (inBulletList) { result.push('</ul>'); inBulletList = false; }
+        result.push('<ol>');
+        inNumberedList = true;
+      }
+      result.push(`<li>${numberedMatch[2]}</li>`);
+      continue;
+    }
+
+    // Regular line — close any open lists
+    if (inBulletList) { result.push('</ul>'); inBulletList = false; }
+    if (inNumberedList) { result.push('</ol>'); inNumberedList = false; }
+
+    // Empty line = paragraph break, non-empty = content
+    if (trimmed === '') {
+      result.push('</p><p>');
+    } else {
+      result.push(line);
+      result.push('<br />');
+    }
+  }
+
+  // Close any remaining lists
+  if (inBulletList) result.push('</ul>');
+  if (inNumberedList) result.push('</ol>');
+
+  // Wrap in <p> and clean up empty paragraphs
+  let html = `<p>${result.join('')}</p>`;
+  html = html.replace(/<br \/><\/p>/g, '</p>');
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p><br \/>/g, '<p>');
+
+  return html;
 }
 
 /**
  * Convert HTML back to plain text for editing.
- * Reverses the plainTextToHtml conversion.
+ * Reverses the plainTextToHtml conversion, including lists and bold.
  */
 function htmlToPlainText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/g, '\n')
-    .replace(/<\/p><p>/g, '\n\n')
-    .replace(/<\/?p>/g, '')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&');
+  let text = html;
+
+  // Convert <strong> to **text**
+  text = text.replace(/<strong>([^<]+)<\/strong>/g, '**$1**');
+
+  // Convert ordered list items (<ol>) to numbered steps
+  text = text.replace(/<ol>([\s\S]*?)<\/ol>/g, (_, olContent: string) => {
+    let stepNum = 0;
+    return olContent.replace(/<li>([^<]*)<\/li>/g, (__, content: string) => {
+      stepNum++;
+      return `${stepNum}. ${content}\n`;
+    });
+  });
+
+  // Convert unordered list items (<ul>) to bullets
+  text = text.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, ulContent: string) => {
+    return ulContent.replace(/<li>([^<]*)<\/li>/g, (__, content: string) => {
+      return `• ${content}\n`;
+    });
+  });
+
+  // Standard conversions
+  text = text.replace(/<br\s*\/?>/g, '\n');
+  text = text.replace(/<\/p><p>/g, '\n\n');
+  text = text.replace(/<\/?p>/g, '');
+
+  // Unescape HTML entities
+  text = text.replace(/&lt;/g, '<');
+  text = text.replace(/&gt;/g, '>');
+  text = text.replace(/&amp;/g, '&');
+
+  return text.trim();
 }
 
 /**
@@ -120,6 +210,7 @@ function ExerciseFormDialog({
   existingExercise,
 }: ExerciseFormDialogProps) {
   const isEditing = !!existingExercise;
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   // Pre-fill from existing exercise when editing
   const [name, setName] = useState(existingExercise?.name ?? '');
@@ -129,6 +220,58 @@ function ExerciseFormDialog({
   const [tags, setTags] = useState(existingExercise?.tags.join(', ') ?? '');
   const [summary, setSummary] = useState(existingExercise?.summary ?? '');
   const [error, setError] = useState('');
+
+  // Insert text at cursor position in description textarea
+  function insertAtCursor(textBefore: string, textAfter: string = '') {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = description.slice(start, end);
+    const newText =
+      description.slice(0, start) +
+      textBefore +
+      selected +
+      textAfter +
+      description.slice(end);
+
+    setDescription(newText);
+
+    // Restore cursor position after the inserted text
+    setTimeout(() => {
+      textarea.focus();
+      const newPosition = start + textBefore.length + selected.length + textAfter.length;
+      textarea.setSelectionRange(newPosition, newPosition);
+    }, 0);
+  }
+
+  // Formatting helpers for improv exercises
+  function insertBulletList() {
+    insertAtCursor('\n• ');
+  }
+
+  function insertNumberedStep() {
+    // Find the next step number based on existing numbered lines
+    const lines = description.split('\n');
+    let maxStep = 0;
+    for (const line of lines) {
+      const match = line.match(/^(\d+)\./);
+      if (match) maxStep = Math.max(maxStep, parseInt(match[1], 10));
+    }
+    insertAtCursor(`\n${maxStep + 1}. `);
+  }
+
+  function insertBold() {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    const selected = description.slice(textarea.selectionStart, textarea.selectionEnd);
+    if (selected) {
+      insertAtCursor('**', '**');
+    } else {
+      insertAtCursor('**text**');
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -210,18 +353,49 @@ function ExerciseFormDialog({
             />
           </div>
 
-          {/* Description (optional) */}
+          {/* Description (optional) with formatting toolbar */}
           <div>
             <label htmlFor="exercise-description" className="block text-sm font-medium text-foreground mb-1">
               Description <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
+            {/* Formatting toolbar — common patterns for improv exercise instructions */}
+            <div className="flex items-center gap-1 mb-1">
+              <button
+                type="button"
+                onClick={insertNumberedStep}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors"
+                title="Add numbered step (for multi-step exercises)"
+              >
+                <ListOrdered className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={insertBulletList}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors"
+                title="Add bullet point (for tips, variations)"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={insertBold}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors"
+                title="Bold text (for emphasis)"
+              >
+                <Bold className="w-4 h-4" />
+              </button>
+              <span className="text-muted-foreground text-xs ml-2">
+                Use **text** for bold
+              </span>
+            </div>
             <textarea
               id="exercise-description"
+              ref={descriptionRef}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="How to run the exercise, rules, variations..."
               rows={4}
-              className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors resize-y"
+              className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors resize-y font-mono"
             />
           </div>
 

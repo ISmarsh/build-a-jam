@@ -6,6 +6,17 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 - **Primary goal**: Help improv performers find and organize warm-up exercises
 - **Secondary goal**: Serve as a hands-on learning project for transitioning from Angular to React
 
+## Target Platform
+
+**Mobile-first design**: This app is primarily used on phones and tablets during
+improv practice sessions. Design decisions should prioritize:
+- Touch-friendly tap targets (no hover-dependent interactions as primary UX)
+- Vertical space efficiency (every pixel counts on mobile)
+- Simple, scannable layouts over information density
+- Keyboard shortcuts are nice-to-have, not essential
+
+When evaluating features, ask: "Does this help someone running a session on their phone?"
+
 ## Developer Context
 
 **User background**: Experienced Angular developer learning React for job opportunities
@@ -208,27 +219,33 @@ fixed, actionable (make the change), or dismiss with explanation.
 
 ### PR wrap-up checklist
 
-Before merging or marking a PR as ready, **ask the user** before running
-these heavier wrap-up tasks (they touch many files and use significant context):
+**Automated checks (CI handles these):**
+- Build, lint, and tests — runs on every push via GitHub Actions
+- Accessibility audit — Playwright + axe-core runs in CI, fails on violations
 
-1. **Run build and lint** — `npm run build && npm run lint` must both pass
-   with zero errors before merging.
-2. **Run accessibility audit** — `npm run audit:a11y` runs Playwright + axe-core
-   against all pages in both themes at mobile and desktop widths. Output goes to
-   `C:/temp/axe-audit.json`. Zero violations is the goal; document any accepted
-   exceptions in the PR description.
-3. **Review all markdown** — check README.md, CLAUDE.md, and
+**Manual checks (ask user before running — expensive in context):**
+
+1. **Triage Copilot review comments** — Copilot auto-reviews PRs. Fetch
+   unresolved threads and categorize:
+   - **Fix**: Real bugs (logic errors, missing edge cases in new code)
+   - **Dismiss**: Stylistic preferences, over-engineering (e.g., "capitalize
+     this hardcoded string dynamically"), or suggestions for pre-existing code
+     not changed in the PR
+   - **Already fixed**: Issues addressed by other commits
+
+   Common dismissals: unnecessary useCallback wrapping, dependency array
+   pedantry for stable React setState, suggestions to add complexity for
+   hypothetical future cases. See "Working with PR review comments" above.
+2. **Review all markdown** — check README.md, CLAUDE.md, and
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.
-4. **Check for code duplication** — scan for duplicated logic across
+3. **Check for code duplication** — scan for duplicated logic across
    components that should be extracted into shared helpers or hooks.
-5. **Check for obsolete code** — look for unused imports, dead functions,
+4. **Check for obsolete code** — look for unused imports, dead functions,
    stale comments, or references to removed features.
 
-Tasks 3–5 are expensive in context and time, so always confirm with the
-user before starting them. A simple "Want me to run the wrap-up checks
-(markdown review, duplication scan, dead code check)?" is enough. Tasks 1–2
-(build + lint, a11y audit) should always be run without asking.
+A simple "Want me to run the wrap-up checks (Copilot review, markdown review,
+duplication scan, dead code check)?" is enough before starting these tasks.
 
 ## Important Context
 

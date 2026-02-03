@@ -43,6 +43,18 @@ export function useTemplateSaver() {
     setTemplateName('');
   }
 
+  /**
+   * Update an existing template with the current session's exercises.
+   * Used when a session was loaded from a template and the user wants
+   * to save modifications back to the original instead of creating a copy.
+   */
+  function update(templateId: string, templateName: string) {
+    dispatch({ type: 'UPDATE_SESSION_TEMPLATE', sessionId: templateId });
+    toast.success(`Updated "${templateName}"`);
+    setIsSaving(false);
+    setTemplateName('');
+  }
+
   function start(initialName = '') {
     setIsSaving(true);
     setTemplateName(initialName);
@@ -53,5 +65,5 @@ export function useTemplateSaver() {
     setTemplateName('');
   }
 
-  return { isSaving, templateName, setTemplateName, save, start, cancel };
+  return { isSaving, templateName, setTemplateName, save, update, start, cancel };
 }

@@ -129,7 +129,7 @@ function HistoryPage() {
             const isExpanded = expandedIndex === i;
 
             return (
-              <Card key={i}>
+              <Card key={session.sessionId}>
                 <CardContent className="py-4">
                   {/* Header — clickable to expand/collapse */}
                   <button
@@ -167,7 +167,7 @@ function HistoryPage() {
                           const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                           return (
                             <Badge
-                              key={j}
+                              key={se.slotId ?? j}
                               variant="outline"
                               className={`border-input text-xs ${ex ? 'text-primary cursor-pointer hover:bg-secondary/80' : 'text-secondary-foreground'}`}
                               onClick={ex ? (e: React.MouseEvent) => { e.stopPropagation(); setDetailExercise(ex); } : undefined}
@@ -184,7 +184,7 @@ function HistoryPage() {
                   {isExpanded && (
                     <div className="mt-4 ml-5 space-y-3">
                       {session.exercises.map((se, j) => (
-                        <div key={j} className="border-l-2 border-border pl-3">
+                        <div key={se.slotId ?? j} className="border-l-2 border-border pl-3">
                           <div className="flex items-center justify-between">
                             <span className="text-foreground text-sm">
                               <span className="text-muted-foreground mr-2">{j + 1}.</span>

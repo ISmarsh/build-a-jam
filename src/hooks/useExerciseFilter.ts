@@ -22,9 +22,32 @@
  *    getTagsForExercises(...)          → available tags for the tag filter UI
  *    filterExercises(..., tags, text)  → exercises matching current filters
  *    sortByFavorites(..., favoriteIds) → favorites float to the top
+ *
+ * 4. PERFORMANCE OPTIMIZATION (useMemo & useCallback):
+ *
+ *    useMemo — MEMOIZING COMPUTED VALUES:
+ *    Angular: computed values in templates re-run on every change detection cycle.
+ *    You'd use pure pipes or memoization libraries to avoid redundant work.
+ *    React: useMemo caches a computed value and only recalculates when its
+ *    dependencies change. Without it, the filter pipeline would run on every
+ *    render — even if just the timer ticked or an unrelated state changed.
+ *
+ *    useCallback — STABLE FUNCTION REFERENCES:
+ *    Angular: methods on a component class have stable identity (same function).
+ *    React: functions defined inside a component are recreated every render.
+ *    If passed as props, this can trigger unnecessary child re-renders (if the
+ *    child uses React.memo). useCallback returns the same function reference
+ *    unless dependencies change.
+ *
+ *    WHEN TO USE THEM:
+ *    - useMemo: expensive computations (filtering 400+ exercises) or values
+ *      passed to memoized children
+ *    - useCallback: functions passed as props to memoized children, or used
+ *      as dependencies in other hooks
+ *    - Don't overuse — premature optimization adds complexity. Profile first.
  */
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSession } from '../context/SessionContext';
 import {
   filterBySource,
@@ -40,23 +63,51 @@ export function useExerciseFilter() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  // The pipeline: source → tags → filter → sort
-  const sourceFiltered = filterBySource(selectedSource);
-  const { featuredTags, allTags } = getTagsForExercises(sourceFiltered);
-  const filtered = filterExercises(sourceFiltered, selectedTags, searchText);
-  const sorted = sortByFavorites(filtered, state.favoriteExerciseIds);
+  // useMemo: cache the source-filtered list until selectedSource changes.
+  // This prevents re-running filterBySource(~400 exercises) on every keystroke
+  // in the search box or tag toggle.
+  const sourceFiltered = useMemo(
+    () => filterBySource(selectedSource),
+    [selectedSource]
+  );
 
-  function handleSourceChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedSource(event.target.value as SourceFilter);
-    // Clear tag selections when changing source — tags differ between sources
-    setSelectedTags([]);
-  }
+  // useMemo: tag lists only need recomputing when source filter changes
+  const { featuredTags, allTags } = useMemo(
+    () => getTagsForExercises(sourceFiltered),
+    [sourceFiltered]
+  );
 
-  function handleTagToggle(tag: string) {
+  // useMemo: the heavy filter — iterates all exercises, checks tags & text.
+  // Dependencies are the three things that affect the output.
+  const filtered = useMemo(
+    () => filterExercises(sourceFiltered, selectedTags, searchText),
+    [sourceFiltered, selectedTags, searchText]
+  );
+
+  // useMemo: favorites sort only changes when filtered list or favorites change
+  const sorted = useMemo(
+    () => sortByFavorites(filtered, state.favoriteExerciseIds),
+    [filtered, state.favoriteExerciseIds]
+  );
+
+  // useCallback: stable function reference for source changes.
+  // If ExerciseFilterBar were wrapped in React.memo, passing a new function
+  // on every render would defeat the memoization. useCallback prevents that.
+  const handleSourceChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedSource(event.target.value as SourceFilter);
+      // Clear tag selections when changing source — tags differ between sources
+      setSelectedTags([]);
+    },
+    []
+  );
+
+  // useCallback: stable reference for tag toggle handler
+  const handleTagToggle = useCallback((tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
-  }
+  }, []);
 
   return {
     selectedSource,
