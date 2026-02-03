@@ -1,12 +1,15 @@
 name: CI
 
 on:
-  # Run on PRs to any branch (skip for docs-only changes)
+  # Run on PRs to any branch (skip for docs/config-only changes)
   pull_request:
     branches: ['*']
     paths-ignore:
       - '**.md'
       - 'LICENSE*'
+      - '.gitignore'
+      - '.vscode/**'
+      - '.github/workflows/deploy.yml'
 
   # Run on pushes to main (always run full CI on main)
   push:
