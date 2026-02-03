@@ -37,13 +37,17 @@ Copy the files to your project and customize as needed.
 
 ### CLAUDE.md
 
-- Git commit and branch practices
-- PR review workflow with GitHub CLI commands (REST + GraphQL)
-- Code change principles (do/don't lists)
-- Security checklist
-- Communication style guidance
+- **Git Practices** — Commit format, branching strategy, PR guidelines
+- **PR Review Workflow** — GitHub CLI commands (REST + GraphQL), thread resolution
+- **Code Change Principles** — Do/don't lists, security checklist
+- **Communication Style** — Direct, technical, honest feedback
+- **PR Wrap-up Checklist** — Code duplication, obsolete code, documentation review
+- **Development Anti-patterns** — Over-engineering, premature optimization
+- **Questions to Ask Pattern** — Clarify before implementing
+- **Tool Setup Notes** — GitHub CLI configuration, PATH setup
 
 ### copilot-instructions.md
 
-- What to flag: bugs, security issues, accessibility problems
-- What NOT to flag: premature optimization, over-engineering, style nitpicks
+- **What to Flag** — Bugs, security vulnerabilities, accessibility issues, correctness errors
+- **What NOT to Flag** — Premature optimization, over-engineering, style nitpicks, intentional patterns
+- **Core Philosophy** — Focus on substantive issues over subjective preferences

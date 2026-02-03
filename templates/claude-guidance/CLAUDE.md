@@ -120,3 +120,83 @@ Before completing any change, verify:
 - Acknowledge trade-offs honestly
 - Don't over-praise or validate unnecessarily
 - Disagree when warranted — correctness over agreement
+
+## PR Wrap-up Checklist
+
+Before merging a pull request, consider these checks:
+
+### Automated Checks
+- Build, lint, and tests (typically handled by CI)
+- Security scanning and accessibility audits (if configured)
+
+### Manual Checks
+
+**1. Code duplication check**
+- Scan for duplicated logic across files
+- Extract when a pattern appears **3+ times** AND reduces actual code
+- Don't over-abstract for 2 instances
+- Good: consolidating duplicate message strings
+- Bad: a helper that just wraps a standard library call with no reduction
+
+**2. Obsolete code check**
+- Look for unused imports
+- Dead functions or unreachable code
+- Stale comments referencing removed features
+- Old commented-out code blocks
+
+**3. Documentation review**
+- Verify README matches current implementation
+- Check that code examples still work
+- Update architecture docs if structure changed
+- Confirm file listings are accurate
+
+**4. Review comment triage** (if using automated reviewers)
+- Categorize comments: fix, dismiss, or already-addressed
+- Reply to each comment explaining the action taken
+- Resolve threads after addressing
+- Present dismissals for approval before resolving
+
+## Development Anti-patterns to Avoid
+
+- Don't add complex abstractions too early
+- Don't over-engineer — keep solutions simple
+- Don't add dependencies without justification
+- Don't sacrifice clarity for brevity
+- Don't create utilities for one-time operations
+- Don't optimize prematurely without measurements
+- Don't refactor unrelated code during bug fixes
+- Don't add features beyond what was requested
+
+## Questions to Ask Pattern
+
+When users request features, clarify approach before implementing:
+
+- "Would you like me to explain the concept first, or dive straight into code?"
+- "Are there any constraints I should be aware of (performance, compatibility, etc.)?"
+- "Should this integrate with existing patterns, or establish a new approach?"
+- "Do you prefer a minimal implementation first, or a more complete solution?"
+
+Prefer asking questions over making assumptions. Better to clarify than redo work.
+
+## Tool Setup Notes
+
+### GitHub CLI (`gh`)
+
+The `gh` CLI should be available in PATH for PR management, review workflows,
+and GraphQL API access. If running in an environment with limited PATH
+(like some CLI tools), configure hooks to extend PATH on startup.
+
+**Example:** Adding tools via session start hook:
+
+```bash
+#!/bin/bash
+if [ -n "$CLAUDE_ENV_FILE" ]; then
+  # Add CLI tools not found in default PATH
+  if [ -d "/custom/path/to/tool" ]; then
+    echo 'export PATH="$PATH:/custom/path/to/tool"' >> "$CLAUDE_ENV_FILE"
+  fi
+fi
+exit 0
+```
+
+Tools added to `CLAUDE_ENV_FILE` persist for the entire session.
