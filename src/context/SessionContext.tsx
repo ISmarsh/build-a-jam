@@ -128,6 +128,14 @@ function reorder<T>(list: T[], from: number, to: number): T[] {
 // Reducer
 // ---------------------------------------------------------------------------
 
+/** Backfill slotId on exercises persisted before slotId was added (needed for DnD) */
+function ensureSlotIds(exercises: SessionExercise[]): SessionExercise[] {
+  return exercises.map((ex) => ({
+    ...ex,
+    slotId: ex.slotId ?? generateId(),
+  }));
+}
+
 function sessionReducer(state: SessionState, action: SessionAction): SessionState {
   switch (action.type) {
     case 'HYDRATE': {
@@ -136,10 +144,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       const hydratedSession = action.currentSession
         ? {
             ...action.currentSession,
-            exercises: action.currentSession.exercises.map((ex) => ({
-              ...ex,
-              slotId: ex.slotId ?? generateId(),
-            })),
+            exercises: ensureSlotIds(action.currentSession.exercises),
           }
         : null;
       return {
@@ -176,10 +181,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
           isTemplate: false,
           // Ensure every exercise has a slotId for drag-and-drop stability.
           // Templates saved before slotId was added won't have them.
-          exercises: action.session.exercises.map((ex) => ({
-            ...ex,
-            slotId: ex.slotId ?? generateId(),
-          })),
+          exercises: ensureSlotIds(action.session.exercises),
         },
         currentExerciseIndex: null,
       };

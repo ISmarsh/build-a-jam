@@ -198,8 +198,6 @@ function SessionQueuePanel({
     onConfirm: () => void;
   } | null>(null);
 
-  const upcomingCount = exercises.length - currentIndex - 1;
-
   // Precompute exercise numbers (excluding breaks) for display.
   // E.g., [Exercise=1, Break=undefined, Exercise=2, Exercise=3, Break=undefined]
   const exerciseNumbers: (number | undefined)[] = [];
@@ -260,7 +258,7 @@ function SessionQueuePanel({
           <span className="text-foreground font-medium">
             Queue
             <span className="text-muted-foreground font-normal ml-2">
-              {upcomingCount} upcoming
+              {upcomingExercises.length} upcoming
             </span>
           </span>
           {isExpanded ? (
