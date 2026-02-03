@@ -123,6 +123,8 @@ function ExerciseFormDialog({
     }
 
     const exercise: Exercise = {
+      // Keep existing ID on edit — changing IDs would break favorites, session history,
+      // and template references. The random suffix prevents collisions even if names change.
       id: existingExercise?.id ?? generateCustomId(trimmedName),
       name: trimmedName,
       tags, // Already an array from TagInput

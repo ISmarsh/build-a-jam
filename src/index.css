@@ -200,7 +200,7 @@
 
     /* Strong/bold text — just bold, no color change */
     & strong {
-      font-weight: 600;
+      font-weight: 700;
     }
 
     /* Emphasis/italic text */
