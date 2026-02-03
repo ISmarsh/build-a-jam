@@ -39,6 +39,7 @@ import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, BREAK_EXERCISE_ID, getExerciseName } from '../data/exercises';
 import type { Exercise, SessionExercise } from '../types';
+import { type ConfirmConfig, confirmRemove } from '../lib/confirmations';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
 import { useExerciseFilter } from '../hooks/useExerciseFilter';
 import ExerciseFilterBar from './ExerciseFilterBar';
@@ -174,12 +175,7 @@ function PrepPage() {
   const [defaultDuration, setDefaultDuration] = useState(10);
   const exerciseFilter = useExerciseFilter();
   const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
-  const [confirm, setConfirm] = useState<{
-    title: string;
-    message: string;
-    confirmLabel: string;
-    onConfirm: () => void;
-  } | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmConfig | null>(null);
   const template = useTemplateSaver();
 
   // Sensors for drag-and-drop — must be called before early return (Rules of Hooks)
@@ -414,15 +410,10 @@ function PrepPage() {
                         onDurationChange={handleDurationChange}
                         onShowDetail={(exercise) => setDetailExercise(exercise)}
                         onRequestRemove={() =>
-                          setConfirm({
-                            title: 'Remove exercise?',
-                            message: `Remove "${name}" from the queue?`,
-                            confirmLabel: 'Remove',
-                            onConfirm: () => {
-                              handleRemoveExercise(index);
-                              setConfirm(null);
-                            },
-                          })
+                          setConfirm(confirmRemove(name, () => {
+                            handleRemoveExercise(index);
+                            setConfirm(null);
+                          }))
                         }
                       />
                     );

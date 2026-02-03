@@ -76,7 +76,7 @@ function ToolbarButton({
   );
 }
 
-export function RichTextEditor({ content, onChange, placeholder, children }: RichTextEditorProps) {
+function RichTextEditor({ content, onChange, placeholder, children }: RichTextEditorProps) {
   // Generate a stable ID for accessibility linking
   const labelId = children ? 'rich-text-editor-label' : undefined;
 

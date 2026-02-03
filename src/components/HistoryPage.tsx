@@ -28,6 +28,7 @@ import ConfirmModal from './ConfirmModal';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import { Button } from './ui/button';
 import type { Exercise } from '../types';
+import type { ConfirmConfig } from '../lib/confirmations';
 
 function HistoryPage() {
   const { state, dispatch } = useSession();
@@ -35,12 +36,7 @@ function HistoryPage() {
   const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
 
   // Confirmation modal state: stores a callback to run on confirm
-  const [confirm, setConfirm] = useState<{
-    title: string;
-    message: string;
-    confirmLabel: string;
-    onConfirm: () => void;
-  } | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmConfig | null>(null);
   // Inline save-as-template form (tracks which reversed index is being named)
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const [templateName, setTemplateName] = useState('');
@@ -51,6 +47,7 @@ function HistoryPage() {
   function handleDeleteSession(reversedIndex: number) {
     // Convert reversed index back to the original completedSessions index
     const originalIndex = state.completedSessions.length - 1 - reversedIndex;
+    // Inline object to preserve "from your history" wording
     setConfirm({
       title: 'Delete session?',
       message: 'This will permanently remove this session from your history.',

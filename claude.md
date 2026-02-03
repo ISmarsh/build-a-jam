@@ -254,7 +254,11 @@ with CI. This is a good use of waiting time.
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.
 3. **Check for code duplication** — scan for duplicated logic across
-   components that should be extracted into shared helpers or hooks.
+   components. Extract when a pattern appears **3+ times** AND reduces actual
+   code (strings, logic, boilerplate) — not just semantic renaming. Good:
+   `confirmRemove()` consolidates duplicate message strings. Bad: a hook that
+   just wraps `useState` with no reduction in code. Don't over-abstract for
+   2 instances.
 4. **Check for obsolete code** — look for unused imports, dead functions,
    stale comments, or references to removed features.
 
