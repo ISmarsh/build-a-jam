@@ -40,9 +40,6 @@ interface ExerciseCardProps {
 
 // Functional component - using shadcn components
 function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: ExerciseCardProps) {
-  // Only show summary if it exists - don't fall back to description (it's HTML now)
-  const displayText = exercise.summary;
-
   return (
     <Card
       className="transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30 hover:border-primary flex flex-col cursor-pointer"
@@ -77,7 +74,7 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
       </CardHeader>
       <CardContent className="space-y-4 flex-1">
         <p className="text-secondary-foreground leading-relaxed">
-          {displayText}
+          {exercise.summary}
         </p>
 
         {/* Tags */}

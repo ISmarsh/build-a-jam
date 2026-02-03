@@ -37,17 +37,16 @@ import { CSS } from '@dnd-kit/utilities';
 import { ArrowRight, Coffee, GripVertical, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
-import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
-import type { SourceFilter } from '../data/exercises';
+import { getExerciseById, BREAK_EXERCISE_ID, getExerciseName } from '../data/exercises';
 import type { Exercise, SessionExercise } from '../types';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
+import { useExerciseFilter } from '../hooks/useExerciseFilter';
 import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseDetailModal from './ExerciseDetailModal';
 import ConfirmModal from './ConfirmModal';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { BREAK_EXERCISE_ID } from './SessionQueuePanel';
 
 // ---------------------------------------------------------------------------
 // SortablePrepItem — a single draggable exercise in the prep queue
@@ -173,9 +172,7 @@ function PrepPage() {
   const { state, dispatch } = useSession();
   const navigate = useNavigate();
   const [defaultDuration, setDefaultDuration] = useState(10);
-  const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [searchText, setSearchText] = useState('');
+  const exerciseFilter = useExerciseFilter();
   const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
   const [confirm, setConfirm] = useState<{
     title: string;
@@ -244,38 +241,20 @@ function PrepPage() {
     void navigate(`/session/${state.currentSession!.id}`);
   }
 
-  // COMPUTED VALUES: source filtering → tag computation → text/tag filtering → sort
-  const sourceFilteredExercises = filterBySource(selectedSource);
-  const { featuredTags, allTags } = getTagsForExercises(sourceFilteredExercises);
-  const filteredExercises = filterExercises(sourceFilteredExercises, selectedTags, searchText);
-  const favoriteIds = state.favoriteExerciseIds;
-  const sortedExercises = sortByFavorites(filteredExercises, favoriteIds);
-
-  function handleTagToggle(tag: string) {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  }
-
-  function handleSourceChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedSource(event.target.value as SourceFilter);
-    setSelectedTags([]);
-  }
-
   return (
     <div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left column: exercise library with filtering */}
         <div>
           <ExerciseFilterBar
-            selectedSource={selectedSource}
-            onSourceChange={handleSourceChange}
-            featuredTags={featuredTags}
-            allTags={allTags}
-            selectedTags={selectedTags}
-            onTagToggle={handleTagToggle}
-            searchText={searchText}
-            onSearchChange={setSearchText}
+            selectedSource={exerciseFilter.selectedSource}
+            onSourceChange={exerciseFilter.handleSourceChange}
+            featuredTags={exerciseFilter.featuredTags}
+            allTags={exerciseFilter.allTags}
+            selectedTags={exerciseFilter.selectedTags}
+            onTagToggle={exerciseFilter.handleTagToggle}
+            searchText={exerciseFilter.searchText}
+            onSearchChange={exerciseFilter.setSearchText}
             idPrefix="prep"
           />
 
@@ -294,10 +273,10 @@ function PrepPage() {
           </div>
 
           <h2 className="text-xl font-semibold text-foreground mb-3">
-            Exercises ({filteredExercises.length})
+            Exercises ({exerciseFilter.filtered.length})
           </h2>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-dark">
-            {sortedExercises.map((exercise) => (
+            {exerciseFilter.sorted.map((exercise) => (
               <Card key={exercise.id}>
                 <CardHeader className="py-3">
                   <div className="flex items-center justify-between">
@@ -424,9 +403,7 @@ function PrepPage() {
               >
                 <div className="space-y-3">
                   {sessionExercises.map((se, index) => {
-                    const name = se.exerciseId === BREAK_EXERCISE_ID
-                      ? 'Break'
-                      : (getExerciseById(se.exerciseId)?.name ?? se.exerciseId);
+                    const name = getExerciseName(se);
                     return (
                       <SortablePrepItem
                         key={sortableIds[index]}

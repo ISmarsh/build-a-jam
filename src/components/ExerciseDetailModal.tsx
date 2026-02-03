@@ -109,7 +109,7 @@ function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDe
                   </Button>
                 )}
                 {onDelete && (
-                  <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive">
+                  <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive/80">
                     <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
                   </Button>
                 )}

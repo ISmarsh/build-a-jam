@@ -45,13 +45,10 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { ChevronDown, ChevronUp, Check, Play, Coffee, Plus, X, GripVertical } from 'lucide-react';
 import type { SessionExercise } from '../types';
-import { getExerciseById, formatDuration } from '../data/exercises';
+import { BREAK_EXERCISE_ID, getExerciseName, formatDuration } from '../data/exercises';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import ConfirmModal from './ConfirmModal';
-
-/** Sentinel exercise ID for break items */
-export const BREAK_EXERCISE_ID = 'break';
 
 interface SessionQueuePanelProps {
   exercises: SessionExercise[];
@@ -62,11 +59,6 @@ interface SessionQueuePanelProps {
   onAddExercise: () => void;
   onAddBreak: () => void;
   onEditNotes: (index: number, notes: string) => void;
-}
-
-function getExerciseName(se: SessionExercise): string {
-  if (se.exerciseId === BREAK_EXERCISE_ID) return 'Break';
-  return getExerciseById(se.exerciseId)?.name ?? se.exerciseId;
 }
 
 // ---------------------------------------------------------------------------
