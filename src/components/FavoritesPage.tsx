@@ -37,6 +37,9 @@ function FavoritesPage() {
     confirmLabel: string;
     onConfirm: () => void;
   } | null>(null);
+  // Renaming state — null when not renaming, otherwise the template ID being edited
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
   // Session templates (saved from prep or history)
   const templates = state.sessions.filter((s) => s.isTemplate);
@@ -76,6 +79,25 @@ function FavoritesPage() {
         if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
       },
     });
+  }
+
+  function handleStartRename(template: Session) {
+    setRenamingId(template.id);
+    setRenameValue(template.name ?? '');
+  }
+
+  function handleSaveRename() {
+    if (renamingId && renameValue.trim()) {
+      dispatch({ type: 'RENAME_SESSION_TEMPLATE', sessionId: renamingId, name: renameValue.trim() });
+      toast('Renamed');
+    }
+    setRenamingId(null);
+    setRenameValue('');
+  }
+
+  function handleCancelRename() {
+    setRenamingId(null);
+    setRenameValue('');
   }
 
   const isEmpty = templates.length === 0 && favoriteExercises.length === 0;
@@ -149,7 +171,7 @@ function FavoritesPage() {
                                 const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                                 return (
                                   <Badge
-                                    key={j}
+                                    key={se.slotId ?? j}
                                     variant="outline"
                                     className={`border-input text-xs ${
                                       ex
@@ -181,7 +203,7 @@ function FavoritesPage() {
                               const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                               return (
                                 <div
-                                  key={j}
+                                  key={se.slotId ?? j}
                                   className="border-l-2 border-border pl-3"
                                 >
                                   <div className="flex items-center justify-between">
@@ -210,6 +232,31 @@ function FavoritesPage() {
                               );
                             })}
 
+                            {/* Rename input — shown inline when renaming */}
+                            {renamingId === template.id && (
+                              <div className="flex items-center gap-2 mb-3">
+                                <input
+                                  type="text"
+                                  value={renameValue}
+                                  onChange={(e) => setRenameValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveRename();
+                                    if (e.key === 'Escape') handleCancelRename();
+                                  }}
+                                  autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- user just clicked rename
+                                  className="flex-1 bg-secondary border border-input rounded px-2 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                                  placeholder="Favorite name..."
+                                />
+                                <Button size="sm" onClick={handleSaveRename}>Save</Button>
+                                <button
+                                  onClick={handleCancelRename}
+                                  className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            )}
+
                             {/* Actions */}
                             <div className="border-t pt-3 mt-3 flex items-center gap-4">
                               <Button size="sm" onClick={() => handleStartTemplate(template)}>
@@ -218,6 +265,12 @@ function FavoritesPage() {
                               <Button size="sm" variant="outline" onClick={() => handleEditTemplate(template)}>
                                 Edit in Prep
                               </Button>
+                              <button
+                                onClick={() => handleStartRename(template)}
+                                className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                              >
+                                Rename
+                              </button>
                               <button
                                 onClick={() => handleDeleteTemplate(template.id)}
                                 className="text-muted-foreground hover:text-destructive text-xs transition-colors"

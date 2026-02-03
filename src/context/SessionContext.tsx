@@ -153,6 +153,7 @@ type SessionAction =
   | { type: 'CLEAR_COMPLETED_SESSIONS' }
   | { type: 'TOGGLE_FAVORITE_EXERCISE'; exerciseId: string }
   | { type: 'DELETE_SESSION_TEMPLATE'; sessionId: string }
+  | { type: 'RENAME_SESSION_TEMPLATE'; sessionId: string; name: string }
   | { type: 'SAVE_COMPLETED_AS_TEMPLATE'; completedSessionIndex: number; name: string }
   | { type: 'TIMER_TICK' }
   | { type: 'TIMER_PAUSE' }
@@ -178,7 +179,92 @@ function reorder<T>(list: T[], from: number, to: number): T[] {
 }
 
 // ---------------------------------------------------------------------------
-// Reducer
+// Timer Sub-Reducer
+// ---------------------------------------------------------------------------
+//
+// LEARNING NOTES - SUB-REDUCERS (REDUCER COMPOSITION):
+//
+// 1. WHAT IS A SUB-REDUCER?
+//    A sub-reducer is a smaller reducer function that handles a slice of state.
+//    The main reducer delegates to it for specific actions. This keeps each
+//    reducer focused and testable.
+//
+// 2. ANGULAR vs REACT:
+//    Angular/NgRx: Feature modules often have their own "slice" of the store.
+//    @ngrx/store composes reducers automatically via combineReducers() or
+//    StoreModule.forFeature(). Each feature reducer only sees its slice of state.
+//
+//    React: useReducer doesn't have built-in composition, so you do it manually.
+//    The main reducer extracts the relevant state slice, passes it to the
+//    sub-reducer, then merges the result back. More explicit, less magic.
+//
+// 3. WHEN TO USE SUB-REDUCERS:
+//    - When a group of actions form a logical unit (timer, auth, cart, etc.)
+//    - When the main reducer gets too long to read easily
+//    - When you want to test a subset of logic in isolation
+//    - When multiple reducers might share the same sub-reducer (DRY)
+//
+// 4. PATTERN:
+//    The sub-reducer takes only the state slice it cares about:
+//      timerReducer({ elapsed, cumulative, paused }, action) → new slice
+//
+//    The main reducer spreads the slice back into the full state:
+//      return { ...state, ...timerReducer(timerSlice, action) };
+
+/**
+ * Timer state slice — the subset of SessionState that the timer sub-reducer manages.
+ * Keeping this explicit makes it clear what the sub-reducer owns.
+ */
+interface TimerState {
+  timerElapsed: number;
+  timerCumulative: number;
+  timerPaused: boolean;
+}
+
+/**
+ * Timer actions — the subset of SessionAction that the timer sub-reducer handles.
+ * TypeScript's discriminated union makes the switch exhaustive.
+ */
+type TimerAction =
+  | { type: 'TIMER_TICK' }
+  | { type: 'TIMER_PAUSE' }
+  | { type: 'TIMER_RESUME' }
+  | { type: 'TIMER_RESET' };
+
+/**
+ * Timer sub-reducer — handles all timer-related state transitions.
+ *
+ * This is a pure function that only knows about timer state. It doesn't know
+ * about sessions, exercises, or any other part of the app. This isolation:
+ * - Makes it easy to test (just pass timer state and actions)
+ * - Makes it easy to reason about (all timer logic in one place)
+ * - Makes it reusable (could be used by a different feature that needs a timer)
+ */
+function timerReducer(state: TimerState, action: TimerAction): TimerState {
+  switch (action.type) {
+    case 'TIMER_TICK':
+      if (state.timerPaused) return state;
+      return {
+        ...state,
+        // Defensive ?? 0 guards against HMR injecting new fields into
+        // already-running state where timerElapsed might be undefined
+        timerElapsed: (state.timerElapsed ?? 0) + 1,
+        timerCumulative: (state.timerCumulative ?? 0) + 1,
+      };
+
+    case 'TIMER_PAUSE':
+      return { ...state, timerPaused: true };
+
+    case 'TIMER_RESUME':
+      return { ...state, timerPaused: false };
+
+    case 'TIMER_RESET':
+      return { ...state, timerElapsed: 0 };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Main Reducer
 // ---------------------------------------------------------------------------
 
 /** Backfill slotId on exercises persisted before slotId was added (needed for DnD) */
@@ -500,6 +586,14 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         sessions: state.sessions.filter(s => s.id !== action.sessionId),
       };
 
+    case 'RENAME_SESSION_TEMPLATE':
+      return {
+        ...state,
+        sessions: state.sessions.map(s =>
+          s.id === action.sessionId ? { ...s, name: action.name } : s
+        ),
+      };
+
     case 'SAVE_COMPLETED_AS_TEMPLATE': {
       const completed = state.completedSessions[action.completedSessionIndex];
       if (!completed) return state;
@@ -519,34 +613,6 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         sessions: [...state.sessions, template],
       };
     }
-
-    // TIMER ACTIONS — these keep timer state in the reducer so it survives
-    // route changes. Without this, navigating away from SessionPage and back
-    // would reset the timer to 0 (because local useState resets on unmount).
-    //
-    // ANGULAR vs REACT:
-    // Angular: you'd store timer state in the service and it'd persist
-    // across route changes because services are singletons.
-    // React: components unmount on route change, losing local state.
-    // Moving timer state to context (which wraps the router) keeps it alive.
-    case 'TIMER_TICK':
-      if (state.timerPaused) return state;
-      return {
-        ...state,
-        // Defensive ?? 0 guards against HMR injecting new fields into
-        // already-running state where timerElapsed might be undefined
-        timerElapsed: (state.timerElapsed ?? 0) + 1,
-        timerCumulative: (state.timerCumulative ?? 0) + 1,
-      };
-
-    case 'TIMER_PAUSE':
-      return { ...state, timerPaused: true };
-
-    case 'TIMER_RESUME':
-      return { ...state, timerPaused: false };
-
-    case 'TIMER_RESET':
-      return { ...state, timerElapsed: 0 };
 
     // CUSTOM EXERCISE ACTIONS — CRUD for user-created exercises.
     //
@@ -580,6 +646,33 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         // Also remove from favorites if it was starred
         favoriteExerciseIds: state.favoriteExerciseIds.filter(id => id !== action.exerciseId),
       };
+
+    // TIMER ACTIONS — delegated to the timer sub-reducer.
+    //
+    // Timer state persists in the reducer so it survives route changes.
+    // Without this, navigating away from SessionPage and back would reset
+    // the timer to 0 (because local useState resets on unmount).
+    //
+    // DELEGATION PATTERN:
+    // 1. Extract the timer slice from full state
+    // 2. Pass slice + action to timerReducer
+    // 3. Spread the result back into full state
+    //
+    // This keeps timer logic isolated while still producing a full SessionState.
+    case 'TIMER_TICK':
+    case 'TIMER_PAUSE':
+    case 'TIMER_RESUME':
+    case 'TIMER_RESET': {
+      const timerSlice: TimerState = {
+        timerElapsed: state.timerElapsed,
+        timerCumulative: state.timerCumulative,
+        timerPaused: state.timerPaused,
+      };
+      return {
+        ...state,
+        ...timerReducer(timerSlice, action),
+      };
+    }
 
     default:
       return state;
@@ -693,3 +786,12 @@ export function useSession(): SessionContextValue {
   }
   return ctx;
 }
+
+// ---------------------------------------------------------------------------
+// Testing exports — used by unit tests to test reducer logic directly
+// ---------------------------------------------------------------------------
+
+export { sessionReducer as _testReducer, initialState as _testInitialState };
+export { timerReducer as _testTimerReducer };
+export type { SessionState as _TestSessionState, SessionAction as _TestSessionAction };
+export type { TimerState as _TestTimerState, TimerAction as _TestTimerAction };

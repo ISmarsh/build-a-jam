@@ -25,7 +25,7 @@
  *    - This is a practical React pattern
  */
 
-import { ArrowRight, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import type { Exercise } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -48,7 +48,7 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <CardTitle className="text-primary truncate">{exercise.name}</CardTitle>
+            <CardTitle className="text-primary truncate hover:underline">{exercise.name}</CardTitle>
             {exercise.isCustom && (
               <Badge variant="secondary" className="text-xs shrink-0">Custom</Badge>
             )}
@@ -90,17 +90,6 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
           ))}
         </div>
 
-        {/* Details link — pinned bottom-right, keyboard-accessible */}
-        <div className="text-right">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-card rounded-sm"
-            aria-label={`View details for ${exercise.name}`}
-          >
-            Details <ArrowRight className="w-3 h-3" />
-          </button>
-        </div>
       </CardContent>
     </Card>
   );

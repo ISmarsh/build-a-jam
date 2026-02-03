@@ -73,7 +73,7 @@ function NotesPage() {
       <h2 className="text-lg font-semibold text-foreground mb-3">Exercises</h2>
       <div className="space-y-2 mb-4">
         {session.exercises.map((se, i) => (
-          <Card key={i}>
+          <Card key={se.slotId ?? i}>
             <CardContent className="py-3">
               <div className="flex items-center justify-between">
                 <span className="text-foreground">

@@ -6,6 +6,17 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 - **Primary goal**: Help improv performers find and organize warm-up exercises
 - **Secondary goal**: Serve as a hands-on learning project for transitioning from Angular to React
 
+## Target Platform
+
+**Mobile-first design**: This app is primarily used on phones and tablets during
+improv practice sessions. Design decisions should prioritize:
+- Touch-friendly tap targets (no hover-dependent interactions as primary UX)
+- Vertical space efficiency (every pixel counts on mobile)
+- Simple, scannable layouts over information density
+- Keyboard shortcuts are nice-to-have, not essential
+
+When evaluating features, ask: "Does this help someone running a session on their phone?"
+
 ## Developer Context
 
 **User background**: Experienced Angular developer learning React for job opportunities
