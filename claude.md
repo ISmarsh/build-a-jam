@@ -244,6 +244,12 @@ with CI. This is a good use of waiting time.
    **IMPORTANT**: Always read every comment before resolving. Never batch-resolve
    threads without inspection — Copilot occasionally finds real bugs, and skipping
    review risks merging broken code.
+
+   **Present dismissals for approval**: Before posting dismissal replies and
+   resolving threads, present the proposed dismissals to the user for review.
+   The user may disagree with a dismissal or want to handle it differently.
+   Only post replies and resolve after user approval.
+
 2. **Review all markdown** — check README.md, CLAUDE.md, and
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.
