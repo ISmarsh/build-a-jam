@@ -219,27 +219,26 @@ fixed, actionable (make the change), or dismiss with explanation.
 
 ### PR wrap-up checklist
 
-Before merging or marking a PR as ready, **ask the user** before running
-these heavier wrap-up tasks (they touch many files and use significant context):
+**Automated checks (CI handles these):**
+- Build, lint, and tests — runs on every push via GitHub Actions
+- Accessibility audit — Playwright + axe-core runs in CI, fails on violations
 
-1. **Run build and lint** — `npm run build && npm run lint` must both pass
-   with zero errors before merging.
-2. **Run accessibility audit** — `npm run audit:a11y` runs Playwright + axe-core
-   against all pages in both themes at mobile and desktop widths. Output goes to
-   `C:/temp/axe-audit.json`. Zero violations is the goal; document any accepted
-   exceptions in the PR description.
-3. **Review all markdown** — check README.md, CLAUDE.md, and
+**Manual checks (ask user before running — expensive in context):**
+
+1. **Triage Copilot review comments** — Copilot auto-reviews PRs. Fetch
+   unresolved threads and categorize: already fixed, actionable (make the
+   change), or dismiss with explanation. See "Working with PR review comments"
+   above for the workflow.
+2. **Review all markdown** — check README.md, CLAUDE.md, and
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.
-4. **Check for code duplication** — scan for duplicated logic across
+3. **Check for code duplication** — scan for duplicated logic across
    components that should be extracted into shared helpers or hooks.
-5. **Check for obsolete code** — look for unused imports, dead functions,
+4. **Check for obsolete code** — look for unused imports, dead functions,
    stale comments, or references to removed features.
 
-Tasks 3–5 are expensive in context and time, so always confirm with the
-user before starting them. A simple "Want me to run the wrap-up checks
-(markdown review, duplication scan, dead code check)?" is enough. Tasks 1–2
-(build + lint, a11y audit) should always be run without asking.
+A simple "Want me to run the wrap-up checks (Copilot review, markdown review,
+duplication scan, dead code check)?" is enough before starting these tasks.
 
 ## Important Context
 
