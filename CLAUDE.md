@@ -227,11 +227,12 @@ fixed, actionable (make the change), or dismiss with explanation.
 posts reviews within a minute of pushing, so triage can happen in parallel
 with CI. This is a good use of waiting time.
 
-**If Copilot doesn't review the latest commit:** Copilot sometimes skips
-commits, especially for smaller changes or rapid pushes. To manually trigger,
-go to the PR page on GitHub → Reviewers section (right sidebar) → click the
-gear icon → select "copilot-pull-request-reviewer". The `gh` CLI doesn't
-support requesting Copilot reviews.
+**If Copilot doesn't review the latest commit:** A ruleset should auto-trigger
+Copilot reviews, but it sometimes skips commits (especially smaller changes or
+rapid pushes). When checking for reviews, if the latest commit hasn't been
+reviewed, **prompt the user** to manually trigger via GitHub UI: PR page →
+Reviewers section (right sidebar) → click the gear icon → select
+"copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
 
 **Manual checks (ask user before running — expensive in context):**
 
