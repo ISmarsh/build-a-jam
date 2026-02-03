@@ -114,8 +114,8 @@ export function RichTextEditor({ content, onChange, placeholder, children }: Ric
         class:
           'min-h-[100px] w-full bg-secondary border border-input rounded-lg px-3 py-2 ' +
           'text-foreground text-sm focus:outline-none focus:border-primary transition-colors ' +
-          'prose prose-sm dark:prose-invert max-w-none ' +
-          // Style lists and paragraphs
+          // Style text formatting and lists without prose classes (prose adds unwanted color to strong)
+          '[&_strong]:font-semibold ' +
           '[&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 ' +
           '[&_li]:my-0.5 [&_p]:my-1',
         // Accessibility: role="textbox" per Tiptap docs, link to label via aria-labelledby

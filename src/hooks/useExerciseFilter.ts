@@ -54,6 +54,7 @@ import {
   getTagsForExercises,
   filterExercises,
   sortByFavorites,
+  registerCustomExercises,
 } from '../data/exercises';
 import type { SourceFilter } from '../data/exercises';
 
@@ -63,12 +64,22 @@ export function useExerciseFilter() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  // useMemo: cache the source-filtered list until selectedSource changes.
+  // Sync custom exercises to module state BEFORE useMemo runs.
+  // The SessionProvider also does this in a useEffect, but effects run AFTER render.
+  // By calling it here, we ensure filterBySource sees current data during this render.
+  // This is idempotent (safe to call multiple times with the same data).
+  registerCustomExercises(state.customExercises);
+
+  // useMemo: cache the source-filtered list until selectedSource or customExercises changes.
   // This prevents re-running filterBySource(~400 exercises) on every keystroke
   // in the search box or tag toggle.
+  // Note: state.customExercises isn't used directly in the callback, but filterBySource
+  // reads from the module-level customExercises variable. Including it here ensures the
+  // memoized value recomputes when custom exercises are added/edited/deleted.
   const sourceFiltered = useMemo(
     () => filterBySource(selectedSource),
-    [selectedSource]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- customExercises triggers recalc via module state
+    [selectedSource, state.customExercises]
   );
 
   // useMemo: tag lists only need recomputing when source filter changes

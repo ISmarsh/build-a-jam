@@ -198,9 +198,8 @@
       line-height: 1.625; /* leading-relaxed */
     }
 
-    /* Strong/bold text */
+    /* Strong/bold text — just bold, no color change */
     & strong {
-      color: hsl(var(--primary) / 0.85);
       font-weight: 600;
     }
 
