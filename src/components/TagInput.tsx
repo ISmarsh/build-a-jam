@@ -36,8 +36,8 @@ interface TagInputProps {
   suggestions: string[];
   /** Placeholder text */
   placeholder?: string;
-  /** Label ID for accessibility */
-  labelId?: string;
+  /** ID for the input element (for htmlFor on labels) */
+  id?: string;
 }
 
 export function TagInput({
@@ -45,7 +45,7 @@ export function TagInput({
   onChange,
   suggestions,
   placeholder = 'Add tags...',
-  labelId,
+  id,
 }: TagInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -165,12 +165,12 @@ export function TagInput({
           }}
           placeholder={value.length === 0 ? placeholder : ''}
           className="flex-1 min-w-[120px] bg-transparent text-foreground text-sm focus:outline-none placeholder-muted-foreground"
+          id={id}
           autoComplete="off"
           role="combobox"
           aria-expanded={showDropdown}
           aria-haspopup="listbox"
           aria-controls={listboxId}
-          aria-labelledby={labelId}
           aria-autocomplete="list"
         />
       </div>

@@ -194,15 +194,16 @@ export function RichTextEditor({ content, onChange, placeholder, children }: Ric
         </span>
       </div>
 
-      {/* Editor content area */}
-      <EditorContent editor={editor} />
-
-      {/* Placeholder shown when empty */}
-      {editor.isEmpty && placeholder && (
-        <div className="absolute top-[42px] left-3 text-muted-foreground text-sm pointer-events-none">
-          {placeholder}
-        </div>
-      )}
+      {/* Editor content area with placeholder overlay */}
+      <div className="relative">
+        <EditorContent editor={editor} />
+        {/* Placeholder positioned to match where cursor appears (py-2 + p margin) */}
+        {editor.isEmpty && placeholder && (
+          <div className="absolute top-3 left-3 text-muted-foreground text-sm pointer-events-none">
+            {placeholder}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

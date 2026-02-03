@@ -195,16 +195,15 @@ function ExerciseFormDialog({
 
           {/* Tags with autocomplete */}
           <div>
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TagInput uses aria-labelledby */}
-            <label id="exercise-tags-label" className="block text-sm font-medium text-foreground mb-1">
+            <label htmlFor="exercise-tags" className="block text-sm font-medium text-foreground mb-1">
               Tags <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <TagInput
+              id="exercise-tags"
               value={tags}
               onChange={setTags}
               suggestions={availableTags}
               placeholder="Add tags..."
-              labelId="exercise-tags-label"
             />
           </div>
 
