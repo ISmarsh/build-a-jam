@@ -26,6 +26,7 @@ import { Star } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { useTemplateSaver } from '../hooks/useTemplateSaver';
 import { getExerciseById, formatDuration } from '../data/exercises';
+import { BREAK_EXERCISE_ID } from './SessionQueuePanel';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 
@@ -78,7 +79,7 @@ function NotesPage() {
               <div className="flex items-center justify-between">
                 <span className="text-foreground">
                   <span className="text-muted-foreground mr-2">{i + 1}.</span>
-                  {getExerciseById(se.exerciseId)?.name ?? se.exerciseId}
+                  {se.exerciseId === BREAK_EXERCISE_ID ? 'Break' : (getExerciseById(se.exerciseId)?.name ?? se.exerciseId)}
                 </span>
                 <span className="text-muted-foreground text-sm">
                   {se.actualSeconds != null

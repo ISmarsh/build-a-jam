@@ -40,6 +40,7 @@ export interface SessionExercise {
   exerciseId: string;            // reference to Exercise.id
   duration: number;              // minutes — set during session prep
   order: number;                 // position in the queue
+  slotId?: string;               // unique ID per queue slot (for drag-and-drop stability)
   notes?: string;                // notes specific to this slot
   actualSeconds?: number;        // actual time spent (seconds), recorded during session
 }
