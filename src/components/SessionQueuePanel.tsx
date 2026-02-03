@@ -279,9 +279,12 @@ function SessionQueuePanel({
         >
           <span className="text-foreground font-medium">
             Queue
-            <span className="text-muted-foreground font-normal ml-2">
+            <span
+              className="text-muted-foreground font-normal ml-2"
+              aria-label={`${upcomingExercises.length} upcoming, done around ${formatTime(sessionEndTime)}`}
+            >
               {upcomingExercises.length} upcoming
-              <span className="mx-1">·</span>
+              <span className="mx-1" aria-hidden="true">·</span>
               done ~{formatTime(sessionEndTime)}
             </span>
           </span>

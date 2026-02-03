@@ -293,10 +293,12 @@ function SessionPage() {
             isOverTime ? 'text-destructive' : 'text-primary'
           }`}
         >
+          {/* remainingOrOverSeconds: positive when under target, represents time left;
+              when over target, represents how much we've exceeded by */}
           {isOverTime ? '-' : ''}{formatDuration(Math.abs(targetSeconds - elapsedSeconds))}
         </p>
         <p className="text-muted-foreground">
-          {currentSessionExercise.duration} min target
+          {currentSessionExercise.duration} {currentSessionExercise.duration === 1 ? 'minute' : 'minutes'} target
         </p>
         <p className="text-muted-foreground text-sm mt-1">
           Session: {formatDuration(cumulativeSeconds)} / {formatDuration(totalSessionSeconds)}
