@@ -211,3 +211,105 @@ Contact the respective site owners before enabling.
 - No caching (re-fetching everything on every run)
 - Missing attribution metadata
 - Hardcoding pagination page numbers instead of detecting them
+
+---
+
+## Working with exercise tags
+
+**CRITICAL PRINCIPLE**: Always research domain-specific improv terminology before
+making decisions about tags. Many terms that seem generic or meaningless are
+actually established pedagogical categories.
+
+### Before removing or renaming tags
+
+1. **Research first** — Use WebSearch/WebFetch to look up the tag in context
+   - Search: `improv "[tag]" exercises learnimprov improwiki`
+   - Check: learnimprov.com, improwiki.com, improvencyclopedia.org
+2. **Verify meaning** — Determine if it's a legitimate category or truly generic
+3. **Document findings** — Add comments in cleanup scripts explaining the decision
+
+### Examples of tags that seemed generic but were legitimate
+
+- **"problem"** → "problem-solving" (learnimprov category for ensemble/teamwork exercises)
+- **"less"** → "restraint" (learnimprov category for minimalist/simplicity-focused exercises)
+- **"group"** → Keep as-is (ImprovWiki/Encyclopedia category for ensemble participation)
+
+### Truly generic tags to remove
+
+- **"exercise"** — Too broad, applies to almost everything
+- **"game"** — Redundant (anything not tagged "warm-up" is implicitly a game)
+- **"other"** — Not descriptive
+
+### Tag normalizations
+
+- Singular/plural: prefer the form most commonly used in the data
+- Verify both forms aren't distinct categories before consolidating
+
+---
+
+## Inferred tags
+
+Some tags can't come from source data — they represent improv concepts that
+exercises teach but that source sites don't categorize. These are curated in
+`src/data/inferred-tags.json` and applied by `apply-inferred-tags.mjs`.
+
+### Current inferred tags
+
+- **heightening** — Sequential amplification of a pattern. Indicators: each
+  player amplifies the previous contribution, emotional intensity scaling,
+  progressive escalation, "build on what came before" mechanics.
+- **grounding** — Making scenes feel real and justified. Indicators: establishing
+  base reality, justifying unusual choices, emotional truth, character depth,
+  detailed physical environment creation.
+- **game of the scene** — Finding and playing the emergent comedic pattern (UCB
+  concept). Distinct from short-form "games" where rules are given externally.
+  Indicators: pattern-building, "if this is true what else is true", organic
+  emergence of comedy from base reality.
+
+### Adding new inferred tags
+
+1. Research the concept thoroughly
+2. Define clear indicators and counter-indicators
+3. Classify exercises by reading descriptions and summaries
+4. Add the tag definition and exercise IDs to `inferred-tags.json`
+5. Run `node scripts/apply-inferred-tags.mjs` to apply
+
+**Inferred tags survive re-scraping** — they live in a separate file and are
+merged after normalization. The script warns about exercise IDs that no longer
+exist in the data.
+
+---
+
+## Data quality checks
+
+When reviewing scraped data, watch for:
+
+### Non-exercise content (EXCLUDE ENTIRE ENTRY)
+
+- Improv groups, theaters, or organizations
+- Tutorial articles or blog posts
+- General improv theory/philosophy
+- **Action:** Filter out by checking tags like "improv groups", "theater", "theatre"
+- **Where:** Individual scrapers filter entries before adding to dataset
+
+### Unhelpful tags (REMOVE TAG ONLY, KEEP EXERCISE)
+
+- "other" — too generic
+- "exercise" — redundant
+- "game" — too broad
+- Tags used by fewer than 3 exercises (noise)
+- **Action:** Strip these tags, keep the exercises
+- **Where:** `normalize-tags.mjs` removes blacklisted + low-usage tags
+
+### Missing or low-quality content
+
+- Empty descriptions
+- Descriptions that are just the title repeated
+- License footers or site navigation scraped as content
+- **Where:** `cleanup-scraped-data.mjs` removes noise sections
+
+### Duplicates
+
+- Same exercise under different names
+- Check `alternativeNames` field for known synonyms
+- **Handle manually** if discovered (merge entries, update IDs)
