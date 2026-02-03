@@ -226,9 +226,16 @@ fixed, actionable (make the change), or dismiss with explanation.
 **Manual checks (ask user before running — expensive in context):**
 
 1. **Triage Copilot review comments** — Copilot auto-reviews PRs. Fetch
-   unresolved threads and categorize: already fixed, actionable (make the
-   change), or dismiss with explanation. See "Working with PR review comments"
-   above for the workflow.
+   unresolved threads and categorize:
+   - **Fix**: Real bugs (logic errors, missing edge cases in new code)
+   - **Dismiss**: Stylistic preferences, over-engineering (e.g., "capitalize
+     this hardcoded string dynamically"), or suggestions for pre-existing code
+     not changed in the PR
+   - **Already fixed**: Issues addressed by other commits
+
+   Common dismissals: unnecessary useCallback wrapping, dependency array
+   pedantry for stable React setState, suggestions to add complexity for
+   hypothetical future cases. See "Working with PR review comments" above.
 2. **Review all markdown** — check README.md, CLAUDE.md, and
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.

@@ -158,22 +158,21 @@ function htmlToPlainText(html: string): string {
   // Convert <strong> to **text**
   text = text.replace(/<strong>([^<]+)<\/strong>/g, '**$1**');
 
-  // Convert ordered list items to numbered steps
-  let stepNum = 0;
-  text = text.replace(/<ol>/g, () => { stepNum = 0; return ''; });
-  text = text.replace(/<\/ol>/g, '');
-  text = text.replace(/<li>([^<]*)<\/li>/g, (_, content) => {
-    // Check if we're in an ordered list context (number) or bullet
-    // This is a heuristic — if stepNum was reset, we're in an ordered list
-    stepNum++;
-    return `${stepNum}. ${content}\n`;
+  // Convert ordered list items (<ol>) to numbered steps
+  text = text.replace(/<ol>([\s\S]*?)<\/ol>/g, (_, olContent: string) => {
+    let stepNum = 0;
+    return olContent.replace(/<li>([^<]*)<\/li>/g, (__, content: string) => {
+      stepNum++;
+      return `${stepNum}. ${content}\n`;
+    });
   });
 
-  // Convert unordered list items to bullets
-  text = text.replace(/<ul>/g, '');
-  text = text.replace(/<\/ul>/g, '');
-  // Reset stepNum to detect bullet lists (hacky but works for simple cases)
-  text = text.replace(/<li>([^<]*)<\/li>/g, '• $1\n');
+  // Convert unordered list items (<ul>) to bullets
+  text = text.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, ulContent: string) => {
+    return ulContent.replace(/<li>([^<]*)<\/li>/g, (__, content: string) => {
+      return `• ${content}\n`;
+    });
+  });
 
   // Standard conversions
   text = text.replace(/<br\s*\/?>/g, '\n');
