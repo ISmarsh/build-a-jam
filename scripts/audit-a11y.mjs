@@ -22,7 +22,8 @@ import { createServer } from 'vite';
 
 const PORT = 5174;
 const BASE = `http://localhost:${PORT}`;
-const OUTPUT = 'C:/temp/axe-audit.json';
+// CI writes to working directory; local dev writes to C:/temp
+const OUTPUT = process.env.CI ? 'axe-audit.json' : 'C:/temp/axe-audit.json';
 
 const THEME_KEY = 'build-a-jam-theme';
 
@@ -198,9 +199,14 @@ async function main() {
       );
     }
   }
+
+  // Exit with error if any violations found (for CI)
+  return totalViolations > 0 ? 1 : 0;
 }
 
-main().catch((e) => {
-  console.error('Audit failed:', e);
-  process.exit(1);
-});
+main()
+  .then((exitCode) => process.exit(exitCode))
+  .catch((e) => {
+    console.error('Audit failed:', e);
+    process.exit(1);
+  });
