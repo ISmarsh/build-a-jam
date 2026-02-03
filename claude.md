@@ -236,6 +236,10 @@ fixed, actionable (make the change), or dismiss with explanation.
    Common dismissals: unnecessary useCallback wrapping, dependency array
    pedantry for stable React setState, suggestions to add complexity for
    hypothetical future cases. See "Working with PR review comments" above.
+
+   **IMPORTANT**: Always read every comment before resolving. Never batch-resolve
+   threads without inspection — Copilot occasionally finds real bugs, and skipping
+   review risks merging broken code.
 2. **Review all markdown** — check README.md, CLAUDE.md, and
    scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
    descriptions, and project structure match the current codebase.
