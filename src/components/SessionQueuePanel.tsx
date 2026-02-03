@@ -53,6 +53,10 @@ import ConfirmModal from './ConfirmModal';
 interface SessionQueuePanelProps {
   exercises: SessionExercise[];
   currentIndex: number;
+  /** Seconds elapsed on the current exercise (for estimating end times) */
+  timerElapsed: number;
+  /** Current timestamp in ms (updated by parent's timer effect for purity) */
+  now: number;
   onRemove: (index: number) => void;
   onDurationChange: (index: number, duration: number) => void;
   onReorder: (from: number, to: number) => void;
@@ -171,9 +175,16 @@ function SortableQueueItem({
 // SessionQueuePanel — main component
 // ---------------------------------------------------------------------------
 
+/** Format a Date as a short locale time string (e.g., "2:45 PM") */
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
 function SessionQueuePanel({
   exercises,
   currentIndex,
+  timerElapsed,
+  now,
   onRemove,
   onDurationChange,
   onReorder,
@@ -202,6 +213,25 @@ function SessionQueuePanel({
       exerciseNumbers.push(exerciseCount);
     }
   }
+
+  // Estimated end times — based on device clock + remaining durations.
+  // The current exercise's remaining time is (target - elapsed), then each
+  // subsequent exercise adds its full duration. Uses ~ prefix to signal
+  // these are estimates (exercises rarely hit their target exactly).
+  //
+  // REACT LEARNING NOTE — RENDER PURITY:
+  // The `now` prop comes from SessionPage's state, updated by the timer
+  // effect. This keeps render pure: Date.now() is only called inside an
+  // effect (effects are allowed to be impure), not during render. The
+  // React compiler enforces this — render functions must be idempotent.
+  const currentTarget = exercises[currentIndex]?.duration ?? 0;
+  const currentRemainingSeconds = Math.max(0, currentTarget * 60 - timerElapsed);
+  const totalRemainingSeconds = exercises
+    .slice(currentIndex + 1)
+    .reduce((sum, ex) => sum + ex.duration * 60, currentRemainingSeconds);
+
+  const currentExerciseEndTime = new Date(now + currentRemainingSeconds * 1000);
+  const sessionEndTime = new Date(now + totalRemainingSeconds * 1000);
 
   // Upcoming exercises (the sortable portion of the queue)
   const upcomingExercises = exercises.slice(currentIndex + 1);
@@ -239,7 +269,7 @@ function SessionQueuePanel({
   }
 
   return (
-    <Card className="mt-6">
+    <Card className="mt-6 text-left">
       <CardContent className="py-3">
         {/* Toggle button */}
         <button
@@ -249,8 +279,13 @@ function SessionQueuePanel({
         >
           <span className="text-foreground font-medium">
             Queue
-            <span className="text-muted-foreground font-normal ml-2">
+            <span
+              className="text-muted-foreground font-normal ml-2"
+              aria-label={`${upcomingExercises.length} upcoming, done around ${formatTime(sessionEndTime)}`}
+            >
               {upcomingExercises.length} upcoming
+              <span className="mx-1" aria-hidden="true">·</span>
+              done ~{formatTime(sessionEndTime)}
             </span>
           </span>
           {isExpanded ? (
@@ -307,10 +342,10 @@ function SessionQueuePanel({
                   </span>
                   <span className="flex-1 min-w-0 truncate text-primary font-medium">
                     {name}
-                    <span className="text-primary/70 text-xs ml-2">NOW</span>
                   </span>
                   <span className="text-muted-foreground text-xs shrink-0">
                     {se.duration}m
+                    <span className="ml-1 text-primary/60">~{formatTime(currentExerciseEndTime)}</span>
                   </span>
                 </div>
               );
