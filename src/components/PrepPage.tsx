@@ -34,7 +34,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ArrowRight, GripVertical, Star, X } from 'lucide-react';
+import { ArrowRight, Coffee, GripVertical, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { getExerciseById, filterBySource, getTagsForExercises, filterExercises, sortByFavorites } from '../data/exercises';
@@ -57,6 +57,8 @@ interface SortablePrepItemProps {
   id: string;
   index: number;
   se: SessionExercise;
+  /** Exercise number excluding breaks — undefined for break items */
+  exerciseNumber: number | undefined;
   onDurationChange: (index: number, duration: number) => void;
   onRequestRemove: () => void;
   onShowDetail: (exercise: Exercise) => void;
@@ -66,12 +68,14 @@ function SortablePrepItem({
   id,
   index,
   se,
+  exerciseNumber,
   onDurationChange,
   onRequestRemove,
   onShowDetail,
 }: SortablePrepItemProps) {
-  const exercise = se.exerciseId === BREAK_EXERCISE_ID ? undefined : getExerciseById(se.exerciseId);
-  const name = se.exerciseId === BREAK_EXERCISE_ID ? 'Break' : (exercise?.name ?? se.exerciseId);
+  const isBreak = se.exerciseId === BREAK_EXERCISE_ID;
+  const exercise = isBreak ? undefined : getExerciseById(se.exerciseId);
+  const name = isBreak ? 'Break' : (exercise?.name ?? se.exerciseId);
 
   const {
     attributes,
@@ -102,8 +106,14 @@ function SortablePrepItem({
           >
             <GripVertical className="w-4 h-4" />
           </button>
-          <div className="flex-1 min-w-0">
-            <span className="text-muted-foreground text-sm mr-2">{index + 1}.</span>
+          <div className="flex-1 min-w-0 flex items-center">
+            <span className="shrink-0 w-5 text-center mr-2">
+              {isBreak ? (
+                <Coffee className="w-4 h-4 text-muted-foreground inline" />
+              ) : (
+                <span className="text-muted-foreground text-sm">{exerciseNumber}.</span>
+              )}
+            </span>
             <span className="text-foreground">{name}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -175,6 +185,12 @@ function PrepPage() {
   } | null>(null);
   const template = useTemplateSaver();
 
+  // Sensors for drag-and-drop — must be called before early return (Rules of Hooks)
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
   // If there's no current session, create one on first visit
   if (!state.currentSession) {
     dispatch({ type: 'CREATE_SESSION' });
@@ -185,6 +201,19 @@ function PrepPage() {
 
   // Total time for the session
   const totalMinutes = sessionExercises.reduce((sum, ex) => sum + ex.duration, 0);
+
+  // Precompute exercise numbers (excluding breaks) for display.
+  // E.g., [Exercise=1, Break=undefined, Exercise=2, Exercise=3]
+  const exerciseNumbers: (number | undefined)[] = [];
+  let exerciseCount = 0;
+  for (const se of sessionExercises) {
+    if (se.exerciseId === BREAK_EXERCISE_ID) {
+      exerciseNumbers.push(undefined);
+    } else {
+      exerciseCount++;
+      exerciseNumbers.push(exerciseCount);
+    }
+  }
 
   function handleAddExercise(exerciseId: string) {
     dispatch({ type: 'ADD_EXERCISE', exerciseId, duration: defaultDuration });
@@ -200,12 +229,6 @@ function PrepPage() {
 
   // Stable IDs for dnd-kit — slotId is generated when exercises are added
   const sortableIds = sessionExercises.map((se, i) => se.slotId ?? `prep-${i}`);
-
-  // Sensors for drag-and-drop (same setup as SessionQueuePanel)
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -410,6 +433,7 @@ function PrepPage() {
                         id={sortableIds[index]}
                         index={index}
                         se={se}
+                        exerciseNumber={exerciseNumbers[index]}
                         onDurationChange={handleDurationChange}
                         onShowDetail={(exercise) => setDetailExercise(exercise)}
                         onRequestRemove={() =>
