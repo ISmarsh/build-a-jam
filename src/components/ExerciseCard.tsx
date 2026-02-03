@@ -50,7 +50,12 @@ function ExerciseCard({ exercise, onClick, isFavorite, onToggleFavorite }: Exerc
     >
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-primary">{exercise.name}</CardTitle>
+          <div className="flex items-center gap-2 min-w-0">
+            <CardTitle className="text-primary truncate">{exercise.name}</CardTitle>
+            {exercise.isCustom && (
+              <Badge variant="secondary" className="text-xs shrink-0">Custom</Badge>
+            )}
+          </div>
           {onToggleFavorite && (
             <button
               onClick={(e) => {

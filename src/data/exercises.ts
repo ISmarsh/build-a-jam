@@ -1,7 +1,8 @@
 /**
  * Exercise data loader
  *
- * Combines exercises from multiple scraped sources into a single array.
+ * Combines exercises from multiple scraped sources into a single array,
+ * and supports runtime registration of custom user-created exercises.
  *
  * ANGULAR vs REACT:
  * - In Angular: you might load JSON via HttpClient in a service
@@ -11,6 +12,16 @@
  * DATA STRUCTURE:
  * Each JSON file has: { attribution: {...}, exercises: Exercise[] }
  * We import the files and merge the exercises arrays.
+ *
+ * BRIDGING REACT STATE ↔ MODULE-LEVEL DATA:
+ * Custom exercises live in React state (SessionContext) but many functions
+ * here need to include them in results. We use a "registration" pattern:
+ * SessionProvider calls registerCustomExercises() whenever custom exercises
+ * change, updating a module-level variable that all functions reference.
+ *
+ * Angular equivalent: a singleton service that holds the canonical list.
+ * Here, the module IS the singleton — ES modules are evaluated once and
+ * shared across all importers.
  */
 
 import type { Exercise } from '../types';
@@ -35,12 +46,44 @@ export const exercises: Exercise[] = [
   ...improwikiData.exercises,
 ];
 
+// ---------------------------------------------------------------------------
+// Custom exercise registration (bridges React state → module-level data)
+// ---------------------------------------------------------------------------
+
+/**
+ * Module-level variable holding user-created exercises.
+ *
+ * REACT LEARNING NOTE — ESCAPE HATCH:
+ * Normally React state is the single source of truth, but these lookup
+ * functions (getExerciseById, filterBySource, etc.) are plain functions
+ * that don't have access to React hooks. Instead of threading context
+ * through every call site, we sync React state → this variable via
+ * a useEffect in SessionProvider. It's pragmatic — the tradeoff is
+ * that the data is "eventually consistent" (updated after render),
+ * which is fine because it happens before the next paint.
+ */
+let customExercises: Exercise[] = [];
+
+/**
+ * Called by SessionProvider whenever custom exercises change.
+ * Updates the module-level variable so all functions see them.
+ */
+export function registerCustomExercises(updated: Exercise[]): void {
+  customExercises = updated;
+  recomputeSourceCounts();
+}
+
+/** Get all exercises: static (scraped) + custom (user-created). */
+function allExercises(): Exercise[] {
+  return [...exercises, ...customExercises];
+}
+
 /**
  * Helper to get a single exercise by ID.
  * Returns undefined if not found.
  */
 export function getExerciseById(id: string): Exercise | undefined {
-  return exercises.find(ex => ex.id === id);
+  return allExercises().find(ex => ex.id === id);
 }
 
 /**
@@ -64,25 +107,35 @@ export function formatDuration(seconds: number): string {
  * across components. In Angular you'd put this in a shared module
  * or a service interface — same idea, different mechanism.
  */
-export type SourceFilter = 'all' | 'learnimprov' | 'improwiki';
+export type SourceFilter = 'all' | 'learnimprov' | 'improwiki' | 'custom';
 
 /**
  * Filter exercises by source prefix.
  */
 export function filterBySource(source: SourceFilter): Exercise[] {
-  if (source === 'all') return exercises;
-  return exercises.filter(ex => ex.id.startsWith(`${source}:`));
+  if (source === 'all') return allExercises();
+  return allExercises().filter(ex => ex.id.startsWith(`${source}:`));
 }
 
 /**
  * Pre-computed counts per source for dropdown labels.
- * Avoids recalculating .filter().length on every render.
+ * Recomputed when custom exercises are registered.
  */
-export const sourceCounts: Record<SourceFilter, number> = {
-  all: exercises.length,
-  learnimprov: exercises.filter(ex => ex.id.startsWith('learnimprov:')).length,
-  improwiki: exercises.filter(ex => ex.id.startsWith('improwiki:')).length,
-};
+function computeSourceCounts(): Record<SourceFilter, number> {
+  const all = allExercises();
+  return {
+    all: all.length,
+    learnimprov: all.filter(ex => ex.id.startsWith('learnimprov:')).length,
+    improwiki: all.filter(ex => ex.id.startsWith('improwiki:')).length,
+    custom: customExercises.length,
+  };
+}
+
+export let sourceCounts: Record<SourceFilter, number> = computeSourceCounts();
+
+function recomputeSourceCounts(): void {
+  sourceCounts = computeSourceCounts();
+}
 
 /**
  * Curated tags shown in the filter UI.
@@ -120,7 +173,7 @@ export function getAllTags(): string[] {
   // Set automatically deduplicates
   // Array.from converts Set back to array so we can sort it
   return Array.from(
-    new Set(exercises.flatMap(ex => ex.tags))
+    new Set(allExercises().flatMap(ex => ex.tags))
   ).sort();
 }
 

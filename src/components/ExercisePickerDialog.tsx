@@ -23,7 +23,8 @@
  */
 
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   filterBySource,
   getTagsForExercises,
@@ -35,6 +36,7 @@ import type { Exercise } from '../types';
 import { useSession } from '../context/SessionContext';
 import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseDetailModal from './ExerciseDetailModal';
+import ExerciseFormDialog from './ExerciseFormDialog';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -61,11 +63,12 @@ function ExercisePickerDialog({
   onAdd,
   existingExerciseIds,
 }: ExercisePickerDialogProps) {
-  const { state } = useSession();
+  const { state, dispatch } = useSession();
   const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
   const [detailExercise, setDetailExercise] = useState<Exercise | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Same filter pipeline used by HomePage and PrepPage
   const sourceFiltered = filterBySource(selectedSource);
@@ -108,9 +111,18 @@ function ExercisePickerDialog({
               idPrefix="session-picker"
             />
 
-            <p className="text-muted-foreground text-sm mt-3 mb-2">
-              {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
-            </p>
+            <div className="flex items-center justify-between mt-3 mb-2">
+              <p className="text-muted-foreground text-sm">
+                {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCreateForm(true)}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Create
+              </Button>
+            </div>
 
             {/* Compact exercise list */}
             <div className="space-y-2">
@@ -185,6 +197,19 @@ function ExercisePickerDialog({
         <ExerciseDetailModal
           exercise={detailExercise}
           onClose={() => setDetailExercise(null)}
+        />
+      )}
+
+      {/* Create exercise form — stacks on top of the picker dialog */}
+      {showCreateForm && (
+        <ExerciseFormDialog
+          open={showCreateForm}
+          onClose={() => setShowCreateForm(false)}
+          onSave={(exercise) => {
+            dispatch({ type: 'ADD_CUSTOM_EXERCISE', exercise });
+            setShowCreateForm(false);
+            toast(`Created "${exercise.name}"`);
+          }}
         />
       )}
     </>

@@ -30,8 +30,9 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
-import type { Session, SessionExercise, CompletedSession } from '../types';
+import type { Exercise, Session, SessionExercise, CompletedSession } from '../types';
 import { useStorage } from '../storage/StorageContext';
+import { registerCustomExercises } from '../data/exercises';
 
 // ---------------------------------------------------------------------------
 // Storage keys
@@ -42,6 +43,7 @@ const STORAGE_KEYS = {
   SESSIONS: 'sessions',
   COMPLETED_SESSIONS: 'completed-sessions',
   FAVORITE_EXERCISE_IDS: 'favorite-exercise-ids',
+  CUSTOM_EXERCISES: 'custom-exercises',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -63,6 +65,8 @@ interface SessionState {
   completedSessions: CompletedSession[];
   /** IDs of individually-starred exercises */
   favoriteExerciseIds: string[];
+  /** User-created exercises (persisted to storage, synced to exercises.ts) */
+  customExercises: Exercise[];
   /** Whether initial load from storage has finished */
   loaded: boolean;
 }
@@ -76,6 +80,7 @@ const initialState: SessionState = {
   sessions: [],
   completedSessions: [],
   favoriteExerciseIds: [],
+  customExercises: [],
   loaded: false,
 };
 
@@ -84,7 +89,7 @@ const initialState: SessionState = {
 // ---------------------------------------------------------------------------
 
 type SessionAction =
-  | { type: 'HYDRATE'; sessions: Session[]; completedSessions: CompletedSession[]; currentSession: Session | null; favoriteExerciseIds: string[] }
+  | { type: 'HYDRATE'; sessions: Session[]; completedSessions: CompletedSession[]; currentSession: Session | null; favoriteExerciseIds: string[]; customExercises: Exercise[] }
   | { type: 'CREATE_SESSION'; name?: string }
   | { type: 'LOAD_SESSION'; session: Session }
   | { type: 'ADD_EXERCISE'; exerciseId: string; duration: number }
@@ -107,7 +112,10 @@ type SessionAction =
   | { type: 'TIMER_TICK' }
   | { type: 'TIMER_PAUSE' }
   | { type: 'TIMER_RESUME' }
-  | { type: 'TIMER_RESET' };
+  | { type: 'TIMER_RESET' }
+  | { type: 'ADD_CUSTOM_EXERCISE'; exercise: Exercise }
+  | { type: 'UPDATE_CUSTOM_EXERCISE'; exercise: Exercise }
+  | { type: 'DELETE_CUSTOM_EXERCISE'; exerciseId: string };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -153,6 +161,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
         completedSessions: action.completedSessions,
         currentSession: hydratedSession,
         favoriteExerciseIds: action.favoriteExerciseIds,
+        customExercises: action.customExercises ?? [],
         loaded: true,
       };
     }
@@ -481,6 +490,39 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
     case 'TIMER_RESET':
       return { ...state, timerElapsed: 0 };
 
+    // CUSTOM EXERCISE ACTIONS — CRUD for user-created exercises.
+    //
+    // ANGULAR vs REACT:
+    // Angular: you'd have a service with methods like addExercise(),
+    // updateExercise(), deleteExercise() that modify the service's
+    // internal state (observable or signal).
+    // React: these are reducer actions — pure functions that produce
+    // new state. The pattern scales well: each action is independent,
+    // and the reducer handles side effects (like cleaning up favorites
+    // when an exercise is deleted).
+
+    case 'ADD_CUSTOM_EXERCISE':
+      return {
+        ...state,
+        customExercises: [...state.customExercises, action.exercise],
+      };
+
+    case 'UPDATE_CUSTOM_EXERCISE':
+      return {
+        ...state,
+        customExercises: state.customExercises.map(ex =>
+          ex.id === action.exercise.id ? action.exercise : ex
+        ),
+      };
+
+    case 'DELETE_CUSTOM_EXERCISE':
+      return {
+        ...state,
+        customExercises: state.customExercises.filter(ex => ex.id !== action.exerciseId),
+        // Also remove from favorites if it was starred
+        favoriteExerciseIds: state.favoriteExerciseIds.filter(id => id !== action.exerciseId),
+      };
+
     default:
       return state;
   }
@@ -504,11 +546,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // Load persisted state on mount
   useEffect(() => {
     async function hydrate() {
-      const [sessions, completedSessions, currentSession, favoriteExerciseIds] = await Promise.all([
+      const [sessions, completedSessions, currentSession, favoriteExerciseIds, customExercises] = await Promise.all([
         storage.load<Session[]>(STORAGE_KEYS.SESSIONS),
         storage.load<CompletedSession[]>(STORAGE_KEYS.COMPLETED_SESSIONS),
         storage.load<Session>(STORAGE_KEYS.CURRENT_SESSION),
         storage.load<string[]>(STORAGE_KEYS.FAVORITE_EXERCISE_IDS),
+        storage.load<Exercise[]>(STORAGE_KEYS.CUSTOM_EXERCISES),
       ]);
       dispatch({
         type: 'HYDRATE',
@@ -516,6 +559,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         completedSessions: completedSessions ?? [],
         currentSession: currentSession ?? null,
         favoriteExerciseIds: favoriteExerciseIds ?? [],
+        customExercises: customExercises ?? [],
       });
     }
     void hydrate();
@@ -527,12 +571,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     void storage.save(STORAGE_KEYS.SESSIONS, state.sessions);
     void storage.save(STORAGE_KEYS.COMPLETED_SESSIONS, state.completedSessions);
     void storage.save(STORAGE_KEYS.FAVORITE_EXERCISE_IDS, state.favoriteExerciseIds);
+    void storage.save(STORAGE_KEYS.CUSTOM_EXERCISES, state.customExercises);
     if (state.currentSession) {
       void storage.save(STORAGE_KEYS.CURRENT_SESSION, state.currentSession);
     } else {
       void storage.remove(STORAGE_KEYS.CURRENT_SESSION);
     }
-  }, [state.sessions, state.completedSessions, state.currentSession, state.favoriteExerciseIds, state.loaded, storage]);
+  }, [state.sessions, state.completedSessions, state.currentSession, state.favoriteExerciseIds, state.customExercises, state.loaded, storage]);
+
+  // Bridge React state → module-level data in exercises.ts.
+  // This lets getExerciseById(), filterBySource(), etc. see custom exercises
+  // without threading context through every call site.
+  //
+  // REACT LEARNING NOTE — SYNCING STATE TO NON-REACT CODE:
+  // This useEffect runs after every render where customExercises changed.
+  // It's an "escape hatch" — React state is the source of truth, and we're
+  // syncing a snapshot to a module variable. The Angular equivalent would be
+  // a service subscribing to its own Observable and updating a cache.
+  useEffect(() => {
+    registerCustomExercises(state.customExercises);
+  }, [state.customExercises]);
 
   return (
     <SessionContext.Provider value={{ state, dispatch }}>

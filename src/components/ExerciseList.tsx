@@ -34,9 +34,13 @@ interface ExerciseListProps {
   exercises: Exercise[];
   favoriteIds?: string[];
   onToggleFavorite?: (id: string) => void;
+  /** Called when user wants to edit a custom exercise from the detail modal */
+  onEditExercise?: (exercise: Exercise) => void;
+  /** Called when user wants to delete a custom exercise from the detail modal */
+  onDeleteExercise?: (exercise: Exercise) => void;
 }
 
-function ExerciseList({ exercises, favoriteIds, onToggleFavorite }: ExerciseListProps) {
+function ExerciseList({ exercises, favoriteIds, onToggleFavorite, onEditExercise, onDeleteExercise }: ExerciseListProps) {
   // STATE: Track which exercise is open in modal (null = no modal)
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
@@ -70,6 +74,16 @@ function ExerciseList({ exercises, favoriteIds, onToggleFavorite }: ExerciseList
         <ExerciseDetailModal
           exercise={selectedExercise}
           onClose={() => setSelectedExercise(null)}
+          onEdit={selectedExercise.isCustom && onEditExercise ? () => {
+            const ex = selectedExercise;
+            setSelectedExercise(null);
+            onEditExercise(ex);
+          } : undefined}
+          onDelete={selectedExercise.isCustom && onDeleteExercise ? () => {
+            const ex = selectedExercise;
+            setSelectedExercise(null);
+            onDeleteExercise(ex);
+          } : undefined}
         />
       )}
     </>
