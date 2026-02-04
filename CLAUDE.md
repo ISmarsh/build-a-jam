@@ -1,5 +1,9 @@
 # Build-a-Jam - Claude Context
 
+> **Universal guidance**: See [.planet-smars/templates/claude-guidance/CLAUDE.md](.planet-smars/templates/claude-guidance/CLAUDE.md)
+> for git practices, PR workflows, testing patterns, code principles, and shell handling.
+> This file contains project-specific context only.
+
 ## Project Purpose
 
 Build-a-Jam is both a **functional tool** and a **learning project**:
