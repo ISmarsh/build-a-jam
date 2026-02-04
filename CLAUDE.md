@@ -158,24 +158,6 @@ src/
 - Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Atomic commits per feature/concept
 
-### Workflow discipline
-
-**Guidance updates**: When I notice something that should be added to CLAUDE.md
-during feature work, I collect it in a todo list instead of editing immediately.
-At PR wrap-up (or in a separate docs PR), we batch all guidance updates into a
-single commit. This prevents documentation churn scattered across feature PRs.
-
-**Scope creep prevention**: When unrelated work emerges mid-feature, I'll ask:
-"This is unrelated to [current branch purpose]. Defer to a separate PR?" The
-user can choose to:
-- Defer (add to a todo/issue for later)
-- Quick-branch (stash, fix on a new branch, return)
-- Explicitly expand scope (conscious decision, not drift)
-
-**Pre-commit verification**: Before suggesting a commit for a feature, I run
-`npm run build` to catch TypeScript/build errors. Tests run in CI on every
-push, so I don't run them locally unless debugging a specific failure.
-
 ### PR workflow
 
 PR review, Copilot triage, wrap-up checklist, and accessibility guidelines are in
