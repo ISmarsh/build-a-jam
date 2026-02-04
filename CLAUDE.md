@@ -175,10 +175,10 @@ push, so I don't run them locally unless debugging a specific failure.
 
 ### PR workflow
 
-PR review, Copilot triage, and wrap-up checklist are in the imported guidance above.
+PR review, Copilot triage, wrap-up checklist, and accessibility guidelines are in
+the imported guidance above.
 
-**Project-specific automated checks (CI):**
-- Accessibility audit — Playwright + axe-core runs in CI, fails on violations
+**Project-specific CI:** Accessibility audit runs via `npm run audit:a11y`.
 
 ## Important Context
 
