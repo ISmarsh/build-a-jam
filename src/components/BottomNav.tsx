@@ -45,8 +45,8 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
 
   // Close menu on any navigation — reacting to route changes is a legitimate
   // use of setState-in-effect (syncing UI state with an external value).
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMenuOpen(false);
   }, [location.pathname]);
 
