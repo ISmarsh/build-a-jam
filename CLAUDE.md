@@ -1,8 +1,12 @@
 # Build-a-Jam - Claude Context
 
-> **Universal guidance**: See [.planet-smars/templates/claude-guidance/CLAUDE.md](.planet-smars/templates/claude-guidance/CLAUDE.md)
-> for git practices, PR workflows, testing patterns, code principles, and shell handling.
-> This file contains project-specific context only.
+## Universal Guidance
+
+@.planet-smars/templates/claude-guidance/CLAUDE.md
+
+---
+
+**Project-specific context below:**
 
 ## Project Purpose
 
@@ -169,22 +173,12 @@ user can choose to:
 `npm run build` to catch TypeScript/build errors. Tests run in CI on every
 push, so I don't run them locally unless debugging a specific failure.
 
-### PR review workflow
+### PR workflow
 
-See [planet-smars PR Review Workflow](.planet-smars/templates/claude-guidance/CLAUDE.md#pr-review-workflow-github-cli)
-for GraphQL queries, escaping pitfalls, and the general workflow.
+PR review, Copilot triage, and wrap-up checklist are in the imported guidance above.
 
-See [planet-smars Copilot Auto-Review Workflow](.planet-smars/templates/claude-guidance/CLAUDE.md#copilot-auto-review-workflow)
-for the full Copilot review triage process.
-
-### PR wrap-up checklist
-
-**Automated checks (CI handles these):**
-- Build, lint, and tests — runs on every push via GitHub Actions
+**Project-specific automated checks (CI):**
 - Accessibility audit — Playwright + axe-core runs in CI, fails on violations
-
-See [planet-smars PR Wrap-up Checklist](.planet-smars/templates/claude-guidance/CLAUDE.md#pr-wrap-up-checklist)
-for manual checks (Copilot triage, duplication, obsolete code, documentation).
 
 ## Important Context
 
