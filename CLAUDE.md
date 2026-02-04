@@ -3,9 +3,9 @@
 ## Universal Guidance
 
 <!-- @import: Claude Code includes this file's content -->
-@.planet-smars/templates/claude-context/CLAUDE.md
+@.planet-smars/templates/ai-context/CLAUDE.md
 
-> *[View shared context](.planet-smars/templates/claude-context/CLAUDE.md) — git practices, testing, PR workflows, accessibility*
+> *[View shared context](.planet-smars/templates/ai-context/CLAUDE.md) — git practices, testing, PR workflows, accessibility*
 
 ---
 
