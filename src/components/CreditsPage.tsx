@@ -15,7 +15,6 @@
  * - In React, static imports are simpler for bundled data
  */
 
-
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
@@ -51,44 +50,39 @@ const dataSources: Attribution[] = [
 function CreditsPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-foreground mb-2">
-        Credits &amp; Licenses
-      </h1>
-      <p className="text-muted-foreground mb-8">
+      <h1 className="mb-2 text-3xl font-bold text-foreground">Credits &amp; Licenses</h1>
+      <p className="mb-8 text-muted-foreground">
         Build-a-Jam application code is licensed under the{' '}
         <a
           href="https://opensource.org/licenses/MIT"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:text-primary-hover underline"
+          className="text-primary underline hover:text-primary-hover"
         >
           MIT License
         </a>
-        . Exercise data is sourced from the following third parties under their
-        own licenses.
+        . Exercise data is sourced from the following third parties under their own licenses.
       </p>
 
       <div className="space-y-4">
         {/* map() is like Angular's *ngFor - iterates over an array */}
         {dataSources.map((source) => (
-          <Card
-            key={source.source}
-          >
+          <Card key={source.source}>
             <CardHeader>
-              <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle className="text-primary">
                   <a
                     href={source.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-primary-hover underline"
+                    className="underline hover:text-primary-hover"
                   >
                     {source.source}
                   </a>
                 </CardTitle>
                 <Badge
                   variant="outline"
-                  className="text-green-700 dark:text-green-400 border-green-700 dark:border-green-600"
+                  className="border-green-700 text-green-700 dark:border-green-600 dark:text-green-400"
                 >
                   <a
                     href={source.licenseUrl}
@@ -102,20 +96,19 @@ function CreditsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-secondary-foreground mb-4">{source.note}</p>
+              <p className="mb-4 text-secondary-foreground">{source.note}</p>
 
               {/* Conditional rendering - only show if modifications exist */}
               {/* Like Angular's *ngIf */}
               {source.modifications && source.modifications.length > 0 && (
-                <div className="mt-4 pt-4 border-t">
-                  <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+                <div className="mt-4 border-t pt-4">
+                  <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
                     Modifications:
                   </h3>
                   <ul className="space-y-2">
                     {source.modifications.map((mod, index) => (
                       <li key={index} className="text-sm text-muted-foreground">
-                        <span className="text-muted-foreground">{mod.date}:</span>{' '}
-                        {mod.description}
+                        <span className="text-muted-foreground">{mod.date}:</span> {mod.description}
                       </li>
                     ))}
                   </ul>
@@ -126,14 +119,14 @@ function CreditsPage() {
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t text-muted-foreground text-sm">
+      <div className="mt-8 border-t pt-6 text-sm text-muted-foreground">
         <p>
           For full licensing details see{' '}
           <a
             href="https://github.com/ISmarsh/build-a-jam/blob/main/LICENSE-DATA"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:text-primary-hover underline"
+            className="text-primary underline hover:text-primary-hover"
           >
             LICENSE-DATA
           </a>{' '}

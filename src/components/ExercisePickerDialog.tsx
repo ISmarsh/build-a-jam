@@ -64,8 +64,13 @@ function ExercisePickerDialog({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-        <DialogContent className="bg-card max-w-2xl max-h-[85vh] flex flex-col">
+      <Dialog
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) onClose();
+        }}
+      >
+        <DialogContent className="flex max-h-[85vh] max-w-2xl flex-col bg-card">
           <DialogHeader>
             <DialogTitle className="text-foreground">Add Exercise</DialogTitle>
             <DialogDescription>
@@ -73,7 +78,7 @@ function ExercisePickerDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <ExerciseFilterBar
               selectedSource={exerciseFilter.selectedSource}
               onSourceChange={exerciseFilter.handleSourceChange}
@@ -86,16 +91,13 @@ function ExercisePickerDialog({
               idPrefix="session-picker"
             />
 
-            <div className="flex items-center justify-between mt-3 mb-2">
-              <p className="text-muted-foreground text-sm">
-                {exerciseFilter.filtered.length} exercise{exerciseFilter.filtered.length !== 1 ? 's' : ''}
+            <div className="mb-2 mt-3 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {exerciseFilter.filtered.length} exercise
+                {exerciseFilter.filtered.length !== 1 ? 's' : ''}
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowCreateForm(true)}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Create
+              <Button variant="outline" size="sm" onClick={() => setShowCreateForm(true)}>
+                <Plus className="mr-1 h-4 w-4" /> Create
               </Button>
             </div>
 
@@ -105,53 +107,53 @@ function ExercisePickerDialog({
                 const inQueue = existingExerciseIds.includes(exercise.id);
                 return (
                   <Card key={exercise.id}>
-                    <CardHeader className="py-2 px-3">
+                    <CardHeader className="px-3 py-2">
                       <div className="flex items-center justify-between gap-2">
-                        <CardTitle className="text-primary text-sm truncate">
+                        <CardTitle className="truncate text-sm text-primary">
                           {exercise.name}
                         </CardTitle>
                         {inQueue ? (
-                          <span className="text-muted-foreground text-xs shrink-0 italic">
+                          <span className="shrink-0 text-xs italic text-muted-foreground">
                             In queue
                           </span>
                         ) : (
                           <button
                             onClick={() => onAdd(exercise.id)}
-                            className="text-primary hover:text-primary-hover text-sm shrink-0"
+                            className="shrink-0 text-sm text-primary hover:text-primary-hover"
                           >
                             + Add
                           </button>
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-0 pb-2 px-3">
+                    <CardContent className="px-3 pb-2 pt-0">
                       {exercise.summary && (
-                        <p className="text-muted-foreground text-xs line-clamp-1">
+                        <p className="line-clamp-1 text-xs text-muted-foreground">
                           {exercise.summary}
                         </p>
                       )}
-                      <div className="flex items-end justify-between mt-1">
+                      <div className="mt-1 flex items-end justify-between">
                         <div className="flex flex-wrap gap-1">
                           {exercise.tags.slice(0, 4).map((tag) => (
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="text-primary border-input text-xs"
+                              className="border-input text-xs text-primary"
                             >
                               {tag}
                             </Badge>
                           ))}
                           {exercise.tags.length > 4 && (
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-xs text-muted-foreground">
                               +{exercise.tags.length - 4}
                             </span>
                           )}
                         </div>
                         <button
                           onClick={() => setDetailExercise(exercise)}
-                          className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
+                          className="ml-2 inline-flex shrink-0 items-center gap-1 text-xs text-primary transition-colors hover:text-primary-hover"
                         >
-                          Details <ArrowRight className="w-3 h-3" />
+                          Details <ArrowRight className="h-3 w-3" />
                         </button>
                       </div>
                     </CardContent>
@@ -169,10 +171,7 @@ function ExercisePickerDialog({
 
       {/* Detail modal — stacks on top of the picker dialog */}
       {detailExercise && (
-        <ExerciseDetailModal
-          exercise={detailExercise}
-          onClose={() => setDetailExercise(null)}
-        />
+        <ExerciseDetailModal exercise={detailExercise} onClose={() => setDetailExercise(null)} />
       )}
 
       {/* Create exercise form — stacks on top of the picker dialog */}

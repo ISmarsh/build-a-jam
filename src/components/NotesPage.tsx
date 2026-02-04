@@ -47,9 +47,7 @@ function hasExerciseChanges(current: Session, original: Session): boolean {
   return currentExercises.some((ex, i) => {
     const orig = originalExercises[i];
     return (
-      ex.exerciseId !== orig.exerciseId ||
-      ex.duration !== orig.duration ||
-      ex.order !== orig.order
+      ex.exerciseId !== orig.exerciseId || ex.duration !== orig.duration || ex.order !== orig.order
     );
   });
 }
@@ -113,33 +111,35 @@ function NotesPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold text-foreground mb-2">Session Complete</h1>
-      <p className="text-muted-foreground mb-8">
+    <div className="mx-auto max-w-2xl">
+      <h1 className="mb-2 text-3xl font-bold text-foreground">Session Complete</h1>
+      <p className="mb-8 text-muted-foreground">
         How did it go? Jot down what worked, what didn't, and anything to remember.
       </p>
 
       {/* Exercises that were run */}
-      <h2 className="text-lg font-semibold text-foreground mb-3">Exercises</h2>
-      <div className="space-y-2 mb-4">
+      <h2 className="mb-3 text-lg font-semibold text-foreground">Exercises</h2>
+      <div className="mb-4 space-y-2">
         {session.exercises.map((se, i) => (
           <Card key={se.slotId ?? i}>
             <CardContent className="py-3">
               <div className="flex items-center justify-between">
                 <span className="text-foreground">
-                  <span className="text-muted-foreground mr-2">{i + 1}.</span>
+                  <span className="mr-2 text-muted-foreground">{i + 1}.</span>
                   {getExerciseName(se)}
                 </span>
-                <span className="text-muted-foreground text-sm">
-                  {se.actualSeconds != null
-                    ? <>{formatDuration(se.actualSeconds)} <span className="text-muted-foreground">/ {se.duration} min</span></>
-                    : <>{se.duration} min</>
-                  }
+                <span className="text-sm text-muted-foreground">
+                  {se.actualSeconds != null ? (
+                    <>
+                      {formatDuration(se.actualSeconds)}{' '}
+                      <span className="text-muted-foreground">/ {se.duration} min</span>
+                    </>
+                  ) : (
+                    <>{se.duration} min</>
+                  )}
                 </span>
               </div>
-              {se.notes && (
-                <p className="text-muted-foreground text-sm mt-1 ml-5">{se.notes}</p>
-              )}
+              {se.notes && <p className="ml-5 mt-1 text-sm text-muted-foreground">{se.notes}</p>}
             </CardContent>
           </Card>
         ))}
@@ -148,26 +148,34 @@ function NotesPage() {
       {/* Session totals */}
       {(() => {
         const plannedMinutes = session.exercises.reduce((sum, ex) => sum + ex.duration, 0);
-        const actualTotalSeconds = session.exercises.reduce((sum, ex) => sum + (ex.actualSeconds ?? 0), 0);
+        const actualTotalSeconds = session.exercises.reduce(
+          (sum, ex) => sum + (ex.actualSeconds ?? 0),
+          0,
+        );
         const hasActualTime = session.exercises.some((ex) => ex.actualSeconds != null);
         return (
-          <p className="text-muted-foreground text-sm mb-8">
-            Total: {hasActualTime
-              ? <>{formatDuration(actualTotalSeconds)} <span className="text-muted-foreground">/ {plannedMinutes} min planned</span></>
-              : <>{plannedMinutes} min</>
-            }
+          <p className="mb-8 text-sm text-muted-foreground">
+            Total:{' '}
+            {hasActualTime ? (
+              <>
+                {formatDuration(actualTotalSeconds)}{' '}
+                <span className="text-muted-foreground">/ {plannedMinutes} min planned</span>
+              </>
+            ) : (
+              <>{plannedMinutes} min</>
+            )}
           </p>
         );
       })()}
 
       {/* Notes textarea — controlled component */}
-      <h2 className="text-lg font-semibold text-foreground mb-3">Notes</h2>
+      <h2 className="mb-3 text-lg font-semibold text-foreground">Notes</h2>
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="What worked well? What needs work? Any exercises to try next time?"
         rows={6}
-        className="w-full bg-card border rounded-lg p-4 text-secondary-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors resize-y"
+        className="w-full resize-y rounded-lg border bg-card p-4 text-secondary-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none"
       />
 
       {/* Template save options */}
@@ -177,12 +185,18 @@ function NotesPage() {
           <button
             type="button"
             onClick={() => handleSetSaveMode('update')}
-            className="group flex items-center gap-2 cursor-pointer select-none text-sm transition-colors"
+            className="group flex cursor-pointer select-none items-center gap-2 text-sm transition-colors"
           >
             <RefreshCw
-              className={`w-4 h-4 ${saveMode === 'update' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}
+              className={`h-4 w-4 ${saveMode === 'update' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}
             />
-            <span className={saveMode === 'update' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}>
+            <span
+              className={
+                saveMode === 'update'
+                  ? 'text-primary'
+                  : 'text-muted-foreground group-hover:text-primary'
+              }
+            >
               Update "{sourceTemplate.name}"
             </span>
           </button>
@@ -193,12 +207,16 @@ function NotesPage() {
           <button
             type="button"
             onClick={() => handleSetSaveMode('new')}
-            className="group flex items-center gap-2 cursor-pointer select-none text-sm transition-colors"
+            className="group flex cursor-pointer select-none items-center gap-2 text-sm transition-colors"
           >
             <Star
-              className={`w-4 h-4 ${saveMode === 'new' ? 'fill-star text-star' : 'text-muted-foreground group-hover:text-star'}`}
+              className={`h-4 w-4 ${saveMode === 'new' ? 'fill-star text-star' : 'text-muted-foreground group-hover:text-star'}`}
             />
-            <span className={saveMode === 'new' ? 'text-star' : 'text-muted-foreground group-hover:text-star'}>
+            <span
+              className={
+                saveMode === 'new' ? 'text-star' : 'text-muted-foreground group-hover:text-star'
+              }
+            >
               Save as new favorite
             </span>
           </button>
@@ -211,7 +229,7 @@ function NotesPage() {
             value={template.templateName}
             onChange={(e) => template.setTemplateName(e.target.value)}
             placeholder="Favorite name..."
-            className="w-full bg-secondary border border-input rounded px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary"
+            className="w-full rounded border border-input bg-secondary px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- conditionally rendered after user action
           />
         )}

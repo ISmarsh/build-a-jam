@@ -17,10 +17,10 @@ node scripts/scrape-improwiki.mjs
 
 ### Command-line flags
 
-| Flag | Scraper | Effect |
-|------|---------|--------|
-| `--force` | learnimprov, improwiki | Bypass HTML cache, re-fetch from network |
-| `--clear-cache` | learnimprov | Delete progress cache before running |
+| Flag            | Scraper                | Effect                                   |
+| --------------- | ---------------------- | ---------------------------------------- |
+| `--force`       | learnimprov, improwiki | Bypass HTML cache, re-fetch from network |
+| `--clear-cache` | learnimprov            | Delete progress cache before running     |
 
 ### Pipeline
 
@@ -65,16 +65,16 @@ Post-processing:
 
 All scrapers use these shared functions:
 
-| Export | Purpose |
-|--------|---------|
+| Export                                                      | Purpose                                                  |
+| ----------------------------------------------------------- | -------------------------------------------------------- |
 | `fetchPage(url, retries, headers, cacheFile, forceRefetch)` | HTTP fetch with retry, exponential backoff, HTML caching |
-| `sleep(ms)` | Rate limiting between requests |
-| `loadCache(filename)` / `saveCache(filename, map)` | Progress cache for resume on crash |
-| `clearCache(filename)` | Delete progress cache |
-| `loadExistingData(path)` | Load existing JSON for incremental mode |
-| `sanitizeTags(tags)` | Remove whitespace, deduplicate |
-| `deriveTagsFromContent(text, keywords)` | Tag extraction from description text |
-| `standardTagKeywords` | Shared tag keyword definitions |
+| `sleep(ms)`                                                 | Rate limiting between requests                           |
+| `loadCache(filename)` / `saveCache(filename, map)`          | Progress cache for resume on crash                       |
+| `clearCache(filename)`                                      | Delete progress cache                                    |
+| `loadExistingData(path)`                                    | Load existing JSON for incremental mode                  |
+| `sanitizeTags(tags)`                                        | Remove whitespace, deduplicate                           |
+| `deriveTagsFromContent(text, keywords)`                     | Tag extraction from description text                     |
+| `standardTagKeywords`                                       | Shared tag keyword definitions                           |
 
 ### HTML caching
 
@@ -91,8 +91,8 @@ Use `--clear-cache` to force a fresh start.
 ### Feature flags (learnimprov only)
 
 ```javascript
-const ENABLE_PAGINATION = true;  // Follow "Next Page" links on category indexes
-const ENABLE_SITEMAP = true;     // Check sitemap.xml for additional exercise URLs
+const ENABLE_PAGINATION = true; // Follow "Next Page" links on category indexes
+const ENABLE_SITEMAP = true; // Check sitemap.xml for additional exercise URLs
 ```
 
 These supplement the primary WordPress REST API approach. Pagination and sitemap
@@ -145,12 +145,12 @@ Before writing any code:
 
 Try in order of preference:
 
-| Method | How to test | Reliability |
-|--------|-------------|-------------|
-| WordPress REST API | `curl -sI https://site.com/wp-json/wp/v2/posts` | Best — structured JSON, pagination |
-| Sitemap | `curl -s https://site.com/sitemap.xml` | Good — comprehensive coverage |
-| RSS/Atom feed | `curl -s https://site.com/feed/` | Limited — usually only recent posts |
-| HTML scraping | Manual inspection | Fragile — breaks on redesign |
+| Method             | How to test                                     | Reliability                         |
+| ------------------ | ----------------------------------------------- | ----------------------------------- |
+| WordPress REST API | `curl -sI https://site.com/wp-json/wp/v2/posts` | Best — structured JSON, pagination  |
+| Sitemap            | `curl -s https://site.com/sitemap.xml`          | Good — comprehensive coverage       |
+| RSS/Atom feed      | `curl -s https://site.com/feed/`                | Limited — usually only recent posts |
+| HTML scraping      | Manual inspection                               | Fragile — breaks on redesign        |
 
 ### 3. Create the scraper
 
@@ -169,7 +169,7 @@ Add to `scrape-all.mjs`:
 ```javascript
 const SCRAPER_SCRIPTS = [
   // ... existing scrapers
-  { file: "scrape-newsource.mjs", label: "newsource.com" },
+  { file: 'scrape-newsource.mjs', label: 'newsource.com' },
 ];
 ```
 
@@ -186,10 +186,10 @@ Add to `cleanup-scraped-data.mjs` DATA_FILES array.
 
 These scrapers exist but are commented out in `scrape-all.mjs`:
 
-| Script | Source | Why disabled |
-|--------|--------|-------------|
+| Script                          | Source                 | Why disabled                                        |
+| ------------------------------- | ---------------------- | --------------------------------------------------- |
 | `scrape-improvencyclopedia.mjs` | improvencyclopedia.org | "Free for non-commercial use" — not an open license |
-| `import-improvdb.mjs` | ImprovDB (GitHub) | No LICENSE file in repo |
+| `import-improvdb.mjs`           | ImprovDB (GitHub)      | No LICENSE file in repo                             |
 
 Contact the respective site owners before enabling.
 

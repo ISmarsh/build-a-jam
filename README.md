@@ -71,15 +71,15 @@ npm run audit:a11y  # Run accessibility audit (Playwright + axe-core)
 
 ## Project Structure
 
-| Directory | Contents |
-|-----------|----------|
-| `src/components/` | Page components and UI (React + shadcn/ui) |
+| Directory            | Contents                                         |
+| -------------------- | ------------------------------------------------ |
+| `src/components/`    | Page components and UI (React + shadcn/ui)       |
 | `src/components/ui/` | shadcn/ui primitives (Card, Badge, Dialog, etc.) |
-| `src/context/` | Session state management (useReducer + Context) |
-| `src/hooks/` | Custom React hooks |
-| `src/storage/` | Persistence layer (localStorage, swappable) |
-| `src/data/` | Exercise JSON data and loader module |
-| `scripts/` | Data scrapers and post-processing pipeline |
+| `src/context/`       | Session state management (useReducer + Context)  |
+| `src/hooks/`         | Custom React hooks                               |
+| `src/storage/`       | Persistence layer (localStorage, swappable)      |
+| `src/data/`          | Exercise JSON data and loader module             |
+| `scripts/`           | Data scrapers and post-processing pipeline       |
 
 See [CLAUDE.md](CLAUDE.md) for detailed file-by-file documentation.
 
@@ -90,10 +90,10 @@ This project uses a **dual-license** structure:
 - **Application code**: [MIT License](LICENSE)
 - **Exercise data**: sourced from third parties under their own licenses — see [LICENSE-DATA](LICENSE-DATA)
 
-| Source | License | Exercises |
-|--------|---------|-----------|
-| [learnimprov.com](https://www.learnimprov.com/) | CC BY-SA 4.0 | ~130 |
-| [improwiki.com](https://improwiki.com/en) | CC BY-SA 3.0 DE | ~200 |
+| Source                                          | License         | Exercises |
+| ----------------------------------------------- | --------------- | --------- |
+| [learnimprov.com](https://www.learnimprov.com/) | CC BY-SA 4.0    | ~130      |
+| [improwiki.com](https://improwiki.com/en)       | CC BY-SA 3.0 DE | ~200      |
 
 Run `npm run scrape` to re-fetch exercise data. See [scripts/SCRAPING-GUIDE.md](scripts/SCRAPING-GUIDE.md) for details.
 

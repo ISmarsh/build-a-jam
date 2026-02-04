@@ -5,9 +5,6 @@
       "WebFetch(domain:improvencyclopedia.org)",
       "Read(//c/Dev/build-a-jam/**)"
     ],
-    "additionalDirectories": [
-      "c:\\Dev\\build-a-jam\\src\\data",
-      "c:\\Dev\\build-a-jam\\scripts"
-    ]
+    "additionalDirectories": ["c:\\Dev\\build-a-jam\\src\\data", "c:\\Dev\\build-a-jam\\scripts"]
   }
 }

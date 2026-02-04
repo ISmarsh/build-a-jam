@@ -12,7 +12,19 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Menu, X, Star, Clock, ScrollText, Github, PlusCircle, CirclePlay, Sun, Moon } from 'lucide-react';
+import {
+  Home,
+  Menu,
+  X,
+  Star,
+  Clock,
+  ScrollText,
+  Github,
+  PlusCircle,
+  CirclePlay,
+  Sun,
+  Moon,
+} from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 
 const menuItems = [
@@ -33,8 +45,10 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
 
   // Close menu on any navigation — reacting to route changes is a legitimate
   // use of setState-in-effect (syncing UI state with an external value).
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   // Close menu on Escape key — standard keyboard accessibility pattern
   const handleEscape = useCallback((e: KeyboardEvent) => {
@@ -52,8 +66,7 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
   // 1. No session → PlusCircle → /prep
   // 2. Mid-session (exerciseIndex set) → CirclePlay → /session/:id
   // 3. Exercises done, notes phase (exerciseIndex null but exercises have actualSeconds) → CirclePlay → /notes/:id
-  const hasRunningSession =
-    state.currentSession !== null && state.currentExerciseIndex !== null;
+  const hasRunningSession = state.currentSession !== null && state.currentExerciseIndex !== null;
   const hasFinishedExercises =
     state.currentSession !== null &&
     state.currentExerciseIndex === null &&
@@ -72,24 +85,29 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
       {menuOpen && (
         // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
         <div
-          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+          className="fixed inset-0 z-40 bg-black/50 sm:hidden"
           onClick={() => setMenuOpen(false)}
         />
       )}
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 sm:hidden z-50">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
         {/* Expanding menu panel */}
         {menuOpen && (
-          <div className="bg-card border-t py-2" role="menu" id="bottom-nav-menu" aria-label="Navigation menu">
+          <div
+            className="border-t bg-card py-2"
+            role="menu"
+            id="bottom-nav-menu"
+            aria-label="Navigation menu"
+          >
             {menuItems.map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
                 to={to}
                 role="menuitem"
-                className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="flex items-center gap-3 px-6 py-3 text-secondary-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="h-5 w-5" />
                 <span>{label}</span>
               </Link>
             ))}
@@ -98,24 +116,24 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
               target="_blank"
               rel="noopener noreferrer"
               role="menuitem"
-              className="flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="flex items-center gap-3 px-6 py-3 text-secondary-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <Github className="w-5 h-5" />
+              <Github className="h-5 w-5" />
               <span>GitHub</span>
             </a>
             <button
               onClick={onToggleTheme}
               role="menuitem"
-              className="w-full flex items-center gap-3 px-6 py-3 text-secondary-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="flex w-full items-center gap-3 px-6 py-3 text-secondary-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
             </button>
           </div>
         )}
 
         {/* Bottom bar */}
-        <div className="bg-card border-t flex items-stretch">
+        <div className="flex items-stretch border-t bg-card">
           {/* Home */}
           <Link
             to="/"
@@ -132,22 +150,18 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
             }`}
             aria-label="Home"
           >
-            <Home className="w-6 h-6" />
+            <Home className="h-6 w-6" />
           </Link>
 
           {/* Menu — spans available space */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-muted-foreground hover:text-foreground transition-colors border-x"
+            className="flex flex-1 items-center justify-center gap-2 border-x py-3 text-muted-foreground transition-colors hover:text-foreground"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             aria-controls="bottom-nav-menu"
           >
-            {menuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             <span className="text-sm font-medium">Menu</span>
           </button>
 
@@ -164,9 +178,9 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
             aria-label={hasActiveSession ? 'Resume session' : 'Build a session'}
           >
             {hasActiveSession ? (
-              <CirclePlay className="w-6 h-6" />
+              <CirclePlay className="h-6 w-6" />
             ) : (
-              <PlusCircle className="w-6 h-6" />
+              <PlusCircle className="h-6 w-6" />
             )}
           </Link>
         </div>

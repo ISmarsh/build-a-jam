@@ -77,14 +77,9 @@ function SortablePrepItem({
   const exercise = isBreak ? undefined : getExerciseById(se.exerciseId);
   const name = isBreak ? 'Break' : (exercise?.name ?? se.exerciseId);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -101,56 +96,48 @@ function SortablePrepItem({
           <button
             {...attributes}
             {...listeners}
-            className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+            className="shrink-0 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
             aria-label={`Drag to reorder ${name}`}
           >
-            <GripVertical className="w-4 h-4" />
+            <GripVertical className="h-4 w-4" />
           </button>
-          <div className="flex-1 min-w-0 flex items-center">
-            <span className="shrink-0 w-5 text-center mr-2">
+          <div className="flex min-w-0 flex-1 items-center">
+            <span className="mr-2 w-5 shrink-0 text-center">
               {isBreak ? (
-                <Coffee className="w-4 h-4 text-muted-foreground inline" />
+                <Coffee className="inline h-4 w-4 text-muted-foreground" />
               ) : (
-                <span className="text-muted-foreground text-sm">{exerciseNumber}.</span>
+                <span className="text-sm text-muted-foreground">{exerciseNumber}.</span>
               )}
             </span>
             <span className="text-foreground">{name}</span>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
             <input
               type="number"
               min={1}
               max={60}
               value={se.duration}
-              onChange={(e) =>
-                onDurationChange(index, Math.max(1, Number(e.target.value)))
-              }
+              onChange={(e) => onDurationChange(index, Math.max(1, Number(e.target.value)))}
               aria-label={`Duration for ${name} in minutes`}
-              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
+              className="w-16 rounded border border-input bg-secondary px-2 py-1 text-center text-sm text-foreground"
             />
-            <span className="text-muted-foreground text-sm">min</span>
+            <span className="text-sm text-muted-foreground">min</span>
             <button
               onClick={onRequestRemove}
-              className="text-destructive hover:text-destructive/80 shrink-0 transition-colors ml-1"
+              className="ml-1 shrink-0 text-destructive transition-colors hover:text-destructive/80"
               aria-label={`Remove ${name}`}
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>
         {exercise?.summary && (
-          <p className="text-muted-foreground text-sm mt-1 ml-8 line-clamp-1">
-            {exercise.summary}
-          </p>
+          <p className="ml-8 mt-1 line-clamp-1 text-sm text-muted-foreground">{exercise.summary}</p>
         )}
-        <div className="flex items-end justify-between mt-1 ml-8">
+        <div className="ml-8 mt-1 flex items-end justify-between">
           <div className="flex flex-wrap gap-1">
             {exercise?.tags?.map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className="text-primary border-input text-xs"
-              >
+              <Badge key={tag} variant="outline" className="border-input text-xs text-primary">
                 {tag}
               </Badge>
             ))}
@@ -158,9 +145,9 @@ function SortablePrepItem({
           {exercise && (
             <button
               onClick={() => onShowDetail(exercise)}
-              className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
+              className="ml-2 inline-flex shrink-0 items-center gap-1 text-xs text-primary transition-colors hover:text-primary-hover"
             >
-              Details <ArrowRight className="w-3 h-3" />
+              Details <ArrowRight className="h-3 w-3" />
             </button>
           )}
         </div>
@@ -239,7 +226,7 @@ function PrepPage() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Left column: exercise library with filtering */}
         <div>
           <ExerciseFilterBar
@@ -254,8 +241,10 @@ function PrepPage() {
             idPrefix="prep"
           />
 
-          <div className="flex items-center gap-2 my-4">
-            <label htmlFor="default-duration" className="text-muted-foreground text-sm">Default duration:</label>
+          <div className="my-4 flex items-center gap-2">
+            <label htmlFor="default-duration" className="text-sm text-muted-foreground">
+              Default duration:
+            </label>
             <input
               id="default-duration"
               type="number"
@@ -263,43 +252,39 @@ function PrepPage() {
               max={60}
               value={defaultDuration}
               onChange={(e) => setDefaultDuration(Math.max(1, Number(e.target.value)))}
-              className="w-16 bg-secondary border border-input rounded px-2 py-1 text-foreground text-center text-sm"
+              className="w-16 rounded border border-input bg-secondary px-2 py-1 text-center text-sm text-foreground"
             />
-            <span className="text-muted-foreground text-sm">min</span>
+            <span className="text-sm text-muted-foreground">min</span>
           </div>
 
-          <h2 className="text-xl font-semibold text-foreground mb-3">
+          <h2 className="mb-3 text-xl font-semibold text-foreground">
             Exercises ({exerciseFilter.filtered.length})
           </h2>
-          <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 scrollbar-dark">
+          <div className="scrollbar-dark max-h-[60vh] space-y-3 overflow-y-auto pr-2">
             {exerciseFilter.sorted.map((exercise) => (
               <Card key={exercise.id}>
                 <CardHeader className="py-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-primary text-base">
-                      {exercise.name}
-                    </CardTitle>
+                    <CardTitle className="text-base text-primary">{exercise.name}</CardTitle>
                     <button
                       onClick={() => handleAddExercise(exercise.id)}
-                      className="text-primary hover:text-primary-hover text-sm shrink-0"
+                      className="shrink-0 text-sm text-primary hover:text-primary-hover"
                     >
                       + Add
                     </button>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 pb-3">
+                <CardContent className="pb-3 pt-0">
                   {exercise.summary && (
-                    <p className="text-muted-foreground text-sm line-clamp-2">
-                      {exercise.summary}
-                    </p>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">{exercise.summary}</p>
                   )}
-                  <div className="flex items-end justify-between mt-2">
+                  <div className="mt-2 flex items-end justify-between">
                     <div className="flex flex-wrap gap-1">
                       {exercise.tags.map((tag) => (
                         <Badge
                           key={tag}
                           variant="outline"
-                          className="text-primary border-input text-xs"
+                          className="border-input text-xs text-primary"
                         >
                           {tag}
                         </Badge>
@@ -307,9 +292,9 @@ function PrepPage() {
                     </div>
                     <button
                       onClick={() => setDetailExercise(exercise)}
-                      className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-xs shrink-0 ml-2 transition-colors"
+                      className="ml-2 inline-flex shrink-0 items-center gap-1 text-xs text-primary transition-colors hover:text-primary-hover"
                     >
-                      Details <ArrowRight className="w-3 h-3" />
+                      Details <ArrowRight className="h-3 w-3" />
                     </button>
                   </div>
                 </CardContent>
@@ -320,13 +305,14 @@ function PrepPage() {
 
         {/* Right column: session queue */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-foreground">
               Session Queue
               {sessionExercises.length > 0 && (
-                <span className="text-muted-foreground text-base font-normal ml-2">
+                <span className="ml-2 text-base font-normal text-muted-foreground">
                   {sessionExercises.length} exercise{sessionExercises.length !== 1 && 's'}
-                  {' · '}{totalMinutes} min
+                  {' · '}
+                  {totalMinutes} min
                 </span>
               )}
             </h2>
@@ -334,23 +320,25 @@ function PrepPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => template.start(state.currentSession?.name ?? '')}
-                  className="inline-flex items-center gap-1 text-star hover:text-star/80 text-sm transition-colors"
+                  className="inline-flex items-center gap-1 text-sm text-star transition-colors hover:text-star/80"
                   title="Save as favorite"
                 >
-                  <Star className="w-4 h-4 fill-current" /> Save
+                  <Star className="h-4 w-4 fill-current" /> Save
                 </button>
                 <button
-                  onClick={() => setConfirm({
-                    title: 'Clear queue?',
-                    message: `Remove all ${sessionExercises.length} exercise${sessionExercises.length !== 1 ? 's' : ''} from the queue?`,
-                    confirmLabel: 'Clear',
-                    onConfirm: () => {
-                      dispatch({ type: 'CLEAR_SESSION' });
-                      setConfirm(null);
-                      toast('Queue cleared');
-                    },
-                  })}
-                  className="text-muted-foreground hover:text-destructive text-sm transition-colors"
+                  onClick={() =>
+                    setConfirm({
+                      title: 'Clear queue?',
+                      message: `Remove all ${sessionExercises.length} exercise${sessionExercises.length !== 1 ? 's' : ''} from the queue?`,
+                      confirmLabel: 'Clear',
+                      onConfirm: () => {
+                        dispatch({ type: 'CLEAR_SESSION' });
+                        setConfirm(null);
+                        toast('Queue cleared');
+                      },
+                    })
+                  }
+                  className="text-sm text-muted-foreground transition-colors hover:text-destructive"
                 >
                   Clear
                 </button>
@@ -360,13 +348,13 @@ function PrepPage() {
 
           {/* Inline form for naming the template */}
           {template.isSaving && (
-            <div className="flex items-center gap-2 mb-4">
+            <div className="mb-4 flex items-center gap-2">
               <input
                 type="text"
                 value={template.templateName}
                 onChange={(e) => template.setTemplateName(e.target.value)}
                 placeholder="Favorite name..."
-                className="flex-1 bg-secondary border border-input rounded px-3 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                className="flex-1 rounded border border-input bg-secondary px-3 py-1 text-sm text-foreground focus:border-primary focus:outline-none"
                 autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- conditionally rendered after user action
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') template.save();
@@ -383,7 +371,7 @@ function PrepPage() {
           )}
 
           {sessionExercises.length === 0 ? (
-            <p className="text-muted-foreground italic">
+            <p className="italic text-muted-foreground">
               No exercises yet. Add some from the library.
             </p>
           ) : (
@@ -393,10 +381,7 @@ function PrepPage() {
               onDragEnd={handleDragEnd}
               modifiers={[restrictToVerticalAxis, restrictToParentElement]}
             >
-              <SortableContext
-                items={sortableIds}
-                strategy={verticalListSortingStrategy}
-              >
+              <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
                 <div className="space-y-3">
                   {sessionExercises.map((se, index) => {
                     const name = getExerciseName(se);
@@ -410,10 +395,12 @@ function PrepPage() {
                         onDurationChange={handleDurationChange}
                         onShowDetail={(exercise) => setDetailExercise(exercise)}
                         onRequestRemove={() =>
-                          setConfirm(confirmRemove(name, () => {
-                            handleRemoveExercise(index);
-                            setConfirm(null);
-                          }))
+                          setConfirm(
+                            confirmRemove(name, () => {
+                              handleRemoveExercise(index);
+                              setConfirm(null);
+                            }),
+                          )
                         }
                       />
                     );
@@ -431,10 +418,7 @@ function PrepPage() {
         </div>
       </div>
       {detailExercise && (
-        <ExerciseDetailModal
-          exercise={detailExercise}
-          onClose={() => setDetailExercise(null)}
-        />
+        <ExerciseDetailModal exercise={detailExercise} onClose={() => setDetailExercise(null)} />
       )}
       {confirm && (
         <ConfirmModal

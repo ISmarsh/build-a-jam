@@ -23,22 +23,22 @@
  *   npm install cheerio
  */
 
-import * as cheerio from "cheerio";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { sleep, fetchPage } from "./scraper-utils.mjs";
+import * as cheerio from 'cheerio';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { sleep, fetchPage } from './scraper-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT_PATH = resolve(__dirname, "../src/data/improwiki-exercises.json");
-const HTML_CACHE_FILE = "improwiki-html.json";
+const OUTPUT_PATH = resolve(__dirname, '../src/data/improwiki-exercises.json');
+const HTML_CACHE_FILE = 'improwiki-html.json';
 
-const BASE_URL = "https://improwiki.com";
+const BASE_URL = 'https://improwiki.com';
 
 // Index pages to scrape — each yields a list of game/exercise links
 const INDEX_PAGES = [
-  { url: "/en/improv-exercises", defaultTag: "exercise" },
-  { url: "/en/improv-games", defaultTag: "game" },
+  { url: '/en/improv-exercises', defaultTag: 'exercise' },
+  { url: '/en/improv-games', defaultTag: 'game' },
 ];
 
 // Rate limiting: delay between fetches (ms) to be respectful
@@ -46,21 +46,24 @@ const FETCH_DELAY_MS = 500;
 
 // Parse command-line flags
 const args = process.argv.slice(2);
-const FORCE_REFETCH = args.includes("--force");
+const FORCE_REFETCH = args.includes('--force');
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function pathToId(path) {
-  return "improwiki:" + path
-    .replace(/^\/en\/wiki\/improv\//, "")
-    .replace(/^\/en\//, "")
-    .replace(/\//g, "-")
-    .replace(/[^a-z0-9-]/gi, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .toLowerCase();
+  return (
+    'improwiki:' +
+    path
+      .replace(/^\/en\/wiki\/improv\//, '')
+      .replace(/^\/en\//, '')
+      .replace(/\//g, '-')
+      .replace(/[^a-z0-9-]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase()
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -79,23 +82,23 @@ function parseIndex(html) {
   const links = [];
 
   const skipPrefixes = [
-    "/en/improv-exercises",
-    "/en/improv-games",
-    "/en/wiki/improv/special",
-    "/en/wikis",
-    "/en/about",
-    "/en/contact",
-    "/en/groups",
-    "/en/shows",
+    '/en/improv-exercises',
+    '/en/improv-games',
+    '/en/wiki/improv/special',
+    '/en/wikis',
+    '/en/about',
+    '/en/contact',
+    '/en/groups',
+    '/en/shows',
   ];
 
-  $("a[href]").each((_i, el) => {
-    const href = $(el).attr("href") || "";
+  $('a[href]').each((_i, el) => {
+    const href = $(el).attr('href') || '';
 
     // We want links to individual wiki pages: /en/wiki/improv/SomeName
-    if (!href.startsWith("/en/wiki/improv/")) return;
+    if (!href.startsWith('/en/wiki/improv/')) return;
     if (skipPrefixes.some((p) => href.startsWith(p))) return;
-    if (href.includes("special/")) return;
+    if (href.includes('special/')) return;
 
     const name = $(el).text().trim();
     if (!name) return;
@@ -123,24 +126,24 @@ function parseGamePage(html, fallbackTitle) {
   // Extract title from h1 or fall back to <title> tag.
   // Use lastIndexOf(" - ") to strip site suffix (e.g. "Game Name - improwiki")
   // without truncating legitimate hyphens in names (e.g. "Self-Awareness Exercise").
-  let title = $("h1").first().text().trim();
+  let title = $('h1').first().text().trim();
   if (!title) {
-    const raw = $("title").text().split("|")[0];
-    const sepIndex = raw.lastIndexOf(" - ");
+    const raw = $('title').text().split('|')[0];
+    const sepIndex = raw.lastIndexOf(' - ');
     title = (sepIndex !== -1 ? raw.substring(0, sepIndex) : raw).trim() || fallbackTitle;
   }
 
-  const contentEl = $(".wikiarticle, .node-content, .field-body, article, .content, main").first();
+  const contentEl = $('.wikiarticle, .node-content, .field-body, article, .content, main').first();
 
   // Store raw HTML for reprocessing capability
-  const description_raw = contentEl.html() || "";
+  const description_raw = contentEl.html() || '';
 
   // Categories — look for links to category pages or category labels (kept for tag extraction)
   const categories = [];
   $('a[href*="/en/wiki/improv/"]').each((_i, el) => {
-    const href = $(el).attr("href") || "";
+    const href = $(el).attr('href') || '';
     // Category links often appear in sidebar or tag areas
-    if (href.includes("category") || href.includes("Category")) {
+    if (href.includes('category') || href.includes('Category')) {
       const catName = $(el).text().trim();
       if (catName && !categories.includes(catName)) {
         categories.push(catName);
@@ -149,7 +152,7 @@ function parseGamePage(html, fallbackTitle) {
   });
 
   // Also look for explicit category/tag markup
-  $(".field-tags a, .taxonomy a, .tags a").each((_i, el) => {
+  $('.field-tags a, .taxonomy a, .tags a').each((_i, el) => {
     const catName = $(el).text().trim();
     if (catName && !categories.includes(catName)) {
       categories.push(catName);
@@ -164,7 +167,7 @@ function parseGamePage(html, fallbackTitle) {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log("=== improwiki.com scraper ===\n");
+  console.log('=== improwiki.com scraper ===\n');
 
   // Map from path -> exercise (deduplicates across index pages)
   const exerciseMap = new Map();
@@ -198,7 +201,7 @@ async function main() {
       const pageUrl = `${BASE_URL}${link.path}`;
       const gameHtml = await fetchPage(pageUrl, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
       if (!gameHtml) {
-        console.log("FAILED");
+        console.log('FAILED');
         continue;
       }
 
@@ -210,7 +213,7 @@ async function main() {
       exerciseMap.set(link.path, {
         id: pathToId(link.path),
         name: parsed.title,
-        description: "", // Will be populated by cleanup-scraped-data.mjs from description_raw
+        description: '', // Will be populated by cleanup-scraped-data.mjs from description_raw
         description_raw: parsed.description_raw,
         rawTags: [...allTags], // Original tags before normalization
         tags: allTags, // Will be normalized in post-processing
@@ -228,17 +231,16 @@ async function main() {
   // Build output with attribution
   const output = {
     attribution: {
-      source: "improwiki.com",
-      sourceUrl: "https://improwiki.com/en",
-      license:
-        "Creative Commons Attribution-ShareAlike 3.0 Germany (CC BY-SA 3.0 DE)",
-      licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      source: 'improwiki.com',
+      sourceUrl: 'https://improwiki.com/en',
+      license: 'Creative Commons Attribution-ShareAlike 3.0 Germany (CC BY-SA 3.0 DE)',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/de/deed.en',
       note:
-        "This data was scraped from improwiki.com. Descriptions have been " +
-        "adapted for use in Build-a-Jam. Under CC BY-SA 3.0 DE, you must " +
-        "give appropriate credit, link to the license, and indicate if " +
-        "changes were made. Any adaptations must be shared under the same " +
-        "or a compatible license (e.g. CC BY-SA 4.0).",
+        'This data was scraped from improwiki.com. Descriptions have been ' +
+        'adapted for use in Build-a-Jam. Under CC BY-SA 3.0 DE, you must ' +
+        'give appropriate credit, link to the license, and indicate if ' +
+        'changes were made. Any adaptations must be shared under the same ' +
+        'or a compatible license (e.g. CC BY-SA 4.0).',
       scrapedAt: new Date().toISOString(),
     },
     exercises,
@@ -246,13 +248,13 @@ async function main() {
 
   // Write output
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
+  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + '\n');
 
   console.log(`\nDone! Wrote ${exercises.length} exercises to:`);
   console.log(`  ${OUTPUT_PATH}`);
 }
 
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error('Fatal error:', err);
   process.exit(1);
 });

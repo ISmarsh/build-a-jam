@@ -40,14 +40,20 @@ interface ExerciseListProps {
   onDeleteExercise?: (exercise: Exercise) => void;
 }
 
-function ExerciseList({ exercises, favoriteIds, onToggleFavorite, onEditExercise, onDeleteExercise }: ExerciseListProps) {
+function ExerciseList({
+  exercises,
+  favoriteIds,
+  onToggleFavorite,
+  onEditExercise,
+  onDeleteExercise,
+}: ExerciseListProps) {
   // STATE: Track which exercise is open in modal (null = no modal)
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
   // Early return pattern - like *ngIf but at component level
   if (exercises.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground text-lg">
+      <div className="py-12 text-center text-lg text-muted-foreground">
         <p>No exercises found. Try adjusting your filters.</p>
       </div>
     );
@@ -55,7 +61,7 @@ function ExerciseList({ exercises, favoriteIds, onToggleFavorite, onEditExercise
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Map over array to render list - like *ngFor */}
         {exercises.map((exercise) => (
           // Key is REQUIRED - React uses it to track which items changed
@@ -74,16 +80,24 @@ function ExerciseList({ exercises, favoriteIds, onToggleFavorite, onEditExercise
         <ExerciseDetailModal
           exercise={selectedExercise}
           onClose={() => setSelectedExercise(null)}
-          onEdit={selectedExercise.isCustom && onEditExercise ? () => {
-            const ex = selectedExercise;
-            setSelectedExercise(null);
-            onEditExercise(ex);
-          } : undefined}
-          onDelete={selectedExercise.isCustom && onDeleteExercise ? () => {
-            const ex = selectedExercise;
-            setSelectedExercise(null);
-            onDeleteExercise(ex);
-          } : undefined}
+          onEdit={
+            selectedExercise.isCustom && onEditExercise
+              ? () => {
+                  const ex = selectedExercise;
+                  setSelectedExercise(null);
+                  onEditExercise(ex);
+                }
+              : undefined
+          }
+          onDelete={
+            selectedExercise.isCustom && onDeleteExercise
+              ? () => {
+                  const ex = selectedExercise;
+                  setSelectedExercise(null);
+                  onDeleteExercise(ex);
+                }
+              : undefined
+          }
         />
       )}
     </>

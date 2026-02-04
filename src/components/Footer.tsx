@@ -15,20 +15,22 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="hidden sm:block sticky bottom-0 py-6 border-t text-center text-muted-foreground text-sm flex-shrink-0 bg-background">
-      <div className="flex justify-center gap-4 flex-wrap">
+    <footer className="sticky bottom-0 hidden flex-shrink-0 border-t bg-background py-6 text-center text-sm text-muted-foreground sm:block">
+      <div className="flex flex-wrap justify-center gap-4">
         <Link
           to="/credits"
-          className="text-muted-foreground hover:text-primary transition-colors underline"
+          className="text-muted-foreground underline transition-colors hover:text-primary"
         >
           Credits &amp; Licenses
         </Link>
-        <span className="text-gray-600" aria-hidden="true">&middot;</span>
+        <span className="text-gray-600" aria-hidden="true">
+          &middot;
+        </span>
         <a
           href="https://github.com/ISmarsh/build-a-jam"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-primary transition-colors underline"
+          className="text-muted-foreground underline transition-colors hover:text-primary"
         >
           GitHub
         </a>

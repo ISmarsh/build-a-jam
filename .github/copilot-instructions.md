@@ -13,6 +13,7 @@ in `src/index.css`. Understanding how the styling works is critical for accurate
 reviews.
 
 **Theme tokens** (semantic color names):
+
 - `primary`, `secondary`, `destructive`, `muted`, `accent`, `card`, `popover`
 - `foreground`, `muted-foreground`, `secondary-foreground`, `card-foreground`
 - `border`, `input`, `ring`
@@ -25,6 +26,7 @@ These ARE theme-aware — the `/10` is an opacity modifier on the CSS custom
 property, not a separate hardcoded value. Do not flag these as hardcoded colors.
 
 **Hover patterns:**
+
 - Interactive text: `text-primary hover:text-primary-hover` (dedicated hover token)
 - Destructive actions: `text-destructive hover:text-destructive/80` (opacity fade)
 - Muted → visible: `text-muted-foreground hover:text-foreground`

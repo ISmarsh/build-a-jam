@@ -19,18 +19,15 @@
  *   npm install cheerio
  */
 
-import * as cheerio from "cheerio";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import * as cheerio from 'cheerio';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT_PATH = resolve(
-  __dirname,
-  "../src/data/improvencyclopedia-exercises.json",
-);
+const OUTPUT_PATH = resolve(__dirname, '../src/data/improvencyclopedia-exercises.json');
 
-const BASE_URL = "https://improvencyclopedia.org";
+const BASE_URL = 'https://improvencyclopedia.org';
 
 // Rate limiting: delay between fetches (ms) to be respectful
 const FETCH_DELAY_MS = 500;
@@ -47,10 +44,13 @@ function sleep(ms) {
  * Turn a game filename like "Alphabet_Game.html" into a kebab-case id.
  */
 function filenameToId(filename) {
-  return "improvencyclopedia:" + filename
-    .replace(/\.html$/, "")
-    .replace(/_/g, "-")
-    .toLowerCase();
+  return (
+    'improvencyclopedia:' +
+    filename
+      .replace(/\.html$/, '')
+      .replace(/_/g, '-')
+      .toLowerCase()
+  );
 }
 
 /**
@@ -62,10 +62,10 @@ async function fetchPage(url, retries = 3) {
     try {
       const res = await fetch(url, {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Accept: "text/html,application/xhtml+xml",
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept: 'text/html,application/xhtml+xml',
         },
       });
 
@@ -77,9 +77,7 @@ async function fetchPage(url, retries = 3) {
 
       return await res.text();
     } catch (err) {
-      console.warn(
-        `  Error fetching ${url}: ${err.message} (attempt ${attempt})`,
-      );
+      console.warn(`  Error fetching ${url}: ${err.message} (attempt ${attempt})`);
       if (attempt < retries) await sleep(1000 * attempt);
     }
   }
@@ -100,15 +98,15 @@ async function fetchCategories() {
 
   const html = await fetchPage(url);
   if (!html) {
-    console.warn("  Could not fetch categories index — continuing without.");
+    console.warn('  Could not fetch categories index — continuing without.');
     return new Map();
   }
 
   const $ = cheerio.load(html);
   const categories = new Map();
 
-  $("a[href]").each((_i, el) => {
-    const href = $(el).attr("href") || "";
+  $('a[href]').each((_i, el) => {
+    const href = $(el).attr('href') || '';
     // Match links like /categories/Accepting.html or Accepting.html
     const match = href.match(/(?:\/categories\/)?([A-Za-z0-9_%-]+)\.html$/);
     if (!match) return;
@@ -138,23 +136,23 @@ async function fetchGameIndex() {
 
   const html = await fetchPage(url);
   if (!html) {
-    console.error("  Could not fetch games index — aborting.");
+    console.error('  Could not fetch games index — aborting.');
     process.exit(1);
   }
 
   const $ = cheerio.load(html);
   const games = [];
 
-  $("a[href]").each((_i, el) => {
-    const href = $(el).attr("href") || "";
+  $('a[href]').each((_i, el) => {
+    const href = $(el).attr('href') || '';
     // Match links to individual game pages
     const match = href.match(/(?:\/games\/)?([A-Za-z0-9_%-]+)\.html$/);
     if (!match) return;
 
-    const filename = decodeURIComponent(match[1]) + ".html";
+    const filename = decodeURIComponent(match[1]) + '.html';
 
     // Skip non-game pages (index, etc.)
-    if (filename === "index.html") return;
+    if (filename === 'index.html') return;
 
     const linkText = $(el).text().trim();
     if (!linkText) return;
@@ -162,7 +160,7 @@ async function fetchGameIndex() {
     if (!games.find((g) => g.filename === filename)) {
       games.push({
         filename,
-        url: `${BASE_URL}/games/${encodeURIComponent(filename).replace(/%2F/g, "/")}`,
+        url: `${BASE_URL}/games/${encodeURIComponent(filename).replace(/%2F/g, '/')}`,
         linkText,
       });
     }
@@ -190,17 +188,17 @@ function parseGamePage(html, fallbackTitle) {
 
   // Title
   const title =
-    $("h1").first().text().trim() ||
-    $("title").text().split("-")[0].split("|")[0].trim() ||
+    $('h1').first().text().trim() ||
+    $('title').text().split('-')[0].split('|')[0].trim() ||
     fallbackTitle;
 
   // Description — gather all <p> text from the page body
   const paragraphs = [];
-  $("p").each((_i, el) => {
+  $('p').each((_i, el) => {
     const text = $(el).text().trim();
     if (text) paragraphs.push(text);
   });
-  const description = paragraphs.join("\n\n");
+  const description = paragraphs.join('\n\n');
 
   // Categories — look for links pointing to /categories/*.html
   const categories = [];
@@ -212,16 +210,16 @@ function parseGamePage(html, fallbackTitle) {
   });
 
   // Derive additional tags from keywords in the text
-  const fullText = (title + " " + description).toLowerCase();
+  const fullText = (title + ' ' + description).toLowerCase();
   const tagKeywords = {
-    listening: ["listen", "listening"],
-    energy: ["energy", "energize", "energiser", "blood pumping", "physical"],
-    focus: ["focus", "concentration", "concentrate", "attention"],
-    connection: ["connection", "trust", "support", "group", "team", "eye contact"],
-    characters: ["character", "characters", "endow"],
-    storytelling: ["story", "narrative", "storytelling"],
-    structure: ["structure", "format", "scene work"],
-    heightening: ["heighten", "escalat", "build on", "yes and"],
+    listening: ['listen', 'listening'],
+    energy: ['energy', 'energize', 'energiser', 'blood pumping', 'physical'],
+    focus: ['focus', 'concentration', 'concentrate', 'attention'],
+    connection: ['connection', 'trust', 'support', 'group', 'team', 'eye contact'],
+    characters: ['character', 'characters', 'endow'],
+    storytelling: ['story', 'narrative', 'storytelling'],
+    structure: ['structure', 'format', 'scene work'],
+    heightening: ['heighten', 'escalat', 'build on', 'yes and'],
   };
 
   const derivedTags = [];
@@ -239,7 +237,7 @@ function parseGamePage(html, fallbackTitle) {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log("=== improvencyclopedia.org scraper ===\n");
+  console.log('=== improvencyclopedia.org scraper ===\n');
 
   // 1. Fetch the master game list
   const gameLinks = await fetchGameIndex();
@@ -253,7 +251,7 @@ async function main() {
 
     const html = await fetchPage(game.url);
     if (!html) {
-      console.log("FAILED");
+      console.log('FAILED');
       continue;
     }
 
@@ -277,13 +275,13 @@ async function main() {
   // 4. Build output with attribution
   const output = {
     attribution: {
-      source: "improvencyclopedia.org",
-      sourceUrl: "https://improvencyclopedia.org/",
+      source: 'improvencyclopedia.org',
+      sourceUrl: 'https://improvencyclopedia.org/',
       license: null,
       note:
-        "This data was scraped from improvencyclopedia.org. No specific " +
-        "license was found on the site. Each exercise includes a sourceUrl " +
-        "linking back to the original page for attribution.",
+        'This data was scraped from improvencyclopedia.org. No specific ' +
+        'license was found on the site. Each exercise includes a sourceUrl ' +
+        'linking back to the original page for attribution.',
       scrapedAt: new Date().toISOString(),
     },
     exercises,
@@ -291,13 +289,13 @@ async function main() {
 
   // 5. Write output
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
+  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + '\n');
 
   console.log(`\nDone! Wrote ${exercises.length} exercises to:`);
   console.log(`  ${OUTPUT_PATH}`);
 }
 
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error('Fatal error:', err);
   process.exit(1);
 });

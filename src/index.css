@@ -26,75 +26,78 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    --background: 0 0% 100%;              /* white */
-    --foreground: 224 71% 4%;             /* near-black */
+    --background: 0 0% 100%; /* white */
+    --foreground: 224 71% 4%; /* near-black */
 
-    --card: 295 25% 97%;                  /* faint lavender — matches purple primary */
-    --card-foreground: 224 71% 4%;        /* near-black */
+    --card: 295 25% 97%; /* faint lavender — matches purple primary */
+    --card-foreground: 224 71% 4%; /* near-black */
 
-    --popover: 0 0% 100%;                 /* white */
-    --popover-foreground: 224 71% 4%;     /* near-black */
+    --popover: 0 0% 100%; /* white */
+    --popover-foreground: 224 71% 4%; /* near-black */
 
-    --primary: 295 43% 40%;              /* #8B3A93 — matched to image sample */
-    --primary-foreground: 0 0% 100%;      /* white — text on primary bg */
-    --primary-hover: 295 43% 48%;        /* #A646AF — lighter hover state */
+    --primary: 295 43% 40%; /* #8B3A93 — matched to image sample */
+    --primary-foreground: 0 0% 100%; /* white — text on primary bg */
+    --primary-hover: 295 43% 48%; /* #A646AF — lighter hover state */
 
-    --secondary: 220 14% 96%;            /* slate-100 */
-    --secondary-foreground: 220 9% 43%;  /* slate-500 darkened — 4.7:1 on secondary bg */
+    --secondary: 220 14% 96%; /* slate-100 */
+    --secondary-foreground: 220 9% 43%; /* slate-500 darkened — 4.7:1 on secondary bg */
 
-    --muted: 220 14% 96%;               /* slate-100 */
-    --muted-foreground: 220 9% 44%;      /* slate-500 darkened — 4.6:1 on lavender card bg */
+    --muted: 220 14% 96%; /* slate-100 */
+    --muted-foreground: 220 9% 44%; /* slate-500 darkened — 4.6:1 on lavender card bg */
 
-    --accent: 220 14% 96%;              /* slate-100 */
-    --accent-foreground: 224 71% 4%;     /* near-black */
+    --accent: 220 14% 96%; /* slate-100 */
+    --accent-foreground: 224 71% 4%; /* near-black */
 
-    --destructive: 0 72% 51%;            /* red-600 (same both themes) */
+    --destructive: 0 72% 51%; /* red-600 (same both themes) */
     --destructive-foreground: 0 0% 100%; /* white */
 
-    --border: 220 13% 83%;              /* slate-300ish — visible card edges on white */
-    --input: 220 13% 75%;               /* slate-400ish — clear input borders */
-    --ring: 295 43% 40%;                /* matches --primary */
-    --star: 32 95% 44%;                 /* amber-600 #d97706 — 3.2:1 on white */
+    --border: 220 13% 83%; /* slate-300ish — visible card edges on white */
+    --input: 220 13% 75%; /* slate-400ish — clear input borders */
+    --ring: 295 43% 40%; /* matches --primary */
+    --star: 32 95% 44%; /* amber-600 #d97706 — 3.2:1 on white */
 
     --radius: 0.5rem;
   }
 
   /* DARK theme */
   .dark {
-    --background: 0 0% 10%;              /* #1a1a1a body bg */
-    --foreground: 220 10% 93%;           /* soft off-white — avoids stark #fff */
+    --background: 0 0% 10%; /* #1a1a1a body bg */
+    --foreground: 220 10% 93%; /* soft off-white — avoids stark #fff */
 
-    --card: 217 33% 17%;                 /* gray-800 */
-    --card-foreground: 220 10% 93%;      /* soft off-white */
+    --card: 217 33% 17%; /* gray-800 */
+    --card-foreground: 220 10% 93%; /* soft off-white */
 
-    --popover: 217 33% 17%;              /* gray-800 */
-    --popover-foreground: 220 10% 93%;   /* soft off-white */
+    --popover: 217 33% 17%; /* gray-800 */
+    --popover-foreground: 220 10% 93%; /* soft off-white */
 
-    --primary: 216 85% 65%;              /* #5A97F2 — bright cobalt (65% for 4.5:1 on card bg) */
-    --primary-foreground: 222 47% 11%;   /* slate-900 — dark text on bright cobalt buttons */
-    --primary-hover: 216 86% 73%;        /* #83B5F6 — lighter hover state */
+    --primary: 216 85% 65%; /* #5A97F2 — bright cobalt (65% for 4.5:1 on card bg) */
+    --primary-foreground: 222 47% 11%; /* slate-900 — dark text on bright cobalt buttons */
+    --primary-hover: 216 86% 73%; /* #83B5F6 — lighter hover state */
 
-    --secondary: 217 19% 27%;            /* gray-700 */
+    --secondary: 217 19% 27%; /* gray-700 */
     --secondary-foreground: 214 14% 84%; /* gray-300 */
 
-    --muted: 217 33% 17%;               /* gray-800 */
-    --muted-foreground: 218 11% 65%;     /* gray-400 */
+    --muted: 217 33% 17%; /* gray-800 */
+    --muted-foreground: 218 11% 65%; /* gray-400 */
 
-    --accent: 217 19% 27%;              /* gray-700 */
-    --accent-foreground: 220 10% 93%;    /* soft off-white */
+    --accent: 217 19% 27%; /* gray-700 */
+    --accent-foreground: 220 10% 93%; /* soft off-white */
 
-    --destructive: 0 72% 51%;            /* red-600 */
+    --destructive: 0 72% 51%; /* red-600 */
     --destructive-foreground: 220 10% 93%; /* soft off-white */
 
-    --border: 217 19% 27%;              /* gray-700 */
-    --input: 215 14% 34%;               /* gray-600 */
-    --ring: 216 85% 65%;                /* matches --primary */
-    --star: 48 96% 53%;                 /* yellow-400 #facc15 — vivid on dark */
+    --border: 217 19% 27%; /* gray-700 */
+    --input: 215 14% 34%; /* gray-600 */
+    --ring: 216 85% 65%; /* matches --primary */
+    --star: 48 96% 53%; /* yellow-400 #facc15 — vivid on dark */
   }
 
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
     min-height: 100vh;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -134,7 +137,12 @@
 
   .prose-exercise {
     /* Headings - all headings get accent color and bold weight */
-    & h1, & h2, & h3, & h4, & h5, & h6 {
+    & h1,
+    & h2,
+    & h3,
+    & h4,
+    & h5,
+    & h6 {
       color: hsl(var(--primary));
       font-weight: 700;
       letter-spacing: -0.025em;

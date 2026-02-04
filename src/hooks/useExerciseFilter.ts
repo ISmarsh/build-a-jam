@@ -79,44 +79,41 @@ export function useExerciseFilter() {
   const sourceFiltered = useMemo(
     () => filterBySource(selectedSource),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- customExercises triggers recalc via module state
-    [selectedSource, state.customExercises]
+    [selectedSource, state.customExercises],
   );
 
   // useMemo: tag lists only need recomputing when source filter changes
   const { featuredTags, allTags } = useMemo(
     () => getTagsForExercises(sourceFiltered),
-    [sourceFiltered]
+    [sourceFiltered],
   );
 
   // useMemo: the heavy filter — iterates all exercises, checks tags & text.
   // Dependencies are the three things that affect the output.
   const filtered = useMemo(
     () => filterExercises(sourceFiltered, selectedTags, searchText),
-    [sourceFiltered, selectedTags, searchText]
+    [sourceFiltered, selectedTags, searchText],
   );
 
   // useMemo: favorites sort only changes when filtered list or favorites change
   const sorted = useMemo(
     () => sortByFavorites(filtered, state.favoriteExerciseIds),
-    [filtered, state.favoriteExerciseIds]
+    [filtered, state.favoriteExerciseIds],
   );
 
   // useCallback: stable function reference for source changes.
   // If ExerciseFilterBar were wrapped in React.memo, passing a new function
   // on every render would defeat the memoization. useCallback prevents that.
-  const handleSourceChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      setSelectedSource(event.target.value as SourceFilter);
-      // Clear tag selections when changing source — tags differ between sources
-      setSelectedTags([]);
-    },
-    []
-  );
+  const handleSourceChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSource(event.target.value as SourceFilter);
+    // Clear tag selections when changing source — tags differ between sources
+    setSelectedTags([]);
+  }, []);
 
   // useCallback: stable reference for tag toggle handler
   const handleTagToggle = useCallback((tag: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   }, []);
 

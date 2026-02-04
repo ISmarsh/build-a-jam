@@ -23,22 +23,29 @@
  *   npm install cheerio
  */
 
-import * as cheerio from "cheerio";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { sleep, fetchPage, loadCache, saveCache, loadExistingData, clearCache } from "./scraper-utils.mjs";
+import * as cheerio from 'cheerio';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  sleep,
+  fetchPage,
+  loadCache,
+  saveCache,
+  loadExistingData,
+  clearCache,
+} from './scraper-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT_PATH = resolve(__dirname, "../src/data/learnimprov-exercises.json");
-const HTML_CACHE_FILE = "learnimprov-html.json";
+const OUTPUT_PATH = resolve(__dirname, '../src/data/learnimprov-exercises.json');
+const HTML_CACHE_FILE = 'learnimprov-html.json';
 
-const BASE_URL = "https://www.learnimprov.com";
+const BASE_URL = 'https://www.learnimprov.com';
 
 // Categories to scrape — uses WordPress category slugs (singular)
 const CATEGORIES = [
-  { slug: "warm-up", tag: "warm-up" },
-  { slug: "exercise", tag: "exercise" },
+  { slug: 'warm-up', tag: 'warm-up' },
+  { slug: 'exercise', tag: 'exercise' },
   // Uncomment these to also scrape performance handles and long forms:
   // { slug: "handle", tag: "handle" },
   // { slug: "long-form", tag: "long-form" },
@@ -49,14 +56,14 @@ const FETCH_DELAY_MS = 1000;
 
 // Parse command-line flags
 const args = process.argv.slice(2);
-const FORCE_REFETCH = args.includes("--force");
+const FORCE_REFETCH = args.includes('--force');
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function slugToId(slug) {
-  return "learnimprov:" + slug.replace(/^\/|\/$/g, "").replace(/\//g, "-");
+  return 'learnimprov:' + slug.replace(/^\/|\/$/g, '').replace(/\//g, '-');
 }
 
 // ---------------------------------------------------------------------------
@@ -81,41 +88,41 @@ function parseGamePage(html, slug) {
 
   // Title: usually in the <h1> or <header> within the main content
   const title =
-    $("article h1, .entry-title, h1.post-title, h1").first().text().trim() ||
-    $("title").text().split(/[–-]/)[0].trim() ||
+    $('article h1, .entry-title, h1.post-title, h1').first().text().trim() ||
+    $('title').text().split(/[–-]/)[0].trim() ||
     slug;
 
-  const contentEl = $(".entry-content, article, .post-content, main").first();
+  const contentEl = $('.entry-content, article, .post-content, main').first();
 
   // Store raw HTML for reprocessing capability
-  const description_raw = contentEl.html() || "";
+  const description_raw = contentEl.html() || '';
 
   // Extract alternative names from Synonyms section
   let alternativeNames = [];
-  const h3Elements = contentEl.find("h3");
+  const h3Elements = contentEl.find('h3');
 
   h3Elements.each((_i, h3) => {
     const heading = $(h3).text().trim();
 
-    if (heading === "Synonyms") {
+    if (heading === 'Synonyms') {
       // Collect paragraphs between this h3 and the next h3
       const paragraphs = [];
       let current = $(h3).next();
 
-      while (current.length && current.prop("tagName") !== "H3") {
-        if (current.prop("tagName") === "P") {
+      while (current.length && current.prop('tagName') !== 'H3') {
+        if (current.prop('tagName') === 'P') {
           const text = normalizeText(current.text());
           if (text) paragraphs.push(text);
         }
         current = current.next();
       }
 
-      const synonymText = paragraphs.join(" ");
-      if (synonymText && synonymText !== "None.") {
+      const synonymText = paragraphs.join(' ');
+      if (synonymText && synonymText !== 'None.') {
         alternativeNames = synonymText
           .split(/,|\n/)
-          .map(name => name.trim())
-          .filter(name => name && name !== "None.");
+          .map((name) => name.trim())
+          .filter((name) => name && name !== 'None.');
       }
     }
   });
@@ -123,7 +130,7 @@ function parseGamePage(html, slug) {
   return {
     title,
     description_raw,
-    alternativeNames: alternativeNames.length > 0 ? alternativeNames : undefined
+    alternativeNames: alternativeNames.length > 0 ? alternativeNames : undefined,
   };
 }
 
@@ -145,7 +152,7 @@ async function fetchCategoryAndTagMappings() {
     const items = JSON.parse(html);
     if (items.length === 0) break;
 
-    items.forEach(item => mappings.categories.set(item.id, item.name));
+    items.forEach((item) => mappings.categories.set(item.id, item.name));
 
     if (items.length < perPage) break;
     page++;
@@ -161,7 +168,7 @@ async function fetchCategoryAndTagMappings() {
     const items = JSON.parse(html);
     if (items.length === 0) break;
 
-    items.forEach(item => mappings.tags.set(item.id, item.name));
+    items.forEach((item) => mappings.tags.set(item.id, item.name));
 
     if (items.length < perPage) break;
     page++;
@@ -220,18 +227,18 @@ async function fetchWordPressCategory(categorySlug) {
   }
 
   // Convert to our format - include both categories and tags from the API
-  return posts.map(post => {
+  return posts.map((post) => {
     const url = post.link;
-    const path = url.replace(BASE_URL, "");
-    const slug = path.replace(/^\/|\/$/g, "");
+    const path = url.replace(BASE_URL, '');
+    const slug = path.replace(/^\/|\/$/g, '');
 
     return {
       id: post.id,
       url,
       slug,
       title: post.title.rendered,
-      categoryIds: post.categories || [],  // Array of category IDs
-      tagIds: post.tags || [],              // Array of tag IDs
+      categoryIds: post.categories || [], // Array of category IDs
+      tagIds: post.tags || [], // Array of tag IDs
     };
   });
 }
@@ -241,11 +248,11 @@ async function fetchWordPressCategory(categorySlug) {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log("=== learnimprov.com scraper ===\n");
+  console.log('=== learnimprov.com scraper ===\n');
 
   // Load existing data and cache for incremental/resume support
   const existingData = loadExistingData(OUTPUT_PATH);
-  const cache = loadCache("learnimprov-progress.json");
+  const cache = loadCache('learnimprov-progress.json');
 
   if (cache.size > 0) {
     console.log(`Loaded ${cache.size} exercises from cache (resume mode)`);
@@ -255,7 +262,7 @@ async function main() {
   }
 
   // Fetch all categories and tags to create ID->name mappings
-  console.log("Fetching WordPress categories and tags...");
+  console.log('Fetching WordPress categories and tags...');
   const mappings = await fetchCategoryAndTagMappings();
 
   // Map from slug -> exercise data (deduplicates across categories)
@@ -283,8 +290,8 @@ async function main() {
         const existing = exerciseMap.get(link.slug);
         // Merge in any new categories/tags from this occurrence
         const newTags = [
-          ...link.categoryIds.map(id => mappings.categories.get(id)).filter(Boolean),
-          ...link.tagIds.map(id => mappings.tags.get(id)).filter(Boolean),
+          ...link.categoryIds.map((id) => mappings.categories.get(id)).filter(Boolean),
+          ...link.tagIds.map((id) => mappings.tags.get(id)).filter(Boolean),
         ];
         existing.tags.push(...newTags);
         skipped++;
@@ -296,7 +303,7 @@ async function main() {
 
       const gameHtml = await fetchPage(link.url, 3, {}, HTML_CACHE_FILE, FORCE_REFETCH);
       if (!gameHtml) {
-        console.log("FAILED");
+        console.log('FAILED');
         continue;
       }
 
@@ -304,14 +311,14 @@ async function main() {
 
       // Merge categories and tags into a single tags array
       const allTags = [
-        ...link.categoryIds.map(id => mappings.categories.get(id)).filter(Boolean),
-        ...link.tagIds.map(id => mappings.tags.get(id)).filter(Boolean),
+        ...link.categoryIds.map((id) => mappings.categories.get(id)).filter(Boolean),
+        ...link.tagIds.map((id) => mappings.tags.get(id)).filter(Boolean),
       ];
 
       const exercise = {
         id: slugToId(link.slug),
         name: parsed.title,
-        description: "", // Will be populated by cleanup-scraped-data.mjs from description_raw
+        description: '', // Will be populated by cleanup-scraped-data.mjs from description_raw
         description_raw: parsed.description_raw,
         rawTags: [...allTags], // Original tags before normalization
         tags: allTags, // Will be normalized in post-processing
@@ -330,7 +337,7 @@ async function main() {
 
       // Save cache every 10 exercises
       if (scraped % 10 === 0) {
-        saveCache("learnimprov-progress.json", exerciseMap);
+        saveCache('learnimprov-progress.json', exerciseMap);
       }
     }
 
@@ -340,7 +347,7 @@ async function main() {
   }
 
   // Save final cache
-  saveCache("learnimprov-progress.json", exerciseMap);
+  saveCache('learnimprov-progress.json', exerciseMap);
 
   // Tag normalization is handled by normalize-tags.mjs in post-processing
   const exercises = [...exerciseMap.values()];
@@ -348,15 +355,15 @@ async function main() {
   // Wrap in an object with CC BY-SA 4.0 attribution metadata
   const output = {
     attribution: {
-      source: "learnimprov.com",
-      sourceUrl: "https://www.learnimprov.com/",
-      license: "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)",
-      licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+      source: 'learnimprov.com',
+      sourceUrl: 'https://www.learnimprov.com/',
+      license: 'Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
       note:
-        "This data was scraped from learnimprov.com. Descriptions have been " +
-        "adapted for use in Build-a-Jam. Under CC BY-SA 4.0, you must give " +
-        "appropriate credit, link to the license, and indicate if changes " +
-        "were made. Any adaptations must be shared under the same license.",
+        'This data was scraped from learnimprov.com. Descriptions have been ' +
+        'adapted for use in Build-a-Jam. Under CC BY-SA 4.0, you must give ' +
+        'appropriate credit, link to the license, and indicate if changes ' +
+        'were made. Any adaptations must be shared under the same license.',
       scrapedAt: new Date().toISOString(),
     },
     exercises,
@@ -364,20 +371,20 @@ async function main() {
 
   // Write output
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
+  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + '\n');
 
   console.log(`\nDone! Wrote ${exercises.length} exercises to:`);
   console.log(`  ${OUTPUT_PATH}`);
 }
 
 // Check for --clear-cache flag
-if (args.includes("--clear-cache")) {
-  console.log("Clearing cache...");
-  clearCache("learnimprov-progress.json");
-  console.log("Cache cleared.\n");
+if (args.includes('--clear-cache')) {
+  console.log('Clearing cache...');
+  clearCache('learnimprov-progress.json');
+  console.log('Cache cleared.\n');
 }
 
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error('Fatal error:', err);
   process.exit(1);
 });

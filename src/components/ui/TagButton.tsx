@@ -51,11 +51,11 @@ function Button({
       onClick={onClick}
       className={cn(
         // Base styles - always applied
-        'transition-all duration-200 font-medium cursor-pointer',
+        'cursor-pointer font-medium transition-all duration-200',
 
         // Variant: default button
         variant === 'default' && [
-          'px-4 py-2 rounded-lg',
+          'rounded-lg px-4 py-2',
           active
             ? 'bg-primary text-primary-foreground hover:bg-primary/90'
             : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -63,14 +63,14 @@ function Button({
 
         // Variant: tag-style button (pill-shaped)
         variant === 'tag' && [
-          'px-4 py-2 border-2 rounded-full text-sm',
+          'rounded-full border-2 px-4 py-2 text-sm',
           active
-            ? 'bg-primary border-primary text-primary-foreground font-bold'
-            : 'bg-transparent border-primary text-primary hover:bg-primary/10 hover:-translate-y-0.5',
+            ? 'border-primary bg-primary font-bold text-primary-foreground'
+            : 'border-primary bg-transparent text-primary hover:-translate-y-0.5 hover:bg-primary/10',
         ],
 
         // Merge any additional classes passed in
-        className
+        className,
       )}
     >
       {children}

@@ -65,10 +65,10 @@ function ToolbarButton({
       type="button"
       onClick={onClick}
       title={title}
-      className={`p-1.5 rounded transition-colors ${
+      className={`rounded p-1.5 transition-colors ${
         isActive
-          ? 'text-primary bg-primary/10'
-          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+          ? 'bg-primary/10 text-primary'
+          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
       }`}
     >
       {children}
@@ -158,7 +158,7 @@ function RichTextEditor({ content, onChange, placeholder, children }: RichTextEd
     <div className="space-y-1">
       {/* Label (passed as children for simpler API) */}
       {children && (
-        <label id={labelId} className="block text-sm font-medium text-foreground mb-1">
+        <label id={labelId} className="mb-1 block text-sm font-medium text-foreground">
           {children}
         </label>
       )}
@@ -170,7 +170,7 @@ function RichTextEditor({ content, onChange, placeholder, children }: RichTextEd
           isActive={editorState.isBold}
           title="Bold (Ctrl+B)"
         >
-          <Bold className="w-4 h-4" />
+          <Bold className="h-4 w-4" />
         </ToolbarButton>
 
         <ToolbarButton
@@ -178,7 +178,7 @@ function RichTextEditor({ content, onChange, placeholder, children }: RichTextEd
           isActive={editorState.isBulletList}
           title="Bullet list"
         >
-          <List className="w-4 h-4" />
+          <List className="h-4 w-4" />
         </ToolbarButton>
 
         <ToolbarButton
@@ -186,12 +186,10 @@ function RichTextEditor({ content, onChange, placeholder, children }: RichTextEd
           isActive={editorState.isOrderedList}
           title="Numbered list"
         >
-          <ListOrdered className="w-4 h-4" />
+          <ListOrdered className="h-4 w-4" />
         </ToolbarButton>
 
-        <span className="text-muted-foreground text-xs ml-2">
-          Ctrl+B for bold
-        </span>
+        <span className="ml-2 text-xs text-muted-foreground">Ctrl+B for bold</span>
       </div>
 
       {/* Editor content area with placeholder overlay */}
@@ -199,7 +197,7 @@ function RichTextEditor({ content, onChange, placeholder, children }: RichTextEd
         <EditorContent editor={editor} />
         {/* Placeholder positioned to match where cursor appears (py-2 + p margin) */}
         {editor.isEmpty && placeholder && (
-          <div className="absolute top-3 left-3 text-muted-foreground text-sm pointer-events-none">
+          <div className="pointer-events-none absolute left-3 top-3 text-sm text-muted-foreground">
             {placeholder}
           </div>
         )}

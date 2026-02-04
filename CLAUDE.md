@@ -3,9 +3,10 @@
 ## Universal Guidance
 
 <!-- @import: Claude Code includes this file's content -->
+
 @.planet-smars/templates/ai-context/CLAUDE.md
 
-> *[View shared context](.planet-smars/templates/ai-context/CLAUDE.md) — git practices, testing, PR workflows, accessibility*
+> _[View shared context](.planet-smars/templates/ai-context/CLAUDE.md) — git practices, testing, PR workflows, accessibility_
 
 ---
 
@@ -14,6 +15,7 @@
 ## Project Purpose
 
 Build-a-Jam is both a **functional tool** and a **learning project**:
+
 - **Primary goal**: Help improv performers find and organize warm-up exercises
 - **Secondary goal**: Serve as a hands-on learning project for transitioning from Angular to React
 
@@ -21,6 +23,7 @@ Build-a-Jam is both a **functional tool** and a **learning project**:
 
 **Mobile-first design**: This app is primarily used on phones and tablets during
 improv practice sessions. Design decisions should prioritize:
+
 - Touch-friendly tap targets (no hover-dependent interactions as primary UX)
 - Vertical space efficiency (every pixel counts on mobile)
 - Simple, scannable layouts over information density
@@ -33,11 +36,13 @@ When evaluating features, ask: "Does this help someone running a session on thei
 **User background**: Experienced Angular developer learning React for job opportunities
 
 **Learning approach**: The user learns best by:
+
 - Building real features (not just reading concepts)
 - Seeing Angular vs React pattern comparisons
 - Understanding the "why" behind React's design decisions
 
 **Topics covered so far**:
+
 - JSX, components, props, state (`useState`)
 - Events, lists, conditional rendering
 - Lifting state up pattern
@@ -52,18 +57,21 @@ When evaluating features, ask: "Does this help someone running a session on thei
 - Deployment pipeline (GitHub Actions → GitHub Pages)
 
 **Next topics to explore**:
+
 - `useRef`, `useMemo`, `useCallback` (performance optimization)
 - Testing (React Testing Library, Vitest)
 
 ## Code Patterns & Conventions
 
 ### Component Structure
+
 - **Functional components only** - no class components
 - **TypeScript interfaces** for all props
 - **Extensive comments** comparing Angular patterns to React equivalents
 - **Descriptive variable names** - prioritize clarity over brevity
 
 ### File Organization
+
 ```
 src/
 ├── components/
@@ -104,6 +112,7 @@ src/
 ```
 
 ### State Management Philosophy
+
 - Component-local state (`useState`) for UI concerns (tag filters, form inputs)
 - `useReducer` + Context for shared workflow state (SessionContext)
 - Async `StorageProvider` interface for persistence — localStorage today,
@@ -111,6 +120,7 @@ src/
 - No external state management library (Redux, Zustand) unless needed
 
 ### Styling Approach
+
 - Tailwind CSS via `src/index.css` (PostCSS + autoprefixer)
 - shadcn/ui for reusable primitives (Card, Badge, Dialog, AlertDialog, Sonner) — components live in `src/components/ui/`
 - Light/dark theme via CSS custom properties + `useTheme` hook (`:root` = light, `.dark` = dark)
@@ -118,23 +128,27 @@ src/
 ## Tech Stack Decisions
 
 ### Why React 19?
+
 - Latest stable version with new features
 - Modern hooks API is the standard
 - Server Components available but not needed yet
 
 ### Why Vite over Create React App?
+
 - Much faster dev server startup
 - Better HMR (Hot Module Replacement)
 - Lighter, more modern tooling
 - CRA is no longer maintained
 
 ### Why TypeScript?
+
 - User already familiar from Angular
 - Catches errors early
 - Better IDE support
 - Industry standard for React apps
 
 ### Why Tailwind + shadcn/ui?
+
 - Tailwind: utility-first, fast iteration, no separate CSS files to manage
 - shadcn/ui: copy-paste component library (you own the code, can customize freely)
 - Good balance of productivity and learning — no magic, just classes
@@ -142,18 +156,21 @@ src/
 ## Development Workflow
 
 ### When adding new features:
+
 1. **Explain the concept** - Compare to Angular equivalent
 2. **Show the code** - Include inline comments
 3. **Run and test** - Let user see it working
 4. **Iterate** - Encourage experimentation
 
 ### Code comments should:
+
 - Compare Angular patterns to React patterns
 - Explain WHY React does things differently
 - Link concepts to learning objectives
 - Don't over-explain basic JavaScript/TypeScript
 
 ### Git commits should:
+
 - Be descriptive about what was learned
 - Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Atomic commits per feature/concept
@@ -168,6 +185,7 @@ the imported guidance above.
 ## Important Context
 
 ### This is a learning project
+
 - **Prioritize educational value** over production optimization
 - **Add comments liberally** - they're teaching tools
 - **Show alternatives** - mention different ways to solve problems
@@ -190,6 +208,7 @@ how an actual improv practice session works.
 | `/credits` | `CreditsPage` | Licensing & attribution |
 
 **1. Prep Screen** (`/prep`)
+
 - Add exercises from the library to a session queue
 - Set duration per exercise (duration lives on `SessionExercise`, not on
   `Exercise` — the same exercise can be 5 min or 15 min depending on context)
@@ -199,6 +218,7 @@ how an actual improv practice session works.
 - Save session as template (reusable from Favorites page)
 
 **2. Session Screen** (`/session/:id`)
+
 - Current exercise name and instructions displayed prominently
 - Timer counting up with target duration
 - "Next Exercise" button to progress through the queue
@@ -207,6 +227,7 @@ how an actual improv practice session works.
 - Collapsible queue panel with live editing (add, remove, reorder, add breaks)
 
 **3. Notes Screen** (`/notes/:id`)
+
 - List of exercises that were run
 - Free-text area for post-session reflections (what worked, what didn't)
 - Save to session history (persisted in localStorage)
@@ -234,6 +255,7 @@ See `src/types.ts` for the full type definitions. Key types:
 ### Improv exercise context
 
 Common tags for exercises (from source data, applied by `normalize-tags.mjs`):
+
 - **warm-up** - Ice breakers, energy builders, group focus
 - **environment** - Building physical locations/settings (the "Where")
 - **object work** - Miming and interacting with individual imaginary objects
@@ -246,11 +268,13 @@ Common tags for exercises (from source data, applied by `normalize-tags.mjs`):
 
 Inferred tags (curated in `src/data/inferred-tags.json`, applied by
 `apply-inferred-tags.mjs`):
+
 - **heightening** - Sequential amplification of a pattern; "do it again, but more"
 - **grounding** - Making scenes feel real, justified, emotionally true; base reality
 - **game of the scene** - Finding and playing the emergent comedic pattern (UCB concept)
 
 ### Future feature ideas
+
 - Random exercise selector (fun utility feature)
 - Import/export exercises (teaches file handling)
 - Google Drive sync (teaches OAuth, async storage backends)
@@ -275,11 +299,12 @@ Exercise data in `src/data/learnimprov-exercises.json` is scraped from
 **[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**.
 
 When working with this data you **must**:
+
 - **Preserve attribution** — keep the `attribution` block in the JSON intact.
   Every exercise also carries a `sourceUrl` back to its original page.
 - **Note changes** — each exercise JSON file has a single
   `attribution.modified` string (e.g. `"2026-01-31: Cleaned descriptions,
-  normalized tags"`). The cleanup script regenerates this automatically.
+normalized tags"`). The cleanup script regenerates this automatically.
   Before committing, review this field to make sure it accurately describes
   the transformations that were applied. If you made additional manual changes
   (e.g. rewrote descriptions, added summaries), update the string to reflect
@@ -298,6 +323,7 @@ CC BY-SA 3.0 DE is forward-compatible with CC BY-SA 4.0.
 
 **Disabled sources** (scraper scripts exist but are commented out in
 `scrape-all.mjs` until licensing is resolved):
+
 - **improvencyclopedia.org** — "free for non-commercial use", not an open
   license. Contact site owner before enabling.
 - **ImprovDB** (github.com/aberonni/improvdb) — no LICENSE file in repo.
@@ -308,12 +334,12 @@ CC BY-SA 3.0 DE is forward-compatible with CC BY-SA 4.0.
 Run `npm run scrape` to execute active scrapers via `scripts/scrape-all.mjs`.
 Individual scrapers can also be run directly with `node scripts/<name>.mjs`.
 
-| Script | Source | Output | Status |
-|---|---|---|---|
-| `scrape-learnimprov.mjs` | learnimprov.com | `learnimprov-exercises.json` | Active |
-| `scrape-improwiki.mjs` | improwiki.com | `improwiki-exercises.json` | Active |
+| Script                          | Source                 | Output                              | Status   |
+| ------------------------------- | ---------------------- | ----------------------------------- | -------- |
+| `scrape-learnimprov.mjs`        | learnimprov.com        | `learnimprov-exercises.json`        | Active   |
+| `scrape-improwiki.mjs`          | improwiki.com          | `improwiki-exercises.json`          | Active   |
 | `scrape-improvencyclopedia.mjs` | improvencyclopedia.org | `improvencyclopedia-exercises.json` | Disabled |
-| `import-improvdb.mjs` | ImprovDB (GitHub) | `improvdb-exercises.json` | Disabled |
+| `import-improvdb.mjs`           | ImprovDB (GitHub)      | `improvdb-exercises.json`           | Disabled |
 
 See `LICENSE-DATA` for full licensing details per source.
 
@@ -344,6 +370,7 @@ data quality checks, and adding new sources.
 ## Communication Style
 
 When working with this user:
+
 - Be encouraging but not over-the-top
 - Technical and clear
 - Compare to Angular when relevant
@@ -354,6 +381,7 @@ When working with this user:
 ## Questions to Ask
 
 When user requests a feature, consider asking:
+
 - "Would you like me to explain the concept first, or dive straight into code?"
 - "Want to see the Angular equivalent of this pattern?"
 - "Should we refactor this later, or is it good enough for learning?"
@@ -361,6 +389,7 @@ When user requests a feature, consider asking:
 ## Success Metrics
 
 User is learning well when they:
+
 - Understand WHY React does things differently from Angular
 - Can explain hooks and component patterns
 - Feel confident experimenting on their own
