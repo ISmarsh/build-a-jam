@@ -51,41 +51,45 @@ function App() {
       {/* Skip link — visually hidden until focused, lets keyboard users jump to content */}
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
       >
         Skip to main content
       </a>
-      <div className="min-h-screen flex flex-col max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8 sm:px-6 lg:px-8">
-        <header className={`text-center flex-shrink-0 ${isSessionView ? 'mb-4 pb-4 border-b border-border' : 'mb-8 sm:mb-12 pb-6 sm:pb-8 border-b-2 border-primary'}`}>
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-8 pb-20 sm:px-6 sm:pb-8 lg:px-8">
+        <header
+          className={`flex-shrink-0 text-center ${isSessionView ? 'mb-4 border-b border-border pb-4' : 'mb-8 border-b-2 border-primary pb-6 sm:mb-12 sm:pb-8'}`}
+        >
           {/* Three-column flex: invisible spacer | title | toggle button.
               The spacer matches the toggle width so the title stays centered. */}
-          <div className="flex justify-between items-start">
+          <div className="flex items-start justify-between">
             <div className="w-9" aria-hidden="true" />
-            <Link to="/" className="hover:opacity-80 transition-opacity">
-              <h1 className={`font-bold text-primary ${isSessionView ? 'text-xl sm:text-2xl' : 'text-3xl sm:text-5xl mb-2'}`}>
+            <Link to="/" className="transition-opacity hover:opacity-80">
+              <h1
+                className={`font-bold text-primary ${isSessionView ? 'text-xl sm:text-2xl' : 'mb-2 text-3xl sm:text-5xl'}`}
+              >
                 Build-a-Jam
               </h1>
             </Link>
             {/* Theme toggle in header on desktop, in bottom nav on mobile */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+              className="hidden p-2 text-muted-foreground transition-colors hover:text-foreground sm:block"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             {/* Spacer to keep title centered on mobile where toggle is hidden */}
             <div className="w-9 sm:hidden" aria-hidden="true" />
           </div>
           {!isSessionView && (
-            <p className="text-muted-foreground text-sm sm:text-lg">
+            <p className="text-sm text-muted-foreground sm:text-lg">
               Your improv exercise library - Plan sessions with confidence
             </p>
           )}
         </header>
 
         {/* ROUTES: Main content area that grows to push footer down */}
-        <main id="main" className="flex-1 mb-8">
+        <main id="main" className="mb-8 flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/prep" element={<PrepPage />} />

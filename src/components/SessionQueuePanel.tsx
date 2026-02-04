@@ -97,14 +97,9 @@ function SortableQueueItem({
   // - listeners: event handlers for the drag handle
   // - setNodeRef: ref to attach to the DOM element
   // - transform/transition: CSS values for smooth animation during drag
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -118,55 +113,51 @@ function SortableQueueItem({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm bg-card"
+      className="flex items-center gap-2 rounded-lg bg-card px-3 py-2 text-sm"
     >
       {/* Drag handle — only this element triggers dragging */}
       <button
         {...attributes}
         {...listeners}
-        className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+        className="shrink-0 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
         aria-label={`Drag to reorder ${name}`}
       >
-        <GripVertical className="w-4 h-4" />
+        <GripVertical className="h-4 w-4" />
       </button>
 
       {/* Number + icon — breaks show a coffee icon, exercises show their number */}
-      <span className="shrink-0 w-5 text-center">
+      <span className="w-5 shrink-0 text-center">
         {isBreak ? (
-          <Coffee className="w-4 h-4 text-muted-foreground" />
+          <Coffee className="h-4 w-4 text-muted-foreground" />
         ) : (
           <span className="text-muted-foreground">{exerciseNumber}</span>
         )}
       </span>
 
       {/* Exercise name */}
-      <span className="flex-1 min-w-0 truncate text-foreground">
-        {name}
-      </span>
+      <span className="min-w-0 flex-1 truncate text-foreground">{name}</span>
 
       {/* Duration edit */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex shrink-0 items-center gap-1">
         <input
           type="number"
           min={1}
           max={60}
           value={se.duration}
-          onChange={(e) =>
-            onDurationChange(index, Math.max(1, Number(e.target.value)))
-          }
+          onChange={(e) => onDurationChange(index, Math.max(1, Number(e.target.value)))}
           aria-label={`Duration for ${name} in minutes`}
-          className="w-12 bg-secondary border border-input rounded px-1 py-0.5 text-foreground text-center text-xs"
+          className="w-12 rounded border border-input bg-secondary px-1 py-0.5 text-center text-xs text-foreground"
         />
-        <span className="text-muted-foreground text-xs">m</span>
+        <span className="text-xs text-muted-foreground">m</span>
       </div>
 
       {/* Remove button */}
       <button
         onClick={onRequestRemove}
-        className="text-destructive hover:text-destructive/80 shrink-0 transition-colors ml-1"
+        className="ml-1 shrink-0 text-destructive transition-colors hover:text-destructive/80"
         aria-label={`Remove ${name}`}
       >
-        <X className="w-4 h-4" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );
@@ -271,28 +262,30 @@ function SessionQueuePanel({
         <button
           onClick={() => setIsExpanded((prev) => !prev)}
           aria-expanded={isExpanded}
-          className="w-full flex items-center justify-between text-left"
+          className="flex w-full items-center justify-between text-left"
         >
-          <span className="text-foreground font-medium">
+          <span className="font-medium text-foreground">
             Queue
             <span
-              className="text-muted-foreground font-normal ml-2"
+              className="ml-2 font-normal text-muted-foreground"
               aria-label={`${upcomingExercises.length} upcoming, done around ${formatTime(sessionEndTime)}`}
             >
               {upcomingExercises.length} upcoming
-              <span className="mx-1" aria-hidden="true">·</span>
+              <span className="mx-1" aria-hidden="true">
+                ·
+              </span>
               done ~{formatTime(sessionEndTime)}
             </span>
           </span>
           {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
           )}
         </button>
 
         {isExpanded && (
-          <div className="mt-3 space-y-1 max-h-[40vh] overflow-y-auto scrollbar-dark">
+          <div className="scrollbar-dark mt-3 max-h-[40vh] space-y-1 overflow-y-auto">
             {/* Completed exercises — read-only, greyed out */}
             {exercises.slice(0, currentIndex).map((se, index) => {
               const name = getExerciseName(se);
@@ -301,24 +294,20 @@ function SessionQueuePanel({
                   key={`completed-${index}`}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm opacity-50"
                 >
-                  <span className="shrink-0 w-5 text-center">
-                    <Check className="w-4 h-4 text-muted-foreground" />
+                  <span className="w-5 shrink-0 text-center">
+                    <Check className="h-4 w-4 text-muted-foreground" />
                   </span>
-                  <span className="flex-1 min-w-0 truncate text-foreground">{name}</span>
+                  <span className="min-w-0 flex-1 truncate text-foreground">{name}</span>
                   {se.actualSeconds != null ? (
-                    <span className="text-muted-foreground text-xs shrink-0">
+                    <span className="shrink-0 text-xs text-muted-foreground">
                       {formatDuration(se.actualSeconds)}
                     </span>
                   ) : (
-                    <span className="text-muted-foreground text-xs shrink-0">
-                      {se.duration}m
-                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{se.duration}m</span>
                   )}
                   <button
-                    onClick={() =>
-                      setEditingNotesIndex(editingNotesIndex === index ? null : index)
-                    }
-                    className="text-muted-foreground hover:text-foreground text-xs shrink-0 transition-colors"
+                    onClick={() => setEditingNotesIndex(editingNotesIndex === index ? null : index)}
+                    className="shrink-0 text-xs text-muted-foreground transition-colors hover:text-foreground"
                     title="Edit notes"
                   >
                     Notes
@@ -332,16 +321,16 @@ function SessionQueuePanel({
               const se = exercises[currentIndex];
               const name = getExerciseName(se);
               return (
-                <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm bg-primary/10 border border-primary/30">
-                  <span className="shrink-0 w-5 text-center">
-                    <Play className="w-4 h-4 text-primary fill-primary" />
+                <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm">
+                  <span className="w-5 shrink-0 text-center">
+                    <Play className="h-4 w-4 fill-primary text-primary" />
                   </span>
-                  <span className="flex-1 min-w-0 truncate text-primary font-medium">
-                    {name}
-                  </span>
-                  <span className="text-muted-foreground text-xs shrink-0">
+                  <span className="min-w-0 flex-1 truncate font-medium text-primary">{name}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
                     {se.duration}m
-                    <span className="ml-1 text-primary/60">~{formatTime(currentExerciseEndTime)}</span>
+                    <span className="ml-1 text-primary/60">
+                      ~{formatTime(currentExerciseEndTime)}
+                    </span>
                   </span>
                 </div>
               );
@@ -354,10 +343,7 @@ function SessionQueuePanel({
               onDragEnd={handleDragEnd}
               modifiers={[restrictToVerticalAxis, restrictToParentElement]}
             >
-              <SortableContext
-                items={sortableIds}
-                strategy={verticalListSortingStrategy}
-              >
+              <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
                 {upcomingExercises.map((se, sortableIndex) => {
                   const realIndex = currentIndex + 1 + sortableIndex;
                   const name = getExerciseName(se);
@@ -374,10 +360,12 @@ function SessionQueuePanel({
                       isBreak={isBreak}
                       onDurationChange={onDurationChange}
                       onRequestRemove={() =>
-                        setConfirm(confirmRemove(name, () => {
-                          onRemove(realIndex);
-                          setConfirm(null);
-                        }))
+                        setConfirm(
+                          confirmRemove(name, () => {
+                            onRemove(realIndex);
+                            setConfirm(null);
+                          }),
+                        )
                       }
                     />
                   );
@@ -393,7 +381,7 @@ function SessionQueuePanel({
                   onChange={(e) => onEditNotes(editingNotesIndex, e.target.value)}
                   placeholder={`Notes for ${getExerciseName(exercises[editingNotesIndex])}...`}
                   rows={2}
-                  className="w-full bg-secondary border border-input rounded-lg p-2 text-secondary-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors resize-y"
+                  className="w-full resize-y rounded-lg border border-input bg-secondary p-2 text-sm text-secondary-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none"
                 />
               </div>
             )}
@@ -402,23 +390,13 @@ function SessionQueuePanel({
 
         {/* Add buttons — always visible when expanded */}
         {isExpanded && (
-          <div className="flex gap-2 mt-3 pt-3 border-t border-input">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onAddExercise}
-              className="flex-1"
-            >
-              <Plus className="w-4 h-4 mr-1" />
+          <div className="mt-3 flex gap-2 border-t border-input pt-3">
+            <Button variant="outline" size="sm" onClick={onAddExercise} className="flex-1">
+              <Plus className="mr-1 h-4 w-4" />
               Add Exercise
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onAddBreak}
-              className="flex-1"
-            >
-              <Coffee className="w-4 h-4 mr-1" />
+            <Button variant="outline" size="sm" onClick={onAddBreak} className="flex-1">
+              <Coffee className="mr-1 h-4 w-4" />
               Add Break
             </Button>
           </div>

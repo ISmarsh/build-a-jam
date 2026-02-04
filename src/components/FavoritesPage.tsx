@@ -64,12 +64,14 @@ function FavoritesPage() {
   }
 
   function handleDeleteTemplate(sessionId: string) {
-    setConfirm(confirmDelete('favorite', () => {
-      dispatch({ type: 'DELETE_SESSION_TEMPLATE', sessionId });
-      setConfirm(null);
-      toast('Favorite deleted');
-      if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
-    }));
+    setConfirm(
+      confirmDelete('favorite', () => {
+        dispatch({ type: 'DELETE_SESSION_TEMPLATE', sessionId });
+        setConfirm(null);
+        toast('Favorite deleted');
+        if (expandedTemplateId === sessionId) setExpandedTemplateId(null);
+      }),
+    );
   }
 
   function handleStartRename(template: Session) {
@@ -79,7 +81,11 @@ function FavoritesPage() {
 
   function handleSaveRename() {
     if (renamingId && renameValue.trim()) {
-      dispatch({ type: 'RENAME_SESSION_TEMPLATE', sessionId: renamingId, name: renameValue.trim() });
+      dispatch({
+        type: 'RENAME_SESSION_TEMPLATE',
+        sessionId: renamingId,
+        name: renameValue.trim(),
+      });
       toast('Renamed');
     }
     setRenamingId(null);
@@ -95,19 +101,20 @@ function FavoritesPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-foreground mb-6">Favorites</h1>
+      <h1 className="mb-6 text-3xl font-bold text-foreground">Favorites</h1>
 
       {isEmpty ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg mb-2">No favorites yet.</p>
-          <p className="text-muted-foreground mb-4">
-            Star exercises from the home page, or save sessions as favorites from the prep or history pages.
+        <div className="py-12 text-center">
+          <p className="mb-2 text-lg text-muted-foreground">No favorites yet.</p>
+          <p className="mb-4 text-muted-foreground">
+            Star exercises from the home page, or save sessions as favorites from the prep or
+            history pages.
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover transition-colors"
+            className="inline-flex items-center gap-1 text-primary transition-colors hover:text-primary-hover"
           >
-            Browse exercises <ArrowRight className="w-4 h-4" />
+            Browse exercises <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       ) : (
@@ -115,15 +122,12 @@ function FavoritesPage() {
           {/* Section 1: Session Templates */}
           {templates.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-4">
+              <h2 className="mb-4 text-xl font-semibold text-foreground">
                 Saved Sessions ({templates.length})
               </h2>
               <div className="space-y-4">
                 {templates.map((template) => {
-                  const totalMinutes = template.exercises.reduce(
-                    (sum, ex) => sum + ex.duration,
-                    0,
-                  );
+                  const totalMinutes = template.exercises.reduce((sum, ex) => sum + ex.duration, 0);
                   const isExpanded = expandedTemplateId === template.id;
 
                   return (
@@ -131,22 +135,20 @@ function FavoritesPage() {
                       <CardContent className="py-4">
                         {/* Header — clickable to expand/collapse */}
                         <button
-                          onClick={() =>
-                            setExpandedTemplateId(isExpanded ? null : template.id)
-                          }
+                          onClick={() => setExpandedTemplateId(isExpanded ? null : template.id)}
                           className="w-full text-left"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <ChevronRight
-                                className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                                className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                               />
-                              <Star className="w-4 h-4 text-star fill-star" />
-                              <span className="text-foreground font-semibold">
+                              <Star className="h-4 w-4 fill-star text-star" />
+                              <span className="font-semibold text-foreground">
                                 {template.name ?? 'Untitled'}
                               </span>
                             </div>
-                            <span className="text-muted-foreground text-sm">
+                            <span className="text-sm text-muted-foreground">
                               {template.exercises.length} exercise
                               {template.exercises.length !== 1 && 's'}
                               {' · '}
@@ -156,7 +158,7 @@ function FavoritesPage() {
 
                           {/* Collapsed: exercise names as badges */}
                           {!isExpanded && (
-                            <div className="flex flex-wrap gap-1 mt-2 ml-5">
+                            <div className="ml-5 mt-2 flex flex-wrap gap-1">
                               {template.exercises.map((se, j) => {
                                 const isBreak = se.exerciseId === BREAK_EXERCISE_ID;
                                 const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
@@ -166,7 +168,7 @@ function FavoritesPage() {
                                     variant="outline"
                                     className={`border-input text-xs ${
                                       ex
-                                        ? 'text-primary cursor-pointer hover:bg-secondary/80'
+                                        ? 'cursor-pointer text-primary hover:bg-secondary/80'
                                         : 'text-secondary-foreground'
                                     }`}
                                     onClick={
@@ -188,26 +190,21 @@ function FavoritesPage() {
 
                         {/* Expanded: full exercise list + actions */}
                         {isExpanded && (
-                          <div className="mt-4 ml-5 space-y-3">
+                          <div className="ml-5 mt-4 space-y-3">
                             {template.exercises.map((se, j) => {
                               const isBreak = se.exerciseId === BREAK_EXERCISE_ID;
                               const ex = isBreak ? undefined : getExerciseById(se.exerciseId);
                               return (
-                                <div
-                                  key={se.slotId ?? j}
-                                  className="border-l-2 border-border pl-3"
-                                >
+                                <div key={se.slotId ?? j} className="border-l-2 border-border pl-3">
                                   <div className="flex items-center justify-between">
-                                    <span className="text-foreground text-sm">
-                                      <span className="text-muted-foreground mr-2">
-                                        {j + 1}.
-                                      </span>
+                                    <span className="text-sm text-foreground">
+                                      <span className="mr-2 text-muted-foreground">{j + 1}.</span>
                                       {isBreak ? (
                                         'Break'
                                       ) : ex ? (
                                         <button
                                           onClick={() => setDetailExercise(ex)}
-                                          className="text-primary hover:text-primary-hover transition-colors"
+                                          className="text-primary transition-colors hover:text-primary-hover"
                                         >
                                           {ex.name}
                                         </button>
@@ -215,7 +212,7 @@ function FavoritesPage() {
                                         se.exerciseId
                                       )}
                                     </span>
-                                    <span className="text-muted-foreground text-xs">
+                                    <span className="text-xs text-muted-foreground">
                                       {se.duration} min
                                     </span>
                                   </div>
@@ -225,7 +222,7 @@ function FavoritesPage() {
 
                             {/* Rename input — shown inline when renaming */}
                             {renamingId === template.id && (
-                              <div className="flex items-center gap-2 mb-3">
+                              <div className="mb-3 flex items-center gap-2">
                                 <input
                                   type="text"
                                   value={renameValue}
@@ -235,13 +232,15 @@ function FavoritesPage() {
                                     if (e.key === 'Escape') handleCancelRename();
                                   }}
                                   autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- user just clicked rename
-                                  className="flex-1 bg-secondary border border-input rounded px-2 py-1 text-foreground text-sm focus:outline-none focus:border-primary"
+                                  className="flex-1 rounded border border-input bg-secondary px-2 py-1 text-sm text-foreground focus:border-primary focus:outline-none"
                                   placeholder="Favorite name..."
                                 />
-                                <Button size="sm" onClick={handleSaveRename}>Save</Button>
+                                <Button size="sm" onClick={handleSaveRename}>
+                                  Save
+                                </Button>
                                 <button
                                   onClick={handleCancelRename}
-                                  className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                                  className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                                 >
                                   Cancel
                                 </button>
@@ -249,22 +248,26 @@ function FavoritesPage() {
                             )}
 
                             {/* Actions */}
-                            <div className="border-t pt-3 mt-3 flex items-center gap-4">
+                            <div className="mt-3 flex items-center gap-4 border-t pt-3">
                               <Button size="sm" onClick={() => handleStartTemplate(template)}>
                                 Start Session
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => handleEditTemplate(template)}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditTemplate(template)}
+                              >
                                 Edit in Prep
                               </Button>
                               <button
                                 onClick={() => handleStartRename(template)}
-                                className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                               >
                                 Rename
                               </button>
                               <button
                                 onClick={() => handleDeleteTemplate(template.id)}
-                                className="text-muted-foreground hover:text-destructive text-xs transition-colors"
+                                className="text-xs text-muted-foreground transition-colors hover:text-destructive"
                               >
                                 Delete
                               </button>
@@ -282,7 +285,7 @@ function FavoritesPage() {
           {/* Section 2: Favorite Exercises */}
           {favoriteExercises.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-4">
+              <h2 className="mb-4 text-xl font-semibold text-foreground">
                 Starred Exercises ({favoriteExercises.length})
               </h2>
               <div className="space-y-3">
@@ -290,7 +293,7 @@ function FavoritesPage() {
                   <Card key={exercise.id}>
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
                           <button
                             onClick={() => {
                               dispatch({
@@ -299,24 +302,24 @@ function FavoritesPage() {
                               });
                               toast('Removed from favorites');
                             }}
-                            className="text-star hover:text-muted-foreground shrink-0 transition-colors"
+                            className="shrink-0 text-star transition-colors hover:text-muted-foreground"
                             title="Remove from favorites"
                           >
-                            <Star className="w-5 h-5 fill-current" />
+                            <Star className="h-5 w-5 fill-current" />
                           </button>
                           <button
                             onClick={() => setDetailExercise(exercise)}
-                            className="text-primary hover:text-primary-hover transition-colors text-left truncate"
+                            className="truncate text-left text-primary transition-colors hover:text-primary-hover"
                           >
                             {exercise.name}
                           </button>
                         </div>
-                        <div className="flex flex-wrap gap-1 ml-2 shrink-0">
+                        <div className="ml-2 flex shrink-0 flex-wrap gap-1">
                           {exercise.tags.slice(0, 3).map((tag) => (
                             <Badge
                               key={tag}
                               variant="outline"
-                              className="text-primary border-input text-xs"
+                              className="border-input text-xs text-primary"
                             >
                               {tag}
                             </Badge>
@@ -324,7 +327,7 @@ function FavoritesPage() {
                         </div>
                       </div>
                       {exercise.summary && (
-                        <p className="text-muted-foreground text-sm mt-1 ml-8 line-clamp-1">
+                        <p className="ml-8 mt-1 line-clamp-1 text-sm text-muted-foreground">
                           {exercise.summary}
                         </p>
                       )}
@@ -338,10 +341,7 @@ function FavoritesPage() {
       )}
 
       {detailExercise && (
-        <ExerciseDetailModal
-          exercise={detailExercise}
-          onClose={() => setDetailExercise(null)}
-        />
+        <ExerciseDetailModal exercise={detailExercise} onClose={() => setDetailExercise(null)} />
       )}
       {confirm && (
         <ConfirmModal

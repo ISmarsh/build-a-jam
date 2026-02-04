@@ -55,13 +55,19 @@ function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
-  const confirmClasses = variant === 'danger'
-    ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-    : 'bg-primary hover:bg-primary/90 text-primary-foreground';
+  const confirmClasses =
+    variant === 'danger'
+      ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+      : 'bg-primary hover:bg-primary/90 text-primary-foreground';
 
   return (
-    <AlertDialog open={true} onOpenChange={(open) => { if (!open) onCancel(); }}>
-      <AlertDialogContent className="bg-card max-w-sm">
+    <AlertDialog
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onCancel();
+      }}
+    >
+      <AlertDialogContent className="max-w-sm bg-card">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-foreground">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-muted-foreground">
@@ -71,14 +77,11 @@ function ConfirmModal({
         <AlertDialogFooter>
           <AlertDialogCancel
             onClick={onCancel}
-            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input"
+            className="border-input bg-secondary text-secondary-foreground hover:bg-secondary/80"
           >
             {cancelLabel}
           </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            className={confirmClasses}
-          >
+          <AlertDialogAction onClick={onConfirm} className={confirmClasses}>
             {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>

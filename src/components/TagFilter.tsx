@@ -26,8 +26,8 @@ import { useState } from 'react';
 import Button from './ui/TagButton';
 
 interface TagFilterProps {
-  featuredTags: string[];   // Curated subset shown by default
-  allTags: string[];        // Every tag in the current source
+  featuredTags: string[]; // Curated subset shown by default
+  allTags: string[]; // Every tag in the current source
   selectedTags: string[];
   onTagToggle: (tag: string) => void;
 }
@@ -41,18 +41,13 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
 
   return (
     <div className="flex flex-col gap-2" role="group" aria-label="Filter by tags">
-      <span className="text-secondary-foreground font-medium">Filter by tags:</span>
+      <span className="font-medium text-secondary-foreground">Filter by tags:</span>
       <div className="flex flex-wrap gap-2">
         {displayedTags.map((tag) => {
           const isSelected = selectedTags.includes(tag);
 
           return (
-            <Button
-              key={tag}
-              variant="tag"
-              active={isSelected}
-              onClick={() => onTagToggle(tag)}
-            >
+            <Button key={tag} variant="tag" active={isSelected} onClick={() => onTagToggle(tag)}>
               {tag}
             </Button>
           );
@@ -62,7 +57,7 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
         {hasMore && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="text-primary hover:text-primary-hover text-sm px-2 py-1 transition-colors"
+            className="px-2 py-1 text-sm text-primary transition-colors hover:text-primary-hover"
           >
             {showAll ? 'show less' : `+${allTags.length - featuredTags.length} more`}
           </button>
@@ -70,7 +65,7 @@ function TagFilter({ featuredTags, allTags, selectedTags, onTagToggle }: TagFilt
       </div>
 
       {selectedTags.length > 0 && (
-        <p className="text-muted-foreground text-sm italic">
+        <p className="text-sm italic text-muted-foreground">
           Filtering by: {selectedTags.join(', ')}
         </p>
       )}

@@ -225,9 +225,7 @@ describe('getTagsForExercises', () => {
 
   it('maintains FEATURED_TAGS order', () => {
     // Create exercises with tags in reverse order of FEATURED_TAGS
-    const exercises: Exercise[] = [
-      mockExercise({ tags: ['focus', 'warm-up', 'listening'] }),
-    ];
+    const exercises: Exercise[] = [mockExercise({ tags: ['focus', 'warm-up', 'listening'] })];
 
     const { featuredTags } = getTagsForExercises(exercises);
 

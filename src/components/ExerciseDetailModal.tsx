@@ -46,23 +46,24 @@ interface ExerciseDetailModalProps {
 
 function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDetailModalProps) {
   return (
-    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent
-        className="bg-card max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-dark p-0 gap-0"
-      >
+    <Dialog
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent className="scrollbar-dark max-h-[80vh] max-w-2xl gap-0 overflow-y-auto bg-card p-0">
         {/* Header — title and close share a flex row for natural alignment */}
-        <DialogHeader className="px-6 py-4 border-b border-border">
+        <DialogHeader className="border-b border-border px-6 py-4">
           <div className="flex items-center justify-between gap-4">
-            <DialogTitle className="text-2xl font-bold text-primary">
-              {exercise.name}
-            </DialogTitle>
-            <DialogClose className="shrink-0 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background">
+            <DialogTitle className="text-2xl font-bold text-primary">{exercise.name}</DialogTitle>
+            <DialogClose className="shrink-0 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
             </DialogClose>
           </div>
           {exercise.alternativeNames && exercise.alternativeNames.length > 0 && (
-            <DialogDescription className="text-muted-foreground text-sm mt-1">
+            <DialogDescription className="mt-1 text-sm text-muted-foreground">
               Also known as: {exercise.alternativeNames.join(', ')}
             </DialogDescription>
           )}
@@ -71,17 +72,13 @@ function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDe
         {/* Body */}
         <div className="p-6">
           {exercise.summary && (
-            <p className="text-secondary-foreground text-base mb-4 italic">{exercise.summary}</p>
+            <p className="mb-4 text-base italic text-secondary-foreground">{exercise.summary}</p>
           )}
 
           {exercise.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-4">
+            <div className="mb-4 flex flex-wrap gap-1">
               {exercise.tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="outline"
-                  className="text-primary border-input text-xs"
-                >
+                <Badge key={tag} variant="outline" className="border-input text-xs text-primary">
                   {tag}
                 </Badge>
               ))}
@@ -90,27 +87,32 @@ function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDe
 
           {exercise.description ? (
             <div
-              className="text-secondary-foreground leading-relaxed prose-exercise max-w-none"
+              className="prose-exercise max-w-none leading-relaxed text-secondary-foreground"
               dangerouslySetInnerHTML={{ __html: exercise.description }}
             />
           ) : (
-            <p className="text-muted-foreground italic">No description available.</p>
+            <p className="italic text-muted-foreground">No description available.</p>
           )}
         </div>
 
         {/* Footer — source link or edit/delete for custom, close button right */}
-        <DialogFooter className="flex flex-row items-center justify-between px-6 py-3 border-t border-border">
+        <DialogFooter className="flex flex-row items-center justify-between border-t border-border px-6 py-3">
           <div className="flex items-center gap-2">
             {exercise.isCustom ? (
               <>
                 {onEdit && (
                   <Button variant="outline" size="sm" onClick={onEdit}>
-                    <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
+                    <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
                   </Button>
                 )}
                 {onDelete && (
-                  <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive/80">
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onDelete}
+                    className="text-destructive hover:text-destructive/80"
+                  >
+                    <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
                   </Button>
                 )}
               </>
@@ -119,9 +121,9 @@ function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDe
                 href={exercise.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm transition-colors"
+                className="inline-flex items-center gap-1 text-sm text-primary transition-colors hover:text-primary-hover"
               >
-                Source <ExternalLink className="w-3.5 h-3.5" />
+                Source <ExternalLink className="h-3.5 w-3.5" />
               </a>
             ) : (
               <span />

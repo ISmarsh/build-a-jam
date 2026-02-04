@@ -23,13 +23,7 @@
  *    dispatch an action → reducer produces new state → React re-renders.
  */
 
-import {
-  createContext,
-  useContext,
-  useReducer,
-  useEffect,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
 import type { Exercise, Session, SessionExercise, CompletedSession } from '../types';
 import { useStorage } from '../storage/StorageContext';
 import { registerCustomExercises } from '../data/exercises';
@@ -134,7 +128,14 @@ const initialState: SessionState = {
 // ---------------------------------------------------------------------------
 
 type SessionAction =
-  | { type: 'HYDRATE'; sessions: Session[]; completedSessions: CompletedSession[]; currentSession: Session | null; favoriteExerciseIds: string[]; customExercises: Exercise[] }
+  | {
+      type: 'HYDRATE';
+      sessions: Session[];
+      completedSessions: CompletedSession[];
+      currentSession: Session | null;
+      favoriteExerciseIds: string[];
+      customExercises: Exercise[];
+    }
   | { type: 'CREATE_SESSION'; name?: string }
   | { type: 'LOAD_SESSION'; session: Session }
   | { type: 'ADD_EXERCISE'; exerciseId: string; duration: number }
@@ -578,7 +579,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       return {
         ...state,
         favoriteExerciseIds: exists
-          ? ids.filter(id => id !== action.exerciseId)
+          ? ids.filter((id) => id !== action.exerciseId)
           : [...ids, action.exerciseId],
       };
     }
@@ -586,14 +587,14 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
     case 'DELETE_SESSION_TEMPLATE':
       return {
         ...state,
-        sessions: state.sessions.filter(s => s.id !== action.sessionId),
+        sessions: state.sessions.filter((s) => s.id !== action.sessionId),
       };
 
     case 'RENAME_SESSION_TEMPLATE':
       return {
         ...state,
-        sessions: state.sessions.map(s =>
-          s.id === action.sessionId ? { ...s, name: action.name } : s
+        sessions: state.sessions.map((s) =>
+          s.id === action.sessionId ? { ...s, name: action.name } : s,
         ),
       };
 
@@ -604,17 +605,19 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       if (!state.currentSession) return state;
       return {
         ...state,
-        sessions: state.sessions.map(s =>
+        sessions: state.sessions.map((s) =>
           s.id === action.sessionId
             ? {
                 ...s,
-                exercises: state.currentSession!.exercises.map(({ exerciseId, duration, order }) => ({
-                  exerciseId,
-                  duration,
-                  order,
-                })),
+                exercises: state.currentSession!.exercises.map(
+                  ({ exerciseId, duration, order }) => ({
+                    exerciseId,
+                    duration,
+                    order,
+                  }),
+                ),
               }
-            : s
+            : s,
         ),
       };
     }
@@ -659,17 +662,17 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
     case 'UPDATE_CUSTOM_EXERCISE':
       return {
         ...state,
-        customExercises: state.customExercises.map(ex =>
-          ex.id === action.exercise.id ? action.exercise : ex
+        customExercises: state.customExercises.map((ex) =>
+          ex.id === action.exercise.id ? action.exercise : ex,
         ),
       };
 
     case 'DELETE_CUSTOM_EXERCISE':
       return {
         ...state,
-        customExercises: state.customExercises.filter(ex => ex.id !== action.exerciseId),
+        customExercises: state.customExercises.filter((ex) => ex.id !== action.exerciseId),
         // Also remove from favorites if it was starred
-        favoriteExerciseIds: state.favoriteExerciseIds.filter(id => id !== action.exerciseId),
+        favoriteExerciseIds: state.favoriteExerciseIds.filter((id) => id !== action.exerciseId),
       };
 
     // TIMER ACTIONS — delegated to the timer sub-reducer.
@@ -722,13 +725,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // Load persisted state on mount
   useEffect(() => {
     async function hydrate() {
-      const [sessions, completedSessions, currentSession, favoriteExerciseIds, customExercises] = await Promise.all([
-        storage.load<Session[]>(STORAGE_KEYS.SESSIONS),
-        storage.load<CompletedSession[]>(STORAGE_KEYS.COMPLETED_SESSIONS),
-        storage.load<Session>(STORAGE_KEYS.CURRENT_SESSION),
-        storage.load<string[]>(STORAGE_KEYS.FAVORITE_EXERCISE_IDS),
-        storage.load<Exercise[]>(STORAGE_KEYS.CUSTOM_EXERCISES),
-      ]);
+      const [sessions, completedSessions, currentSession, favoriteExerciseIds, customExercises] =
+        await Promise.all([
+          storage.load<Session[]>(STORAGE_KEYS.SESSIONS),
+          storage.load<CompletedSession[]>(STORAGE_KEYS.COMPLETED_SESSIONS),
+          storage.load<Session>(STORAGE_KEYS.CURRENT_SESSION),
+          storage.load<string[]>(STORAGE_KEYS.FAVORITE_EXERCISE_IDS),
+          storage.load<Exercise[]>(STORAGE_KEYS.CUSTOM_EXERCISES),
+        ]);
       dispatch({
         type: 'HYDRATE',
         sessions: sessions ?? [],
@@ -753,7 +757,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     } else {
       void storage.remove(STORAGE_KEYS.CURRENT_SESSION);
     }
-  }, [state.sessions, state.completedSessions, state.currentSession, state.favoriteExerciseIds, state.customExercises, state.loaded, storage]);
+  }, [
+    state.sessions,
+    state.completedSessions,
+    state.currentSession,
+    state.favoriteExerciseIds,
+    state.customExercises,
+    state.loaded,
+    storage,
+  ]);
 
   // Persist runtime session state (exercise index, timer) to sessionStorage.
   // This runs on every tick, but sessionStorage writes are synchronous and fast
@@ -771,7 +783,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       // Session not running (idle, completed, or cleared) — clean up
       clearRuntimeState();
     }
-  }, [state.loaded, state.currentExerciseIndex, state.timerElapsed, state.timerCumulative, state.timerPaused]);
+  }, [
+    state.loaded,
+    state.currentExerciseIndex,
+    state.timerElapsed,
+    state.timerCumulative,
+    state.timerPaused,
+  ]);
 
   // Bridge React state → module-level data in exercises.ts.
   // This lets getExerciseById(), filterBySource(), etc. see custom exercises
@@ -786,11 +804,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     registerCustomExercises(state.customExercises);
   }, [state.customExercises]);
 
-  return (
-    <SessionContext.Provider value={{ state, dispatch }}>
-      {children}
-    </SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={{ state, dispatch }}>{children}</SessionContext.Provider>;
 }
 
 // ---------------------------------------------------------------------------

@@ -18,14 +18,14 @@
 export interface Exercise {
   id: string;
   name: string;
-  tags: string[];                // normalized tags (lowercase, deduplicated, filtered)
-  description: string;           // cleaned HTML (safe to render)
-  description_raw?: string;      // original HTML from source (before cleaning)
-  summary?: string;              // 1-2 line summary for quick scanning (optional)
-  alternativeNames?: string[];   // other names this exercise goes by
-  sourceUrl?: string;            // attribution link back to origin site
-  rawTags?: string[];            // original tags from source (before normalization)
-  isCustom?: boolean;            // true for user-created exercises
+  tags: string[]; // normalized tags (lowercase, deduplicated, filtered)
+  description: string; // cleaned HTML (safe to render)
+  description_raw?: string; // original HTML from source (before cleaning)
+  summary?: string; // 1-2 line summary for quick scanning (optional)
+  alternativeNames?: string[]; // other names this exercise goes by
+  sourceUrl?: string; // attribution link back to origin site
+  rawTags?: string[]; // original tags from source (before normalization)
+  isCustom?: boolean; // true for user-created exercises
 }
 
 // ---------------------------------------------------------------------------
@@ -38,12 +38,12 @@ export interface Exercise {
  * when you want to dig deep.
  */
 export interface SessionExercise {
-  exerciseId: string;            // reference to Exercise.id
-  duration: number;              // minutes — set during session prep
-  order: number;                 // position in the queue
-  slotId?: string;               // unique ID per queue slot (for drag-and-drop stability)
-  notes?: string;                // notes specific to this slot
-  actualSeconds?: number;        // actual time spent (seconds), recorded during session
+  exerciseId: string; // reference to Exercise.id
+  duration: number; // minutes — set during session prep
+  order: number; // position in the queue
+  slotId?: string; // unique ID per queue slot (for drag-and-drop stability)
+  notes?: string; // notes specific to this slot
+  actualSeconds?: number; // actual time spent (seconds), recorded during session
 }
 
 /**
@@ -56,21 +56,21 @@ export interface SessionExercise {
  */
 export interface Session {
   id: string;
-  name?: string;                 // optional label for templates
+  name?: string; // optional label for templates
   exercises: SessionExercise[];
-  createdAt: string;             // ISO 8601
-  isTemplate: boolean;           // true = saved for reuse
-  sourceTemplateId?: string;     // ID of template this session was loaded from (for update flow)
+  createdAt: string; // ISO 8601
+  isTemplate: boolean; // true = saved for reuse
+  sourceTemplateId?: string; // ID of template this session was loaded from (for update flow)
 }
 
 /**
  * What actually happened after running a session.
  */
 export interface CompletedSession {
-  sessionId: string;             // reference to Session.id
-  completedAt: string;           // ISO 8601
-  exercises: SessionExercise[];  // what was actually run
-  notes: string;                 // post-session reflections
+  sessionId: string; // reference to Session.id
+  completedAt: string; // ISO 8601
+  exercises: SessionExercise[]; // what was actually run
+  notes: string; // post-session reflections
 }
 
 // ---------------------------------------------------------------------------

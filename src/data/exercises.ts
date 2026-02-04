@@ -88,7 +88,7 @@ function allExercises(): Exercise[] {
  * Returns undefined if not found.
  */
 export function getExerciseById(id: string): Exercise | undefined {
-  return allExercises().find(ex => ex.id === id);
+  return allExercises().find((ex) => ex.id === id);
 }
 
 // ---------------------------------------------------------------------------
@@ -135,7 +135,7 @@ export type SourceFilter = 'all' | 'learnimprov' | 'improwiki' | 'custom';
  */
 export function filterBySource(source: SourceFilter): Exercise[] {
   if (source === 'all') return allExercises();
-  return allExercises().filter(ex => ex.id.startsWith(`${source}:`));
+  return allExercises().filter((ex) => ex.id.startsWith(`${source}:`));
 }
 
 /**
@@ -146,8 +146,8 @@ function computeSourceCounts(): Record<SourceFilter, number> {
   const all = allExercises();
   return {
     all: all.length,
-    learnimprov: all.filter(ex => ex.id.startsWith('learnimprov:')).length,
-    improwiki: all.filter(ex => ex.id.startsWith('improwiki:')).length,
+    learnimprov: all.filter((ex) => ex.id.startsWith('learnimprov:')).length,
+    improwiki: all.filter((ex) => ex.id.startsWith('improwiki:')).length,
     custom: customExercises.length,
   };
 }
@@ -167,22 +167,22 @@ function recomputeSourceCounts(): void {
  * stays on every exercise for search and future use.
  */
 export const FEATURED_TAGS: string[] = [
-  "warm-up",
-  "circle",
-  "listening",
-  "characters",
-  "problem-solving",
-  "teamwork",
-  "environment",
-  "accepting",
-  "object work",
-  "heightening",
-  "grounding",
-  "game of the scene",
-  "storytelling",
-  "ice breaker",
-  "pairs",
-  "focus",
+  'warm-up',
+  'circle',
+  'listening',
+  'characters',
+  'problem-solving',
+  'teamwork',
+  'environment',
+  'accepting',
+  'object work',
+  'heightening',
+  'grounding',
+  'game of the scene',
+  'storytelling',
+  'ice breaker',
+  'pairs',
+  'focus',
 ];
 
 /**
@@ -214,8 +214,7 @@ export function filterExercises(
 
   return exerciseList.filter((exercise) => {
     const matchesTags =
-      selectedTags.length === 0 ||
-      selectedTags.every((tag) => exercise.tags.includes(tag));
+      selectedTags.length === 0 || selectedTags.every((tag) => exercise.tags.includes(tag));
 
     const matchesSearch =
       !hasSearch ||
@@ -230,10 +229,7 @@ export function filterExercises(
 /**
  * Sort exercises so favorites appear first.
  */
-export function sortByFavorites(
-  exerciseList: Exercise[],
-  favoriteIds: string[],
-): Exercise[] {
+export function sortByFavorites(exerciseList: Exercise[], favoriteIds: string[]): Exercise[] {
   return [...exerciseList].sort((a, b) => {
     const aFav = favoriteIds.includes(a.id) ? 0 : 1;
     const bFav = favoriteIds.includes(b.id) ? 0 : 1;

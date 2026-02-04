@@ -67,15 +67,15 @@ function ExerciseFilterBar({
     <div className="flex flex-col gap-4">
       {/* Top row: source dropdown (left) + optional actions (right) */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <label htmlFor={sourceId} className="text-secondary-foreground font-medium shrink-0">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <label htmlFor={sourceId} className="shrink-0 font-medium text-secondary-foreground">
             Source:
           </label>
           <select
             id={sourceId}
             value={selectedSource}
             onChange={onSourceChange}
-            className="bg-card text-card-foreground border rounded-lg px-3 py-2 text-sm sm:text-base sm:px-4 focus:outline-none focus:ring-2 focus:ring-ring min-w-0"
+            className="min-w-0 rounded-lg border bg-card px-3 py-2 text-sm text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:px-4 sm:text-base"
           >
             <option value="all">All Sources ({sourceCounts.all})</option>
             <option value="learnimprov">learnimprov.com ({sourceCounts.learnimprov})</option>
@@ -98,7 +98,7 @@ function ExerciseFilterBar({
 
       {/* Search input */}
       <div className="flex flex-col gap-2">
-        <label htmlFor={searchId} className="text-secondary-foreground font-medium">
+        <label htmlFor={searchId} className="font-medium text-secondary-foreground">
           Search exercises:
         </label>
         <div className="relative">
@@ -108,15 +108,15 @@ function ExerciseFilterBar({
             value={searchText}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name, description, or tags..."
-            className="bg-card text-foreground border rounded-lg px-4 py-2 pr-10 w-full focus:outline-none focus:ring-2 focus:ring-ring placeholder-muted-foreground"
+            className="w-full rounded-lg border bg-card px-4 py-2 pr-10 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
           {searchText && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground px-2"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-2 text-muted-foreground hover:text-foreground"
               aria-label="Clear search"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           )}
         </div>

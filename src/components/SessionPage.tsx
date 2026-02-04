@@ -147,10 +147,10 @@ function SessionPage() {
 
   const totalExercises = session.exercises.length;
   // For the progress label, count only exercises (not breaks)
-  const totalNonBreaks = session.exercises.filter(e => e.exerciseId !== BREAK_EXERCISE_ID).length;
+  const totalNonBreaks = session.exercises.filter((e) => e.exerciseId !== BREAK_EXERCISE_ID).length;
   const currentExerciseNumber = session.exercises
     .slice(0, idx + 1)
-    .filter(e => e.exerciseId !== BREAK_EXERCISE_ID).length;
+    .filter((e) => e.exerciseId !== BREAK_EXERCISE_ID).length;
   const targetSeconds = currentSessionExercise.duration * 60;
   const isOverTime = elapsedSeconds >= targetSeconds;
 
@@ -192,14 +192,24 @@ function SessionPage() {
   function handleAddExercise(exerciseId: string) {
     // Insert right after the current exercise
     const insertAt = idx + 1;
-    dispatch({ type: 'INSERT_EXERCISE', exerciseId, duration: DEFAULT_ADD_DURATION, atIndex: insertAt });
+    dispatch({
+      type: 'INSERT_EXERCISE',
+      exerciseId,
+      duration: DEFAULT_ADD_DURATION,
+      atIndex: insertAt,
+    });
     const exercise = getExerciseById(exerciseId);
     toast(`Added "${exercise?.name ?? exerciseId}" to queue`);
   }
 
   function handleAddBreak() {
     const insertAt = idx + 1;
-    dispatch({ type: 'INSERT_EXERCISE', exerciseId: BREAK_EXERCISE_ID, duration: DEFAULT_BREAK_DURATION, atIndex: insertAt });
+    dispatch({
+      type: 'INSERT_EXERCISE',
+      exerciseId: BREAK_EXERCISE_ID,
+      duration: DEFAULT_BREAK_DURATION,
+      atIndex: insertAt,
+    });
     toast('Break added to queue');
   }
 
@@ -212,17 +222,16 @@ function SessionPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto text-center">
+    <div className="mx-auto max-w-2xl text-center">
       {/* Progress indicator — breaks don't count in exercise numbering */}
-      <p className="text-muted-foreground mb-2">
+      <p className="mb-2 text-muted-foreground">
         {isBreak
           ? `Break · ${totalNonBreaks} exercise${totalNonBreaks !== 1 ? 's' : ''} total`
-          : `Exercise ${currentExerciseNumber} of ${totalNonBreaks}`
-        }
+          : `Exercise ${currentExerciseNumber} of ${totalNonBreaks}`}
       </p>
-      <div className="w-full bg-secondary rounded-full h-2 mb-8">
+      <div className="mb-8 h-2 w-full rounded-full bg-secondary">
         <div
-          className="bg-primary h-2 rounded-full transition-all duration-300"
+          className="h-2 rounded-full bg-primary transition-all duration-300"
           style={{ width: `${((idx + 1) / totalExercises) * 100}%` }}
         />
       </div>
@@ -233,39 +242,45 @@ function SessionPage() {
           {isBreak ? (
             /* Break card — simpler layout, no description */
             <>
-              <div className="flex items-center gap-3 mb-2">
-                <Coffee className="w-8 h-8 text-primary" />
+              <div className="mb-2 flex items-center gap-3">
+                <Coffee className="h-8 w-8 text-primary" />
                 <h1 className="text-3xl font-bold text-primary">Break</h1>
               </div>
-              <p className="text-muted-foreground text-base italic">
+              <p className="text-base italic text-muted-foreground">
                 Take a breather. Stretch, hydrate, reset.
               </p>
             </>
           ) : (
             /* Regular exercise card */
             <>
-              <h1 className="text-3xl font-bold text-primary mb-2">
+              <h1 className="mb-2 text-3xl font-bold text-primary">
                 {currentExercise?.name ?? currentSessionExercise.exerciseId}
               </h1>
               {currentExercise?.summary && (
-                <p className="text-muted-foreground text-base mb-4 italic">{currentExercise.summary}</p>
+                <p className="mb-4 text-base italic text-muted-foreground">
+                  {currentExercise.summary}
+                </p>
               )}
               {currentExercise?.description && (
                 <>
                   <button
                     onClick={() => setShowDescription((prev) => !prev)}
                     aria-expanded={showDescription}
-                    className="inline-flex items-center gap-1 text-primary hover:text-primary-hover text-sm mb-2 transition-colors"
+                    className="mb-2 inline-flex items-center gap-1 text-sm text-primary transition-colors hover:text-primary-hover"
                   >
                     {showDescription ? (
-                      <>Hide details <ChevronUp className="w-4 h-4" /></>
+                      <>
+                        Hide details <ChevronUp className="h-4 w-4" />
+                      </>
                     ) : (
-                      <>Show details <ChevronDown className="w-4 h-4" /></>
+                      <>
+                        Show details <ChevronDown className="h-4 w-4" />
+                      </>
                     )}
                   </button>
                   {showDescription && (
                     <div
-                      className="text-secondary-foreground text-lg leading-relaxed prose-exercise"
+                      className="prose-exercise text-lg leading-relaxed text-secondary-foreground"
                       dangerouslySetInnerHTML={{ __html: currentExercise.description }}
                     />
                   )}
@@ -281,7 +296,7 @@ function SessionPage() {
             }
             placeholder="Quick notes..."
             rows={2}
-            className="w-full mt-4 bg-secondary border border-input rounded-lg p-3 text-secondary-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors resize-y"
+            className="mt-4 w-full resize-y rounded-lg border border-input bg-secondary p-3 text-sm text-secondary-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none"
           />
         </CardContent>
       </Card>
@@ -289,18 +304,20 @@ function SessionPage() {
       {/* Timer — countdown from target, goes negative when over */}
       <div className="mb-8">
         <p
-          className={`text-6xl font-mono font-bold mb-2 ${
+          className={`mb-2 font-mono text-6xl font-bold ${
             isOverTime ? 'text-destructive' : 'text-primary'
           }`}
         >
           {/* remainingOrOverSeconds: positive when under target, represents time left;
               when over target, represents how much we've exceeded by */}
-          {isOverTime ? '-' : ''}{formatDuration(Math.abs(targetSeconds - elapsedSeconds))}
+          {isOverTime ? '-' : ''}
+          {formatDuration(Math.abs(targetSeconds - elapsedSeconds))}
         </p>
         <p className="text-muted-foreground">
-          {currentSessionExercise.duration} {currentSessionExercise.duration === 1 ? 'minute' : 'minutes'} target
+          {currentSessionExercise.duration}{' '}
+          {currentSessionExercise.duration === 1 ? 'minute' : 'minutes'} target
         </p>
-        <p className="text-muted-foreground text-sm mt-1">
+        <p className="mt-1 text-sm text-muted-foreground">
           Session: {formatDuration(cumulativeSeconds)} / {formatDuration(totalSessionSeconds)}
         </p>
       </div>
@@ -334,7 +351,7 @@ function SessionPage() {
         open={showExercisePicker}
         onClose={() => setShowExercisePicker(false)}
         onAdd={handleAddExercise}
-        existingExerciseIds={session.exercises.map(e => e.exerciseId)}
+        existingExerciseIds={session.exercises.map((e) => e.exerciseId)}
       />
     </div>
   );

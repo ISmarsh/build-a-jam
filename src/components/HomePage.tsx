@@ -61,28 +61,24 @@ function HomePage() {
           {/* Favorites & History — hidden on mobile, available via BottomNav menu */}
           <Button variant="secondary" size="icon" className="hidden sm:flex" asChild>
             <Link to="/favorites" aria-label="Favorites" title="Favorites">
-              <Star className="w-5 h-5" />
+              <Star className="h-5 w-5" />
             </Link>
           </Button>
           <Button variant="secondary" size="icon" className="hidden sm:flex" asChild>
             <Link to="/history" aria-label="Session history" title="Session history">
-              <Clock className="w-5 h-5" />
+              <Clock className="h-5 w-5" />
             </Link>
           </Button>
         </div>
       </ExerciseFilterBar>
 
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
             Exercises ({exerciseFilter.filtered.length})
           </h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowCreateForm(true)}
-          >
-            <PenLine className="w-4 h-4 mr-1" /> Create
+          <Button variant="outline" size="sm" onClick={() => setShowCreateForm(true)}>
+            <PenLine className="mr-1 h-4 w-4" /> Create
           </Button>
         </div>
         <ExerciseList

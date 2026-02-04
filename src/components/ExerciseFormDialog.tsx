@@ -77,12 +77,7 @@ function generateCustomId(name: string): string {
 // Component
 // ---------------------------------------------------------------------------
 
-function ExerciseFormDialog({
-  open,
-  onClose,
-  onSave,
-  existingExercise,
-}: ExerciseFormDialogProps) {
+function ExerciseFormDialog({ open, onClose, onSave, existingExercise }: ExerciseFormDialogProps) {
   const isEditing = !!existingExercise;
 
   // Pre-fill from existing exercise when editing
@@ -113,8 +108,8 @@ function ExerciseFormDialog({
     // Only check for new exercises, or if the name changed during editing.
     if (!isEditing || trimmedName !== existingExercise?.name) {
       const newSlug = slugify(trimmedName);
-      const duplicate = getCustomExercises().find(ex =>
-        ex.id !== existingExercise?.id && slugify(ex.name) === newSlug
+      const duplicate = getCustomExercises().find(
+        (ex) => ex.id !== existingExercise?.id && slugify(ex.name) === newSlug,
       );
       if (duplicate) {
         setError('An exercise with a similar name already exists.');
@@ -137,32 +132,41 @@ function ExerciseFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-      <DialogContent className="bg-card max-w-lg">
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
+      <DialogContent className="max-w-lg bg-card">
         <DialogHeader>
           <DialogTitle className="text-foreground">
             {isEditing ? 'Edit Exercise' : 'Create Exercise'}
           </DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? 'Update your custom exercise.'
-              : 'Add your own exercise to the library.'}
+            {isEditing ? 'Update your custom exercise.' : 'Add your own exercise to the library.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name (required) */}
           <div>
-            <label htmlFor="exercise-name" className="block text-sm font-medium text-foreground mb-1">
+            <label
+              htmlFor="exercise-name"
+              className="mb-1 block text-sm font-medium text-foreground"
+            >
               Name <span className="text-destructive">*</span>
             </label>
             <input
               id="exercise-name"
               type="text"
               value={name}
-              onChange={(e) => { setName(e.target.value); setError(''); }}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError('');
+              }}
               placeholder="e.g., Zip Zap Zop"
-              className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none"
               autoComplete="off"
               autoFocus // eslint-disable-line jsx-a11y/no-autofocus -- dialog just opened
             />
@@ -170,8 +174,11 @@ function ExerciseFormDialog({
 
           {/* Summary (optional) */}
           <div>
-            <label htmlFor="exercise-summary" className="block text-sm font-medium text-foreground mb-1">
-              Summary <span className="text-muted-foreground font-normal">(optional)</span>
+            <label
+              htmlFor="exercise-summary"
+              className="mb-1 block text-sm font-medium text-foreground"
+            >
+              Summary <span className="font-normal text-muted-foreground">(optional)</span>
             </label>
             <input
               id="exercise-summary"
@@ -179,7 +186,7 @@ function ExerciseFormDialog({
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               placeholder="Brief one-liner about what the exercise does"
-              className="w-full bg-secondary border border-input rounded-lg px-3 py-2 text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:border-primary transition-colors"
+              className="w-full rounded-lg border border-input bg-secondary px-3 py-2 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none"
               autoComplete="off"
             />
           </div>
@@ -191,14 +198,17 @@ function ExerciseFormDialog({
               onChange={setDescription}
               placeholder="How to run the exercise, rules, variations..."
             >
-              Description <span className="text-muted-foreground font-normal">(optional)</span>
+              Description <span className="font-normal text-muted-foreground">(optional)</span>
             </RichTextEditor>
           </div>
 
           {/* Tags with autocomplete */}
           <div>
-            <label htmlFor="exercise-tags" className="block text-sm font-medium text-foreground mb-1">
-              Tags <span className="text-muted-foreground font-normal">(optional)</span>
+            <label
+              htmlFor="exercise-tags"
+              className="mb-1 block text-sm font-medium text-foreground"
+            >
+              Tags <span className="font-normal text-muted-foreground">(optional)</span>
             </label>
             <TagInput
               id="exercise-tags"
@@ -210,17 +220,13 @@ function ExerciseFormDialog({
           </div>
 
           {/* Error message */}
-          {error && (
-            <p className="text-destructive text-sm">{error}</p>
-          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
-              {isEditing ? 'Save Changes' : 'Create Exercise'}
-            </Button>
+            <Button type="submit">{isEditing ? 'Save Changes' : 'Create Exercise'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

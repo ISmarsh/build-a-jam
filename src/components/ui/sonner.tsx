@@ -23,9 +23,9 @@
  *    No useContext, no hook — just a function call.
  */
 
-import { Toaster as Sonner } from "sonner"
+import { Toaster as Sonner } from 'sonner';
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 function Toaster(props: ToasterProps) {
   return (
@@ -35,17 +35,15 @@ function Toaster(props: ToasterProps) {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-gray-800 group-[.toaster]:text-gray-100 group-[.toaster]:border-gray-700 group-[.toaster]:shadow-lg group-[.toaster]:!w-fit group-[.toaster]:inset-x-0 group-[.toaster]:mx-auto",
-          description: "group-[.toast]:text-gray-400",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-gray-700 group-[.toast]:text-gray-300",
+            'group toast group-[.toaster]:bg-gray-800 group-[.toaster]:text-gray-100 group-[.toaster]:border-gray-700 group-[.toaster]:shadow-lg group-[.toaster]:!w-fit group-[.toaster]:inset-x-0 group-[.toaster]:mx-auto',
+          description: 'group-[.toast]:text-gray-400',
+          actionButton: 'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
+          cancelButton: 'group-[.toast]:bg-gray-700 group-[.toast]:text-gray-300',
         },
       }}
       {...props}
     />
-  )
+  );
 }
 
-export { Toaster }
+export { Toaster };

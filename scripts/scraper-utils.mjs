@@ -7,12 +7,12 @@
  * - Progress cache management for resume capability
  */
 
-import { readFileSync, writeFileSync, existsSync, unlinkSync, mkdirSync } from "fs";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync, writeFileSync, existsSync, unlinkSync, mkdirSync } from 'fs';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CACHE_DIR = resolve(__dirname, "../.scrape-cache");
+const CACHE_DIR = resolve(__dirname, '../.scrape-cache');
 
 /**
  * Sleep for a specified number of milliseconds.
@@ -52,7 +52,7 @@ function loadCacheFile(cacheFileName) {
   }
 
   try {
-    const cacheData = JSON.parse(readFileSync(cachePath, "utf-8"));
+    const cacheData = JSON.parse(readFileSync(cachePath, 'utf-8'));
     return new Map(Object.entries(cacheData));
   } catch (err) {
     console.error(`Failed to load cache from ${cachePath}:`, err.message);
@@ -70,7 +70,7 @@ function saveCacheFile(cacheFileName, dataMap) {
   ensureCacheDir();
   const cachePath = resolve(CACHE_DIR, cacheFileName);
   const cacheObj = Object.fromEntries(dataMap);
-  writeFileSync(cachePath, JSON.stringify(cacheObj, null, 2), "utf-8");
+  writeFileSync(cachePath, JSON.stringify(cacheObj, null, 2), 'utf-8');
 }
 
 // ---------------------------------------------------------------------------
@@ -140,7 +140,13 @@ function setCachedHtml(cacheFileName, url, html) {
  * @param {boolean} force - Force refetch, ignore cache (default: false)
  * @returns {Promise<string|null>} - Response text or null if all retries fail
  */
-export async function fetchPage(url, retries = 3, extraHeaders = {}, htmlCacheFile = null, force = false) {
+export async function fetchPage(
+  url,
+  retries = 3,
+  extraHeaders = {},
+  htmlCacheFile = null,
+  force = false,
+) {
   // Check HTML cache first if caching is enabled
   if (htmlCacheFile) {
     const cached = getCachedHtml(htmlCacheFile, url, force);
@@ -158,19 +164,18 @@ export async function fetchPage(url, retries = 3, extraHeaders = {}, htmlCacheFi
   }
 
   const headers = {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Cache-Control": "no-cache",
-    Pragma: "no-cache",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Upgrade-Insecure-Requests": "1",
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Cache-Control': 'no-cache',
+    Pragma: 'no-cache',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
     Referer: baseUrl,
     ...extraHeaders, // Allow override
   };
@@ -256,7 +261,7 @@ export function loadExistingData(dataPath) {
   }
 
   try {
-    return JSON.parse(readFileSync(dataPath, "utf-8"));
+    return JSON.parse(readFileSync(dataPath, 'utf-8'));
   } catch (err) {
     console.error(`Failed to load existing data from ${dataPath}:`, err.message);
     return null;

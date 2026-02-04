@@ -55,9 +55,7 @@ export function TagInput({
 
   // Filter suggestions based on input, excluding already selected tags
   const filtered = suggestions.filter(
-    (tag) =>
-      tag.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !value.includes(tag)
+    (tag) => tag.toLowerCase().includes(inputValue.toLowerCase()) && !value.includes(tag),
   );
 
   // Derive dropdown visibility from input state and focus
@@ -124,14 +122,14 @@ export function TagInput({
       {/* Tag chips + input wrapper — click anywhere to focus input */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Click is convenience, keyboard interaction is on the input */}
       <div
-        className="flex flex-wrap gap-1.5 w-full bg-secondary border border-input rounded-lg px-2 py-1.5 focus-within:border-primary transition-colors min-h-[42px] cursor-text"
+        className="flex min-h-[42px] w-full cursor-text flex-wrap gap-1.5 rounded-lg border border-input bg-secondary px-2 py-1.5 transition-colors focus-within:border-primary"
         onClick={() => inputRef.current?.focus()}
       >
         {/* Selected tag chips */}
         {value.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full"
+            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
           >
             {tag}
             <button
@@ -140,10 +138,10 @@ export function TagInput({
                 e.stopPropagation();
                 removeTag(tag);
               }}
-              className="hover:text-destructive transition-colors"
+              className="transition-colors hover:text-destructive"
               aria-label={`Remove ${tag}`}
             >
-              <X className="w-3 h-3" />
+              <X className="h-3 w-3" />
             </button>
           </span>
         ))}
@@ -164,7 +162,7 @@ export function TagInput({
             setTimeout(() => setIsFocused(false), 150);
           }}
           placeholder={value.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[120px] bg-transparent text-foreground text-sm focus:outline-none placeholder-muted-foreground"
+          className="min-w-[120px] flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground focus:outline-none"
           id={id}
           autoComplete="off"
           role="combobox"
@@ -180,14 +178,14 @@ export function TagInput({
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-48 overflow-auto"
+          className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-border bg-popover shadow-lg"
         >
           {filtered.map((tag, index) => (
             <li
               key={tag}
               role="option"
               aria-selected={index === highlightedIndex}
-              className={`px-3 py-2 text-sm cursor-pointer transition-colors ${
+              className={`cursor-pointer px-3 py-2 text-sm transition-colors ${
                 index === highlightedIndex
                   ? 'bg-accent text-accent-foreground'
                   : 'text-foreground hover:bg-accent/50'
@@ -207,7 +205,7 @@ export function TagInput({
             <li
               role="option"
               aria-selected={highlightedIndex === filtered.length}
-              className={`px-3 py-2 text-sm cursor-pointer transition-colors border-t border-border ${
+              className={`cursor-pointer border-t border-border px-3 py-2 text-sm transition-colors ${
                 highlightedIndex === filtered.length
                   ? 'bg-accent text-accent-foreground'
                   : 'text-muted-foreground hover:bg-accent/50'

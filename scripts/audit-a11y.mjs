@@ -68,7 +68,7 @@ function logResult(name, theme, viewport, result) {
   const icon = result.violationCount === 0 ? '\u2713' : '\u2717';
   console.log(
     `  ${icon} ${name} [${theme}, ${viewport}]: ` +
-      `${result.violationCount} violations, ${result.passCount} passes`
+      `${result.violationCount} violations, ${result.passCount} passes`,
   );
 }
 
@@ -95,7 +95,7 @@ async function main() {
       // Pre-set theme in localStorage before any navigation
       await page.addInitScript(
         ([key, value]) => localStorage.setItem(key, value),
-        [THEME_KEY, theme]
+        [THEME_KEY, theme],
       );
 
       // ── Static routes ──────────────────────────────────────
@@ -174,28 +174,21 @@ async function main() {
   console.log(`\nResults written to ${OUTPUT}`);
 
   // ── Summary ────────────────────────────────────────────────
-  const totalViolations = allResults.reduce(
-    (sum, r) => sum + r.violationCount,
-    0
-  );
-  const uniqueIds = new Set(
-    allResults.flatMap((r) => r.violations.map((v) => v.id))
-  );
+  const totalViolations = allResults.reduce((sum, r) => sum + r.violationCount, 0);
+  const uniqueIds = new Set(allResults.flatMap((r) => r.violations.map((v) => v.id)));
   console.log(
     `\nSummary: ${allResults.length} audits, ` +
-      `${totalViolations} total violations (${uniqueIds.size} unique rules)`
+      `${totalViolations} total violations (${uniqueIds.size} unique rules)`,
   );
 
   if (uniqueIds.size > 0) {
     console.log('\nUnique violations across all pages:');
     for (const id of uniqueIds) {
-      const affected = allResults.filter((r) =>
-        r.violations.some((v) => v.id === id)
-      );
+      const affected = allResults.filter((r) => r.violations.some((v) => v.id === id));
       const first = affected[0].violations.find((v) => v.id === id);
       console.log(`  - ${id} (${first.impact}): ${first.help}`);
       console.log(
-        `    Affected: ${affected.map((r) => `${r.page} [${r.theme}/${r.viewport}]`).join(', ')}`
+        `    Affected: ${affected.map((r) => `${r.page} [${r.theme}/${r.viewport}]`).join(', ')}`,
       );
     }
   }
