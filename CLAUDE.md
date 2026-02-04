@@ -2,7 +2,7 @@
 
 ## Universal Guidance
 
-@.planet-smars/templates/claude-guidance/CLAUDE.md
+@.planet-smars/templates/claude-context/CLAUDE.md
 
 ---
 
