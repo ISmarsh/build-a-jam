@@ -4,6 +4,8 @@
 
 @.planet-smars/templates/claude-context/CLAUDE.md
 
+> *[View shared context](.planet-smars/templates/claude-context/CLAUDE.md) — git practices, testing, PR workflows, accessibility*
+
 ---
 
 **Project-specific context below:**
