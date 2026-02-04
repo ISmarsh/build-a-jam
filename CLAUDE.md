@@ -169,75 +169,18 @@ user can choose to:
 `npm run build` to catch TypeScript/build errors. Tests run in CI on every
 push, so I don't run them locally unless debugging a specific failure.
 
-### GitHub CLI (`gh`) setup
+### PR review workflow
 
-The `gh` CLI should be installed and available in PATH. It's used for
-PR management, review comment workflows, and GraphQL API calls.
+See [planet-smars PR Review Workflow](.planet-smars/templates/claude-guidance/CLAUDE.md#pr-review-workflow-github-cli)
+for GraphQL queries, escaping pitfalls, and the general workflow.
 
-### Working with PR review comments
-
-**Copilot auto-review**: This repo has GitHub Copilot configured to review PRs
-automatically. Copilot comments should be triaged into categories: already
-fixed, actionable (make the change), or dismiss with explanation.
-
-**Replying to comments** (`gh api`):
-- `POST /repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies` posts a reply
-- Replies are attributed to the authenticated user (the repo owner), not a bot
-- Replying does **not** resolve the thread — threads stay "unresolved" in the
-  GitHub UI
-
-**Resolving threads** (GraphQL):
-- Use the `resolveReviewThread` mutation to mark threads as resolved
-- First fetch thread IDs from review threads:
-  `gh api repos/{owner}/{repo}/pulls/{pr}/threads`
-  (thread IDs look like `PRRT_kwDORDVJ7s5sSJ8u`)
-- Then resolve: `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } } }'`
-- Multiple threads can be resolved in a single batched mutation using aliases:
-  `t1: resolveReviewThread(...) t2: resolveReviewThread(...)`
-
-**Fetching unresolved threads** (GraphQL — preferred over REST):
-- Always filter to **unresolved threads only** when checking PR reviews.
-  The REST endpoint (`/pulls/{pr}/comments`) returns all comments with no
-  resolved/unresolved filter. Use the GraphQL `reviewThreads` query instead:
-  ```
-  gh api graphql -f query='query {
-    repository(owner: "ISmarsh", name: "build-a-jam") {
-      pullRequest(number: PR_NUMBER) {
-        reviewThreads(first: 100) {
-          nodes {
-            id isResolved
-            comments(first: 1) { nodes { body path line } }
-          }
-        }
-      }
-    }
-  }'
-  ```
-- Filter the result for `isResolved: false` to get only unresolved threads.
-
-**Replying to comments — escaping pitfalls**:
-- The `-f body=` value is parsed by the shell. Backticks, double quotes,
-  backslashes, and `$` all cause issues.
-- **Avoid backticks** in reply text. Use plain-English descriptions instead of
-  inline code formatting (e.g., "the ring token" not `` `ring` ``).
-- To get comment database IDs (needed for the REST reply endpoint), include
-  `databaseId` in the GraphQL query on comment nodes.
-- Use the GraphQL `comments(first: 1) { nodes { databaseId } }` field to get
-  numeric IDs, then reply via
-  `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body="..."`.
-
-**Typical PR review workflow**:
-1. Fetch unresolved threads (GraphQL) → triage comments
-2. Fix actionable items in code
-3. Reply to each comment (explain fix or dismissal reason)
-4. Resolve all threads via batched GraphQL mutation
-5. Commit and push fixes
+See [planet-smars Copilot Auto-Review Workflow](.planet-smars/templates/claude-guidance/CLAUDE.md#copilot-auto-review-workflow)
+for the full Copilot review triage process.
 
 ### Merging PRs
 
 - **Always use merge commits** (`gh pr merge --merge`), not squash or rebase.
 - The user prefers preserving individual commit history in the main branch.
-- Never use `--squash` or `--rebase` unless the user explicitly requests it.
 
 ### PR wrap-up checklist
 
@@ -245,54 +188,8 @@ fixed, actionable (make the change), or dismiss with explanation.
 - Build, lint, and tests — runs on every push via GitHub Actions
 - Accessibility audit — Playwright + axe-core runs in CI, fails on violations
 
-**While CI is running:** Check for Copilot review comments. Copilot typically
-posts reviews within a minute of pushing, so triage can happen in parallel
-with CI. This is a good use of waiting time.
-
-**If Copilot doesn't review the latest commit:** A ruleset should auto-trigger
-Copilot reviews, but it sometimes skips commits (especially smaller changes or
-rapid pushes). When checking for reviews, if the latest commit hasn't been
-reviewed, **prompt the user** to manually trigger via GitHub UI: PR page →
-Reviewers section (right sidebar) → click the gear icon → select
-"copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
-
-**Manual checks (ask user before running — expensive in context):**
-
-1. **Triage Copilot review comments** — Copilot auto-reviews PRs. Fetch
-   unresolved threads and categorize:
-   - **Fix**: Real bugs (logic errors, missing edge cases in new code)
-   - **Dismiss**: Stylistic preferences, over-engineering (e.g., "capitalize
-     this hardcoded string dynamically"), or suggestions for pre-existing code
-     not changed in the PR
-   - **Already fixed**: Issues addressed by other commits
-
-   Common dismissals: unnecessary useCallback wrapping, dependency array
-   pedantry for stable React setState, suggestions to add complexity for
-   hypothetical future cases. See "Working with PR review comments" above.
-
-   **IMPORTANT**: Always read every comment before resolving. Never batch-resolve
-   threads without inspection — Copilot occasionally finds real bugs, and skipping
-   review risks merging broken code.
-
-   **Present dismissals for approval**: Before posting dismissal replies and
-   resolving threads, present the proposed dismissals to the user for review.
-   The user may disagree with a dismissal or want to handle it differently.
-   Only post replies and resolve after user approval.
-
-2. **Review all markdown** — check README.md, CLAUDE.md, and
-   scripts/SCRAPING-GUIDE.md for accuracy. Verify file listings, pipeline
-   descriptions, and project structure match the current codebase.
-3. **Check for code duplication** — scan for duplicated logic across
-   components. Extract when a pattern appears **3+ times** AND reduces actual
-   code (strings, logic, boilerplate) — not just semantic renaming. Good:
-   `confirmRemove()` consolidates duplicate message strings. Bad: a hook that
-   just wraps `useState` with no reduction in code. Don't over-abstract for
-   2 instances.
-4. **Check for obsolete code** — look for unused imports, dead functions,
-   stale comments, or references to removed features.
-
-A simple "Want me to run the wrap-up checks (Copilot review, markdown review,
-duplication scan, dead code check)?" is enough before starting these tasks.
+See [planet-smars PR Wrap-up Checklist](.planet-smars/templates/claude-guidance/CLAUDE.md#pr-wrap-up-checklist)
+for manual checks (Copilot triage, duplication, obsolete code, documentation).
 
 ## Important Context
 
