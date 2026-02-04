@@ -177,11 +177,6 @@ for GraphQL queries, escaping pitfalls, and the general workflow.
 See [planet-smars Copilot Auto-Review Workflow](.planet-smars/templates/claude-guidance/CLAUDE.md#copilot-auto-review-workflow)
 for the full Copilot review triage process.
 
-### Merging PRs
-
-- **Always use merge commits** (`gh pr merge --merge`), not squash or rebase.
-- The user prefers preserving individual commit history in the main branch.
-
 ### PR wrap-up checklist
 
 **Automated checks (CI handles these):**
