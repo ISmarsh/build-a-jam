@@ -172,7 +172,7 @@ src/
 ### Git commits should:
 
 - Be descriptive about what was learned
-- Include "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+- Include "Co-Authored-By: Claude <noreply@anthropic.com>"
 - Atomic commits per feature/concept
 
 ### PR workflow
