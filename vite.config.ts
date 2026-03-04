@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import mkcert from 'vite-plugin-mkcert';
 import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    mkcert(),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
@@ -19,8 +21,8 @@ export default defineConfig({
         name: 'Build-a-Jam',
         short_name: 'Build-a-Jam',
         description: 'Session planner for improv warm-ups and exercises',
-        theme_color: '#8B3A93',
-        background_color: '#1a1a2e',
+        theme_color: '#1a1a1a',
+        background_color: '#1a1a1a',
         display: 'standalone',
         scope: '/',
         start_url: '/',

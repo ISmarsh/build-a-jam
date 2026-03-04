@@ -127,6 +127,7 @@ fi
 PREPARED_SVG="$WORK_DIR/icon-prepared.svg"
 sed \
   -e "s/stroke=\"currentColor\"/stroke=\"${FG_COLOR}\"/g" \
+  -e "s/fill=\"currentColor\"/fill=\"${FG_COLOR}\"/g" \
   -e "s/stroke-width=\"[^\"]*\"/stroke-width=\"${STROKE_WIDTH}\"/g" \
   "$SOURCE_SVG" > "$PREPARED_SVG"
 
@@ -142,22 +143,24 @@ generate_icon() {
   local icon_size=$(( size * (100 - 2 * padding_pct) / 100 ))
   local offset=$(( (size - icon_size) / 2 ))
 
-  # Step 1: Create background
+  # Step 1: Create background (force sRGB so gray backgrounds don't collapse to grayscale)
   local bg_file="$WORK_DIR/bg-${size}.png"
-  magick -size "${size}x${size}" "xc:${BG_COLOR}" "$bg_file"
+  magick -size "${size}x${size}" "xc:${BG_COLOR}" -colorspace sRGB "$bg_file"
 
   # Step 2: Render SVG to PNG at target size
+  # High density ensures the SVG rasters larger than the target, then downscales
+  # for crisp edges. At 4800 DPI a 24-unit SVG rasters to 1600 px.
   local icon_file="$WORK_DIR/icon-${size}.png"
-  magick -density 600 -background none "$PREPARED_SVG" \
+  magick -density 4800 -background none "$PREPARED_SVG" \
     -resize "${icon_size}x${icon_size}" \
     -gravity center \
     -extent "${icon_size}x${icon_size}" \
     "$icon_file"
 
-  # Step 3: Composite icon onto background
+  # Step 3: Composite icon onto background (force sRGB to preserve color with gray backgrounds)
   local composite_file="$WORK_DIR/composite-${size}.png"
   magick "$bg_file" "$icon_file" \
-    -gravity center -composite \
+    -colorspace sRGB -gravity center -composite \
     "$composite_file"
 
   # Step 4: Apply corner rounding (if radius > 0)
