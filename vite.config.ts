@@ -8,7 +8,8 @@ import path from 'path';
 export default defineConfig({
   plugins: [
     react(),
-    mkcert(),
+    // Local-only: trusted HTTPS via mkcert (skip in CI where certs aren't available)
+    ...(!process.env.CI ? [mkcert()] : []),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
