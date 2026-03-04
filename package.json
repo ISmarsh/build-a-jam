@@ -15,7 +15,8 @@
     "scrape": "node scripts/scrape-all.mjs",
     "audit:a11y": "node scripts/audit-a11y.mjs",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "generate:icons": "bash scripts/generate-pwa-icons.sh -i drama -b \"#8B3A93\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
@@ -71,6 +72,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
+    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^3.2.4"
   },
   "lint-staged": {
