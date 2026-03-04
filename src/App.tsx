@@ -22,7 +22,8 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { SessionProvider } from './context/SessionContext';
 import { useTheme } from './hooks/useTheme';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Toaster } from './components/ui/sonner';
 import HomePage from './components/HomePage';
 import PrepPage from './components/PrepPage';
@@ -46,6 +47,29 @@ function App() {
     location.pathname.startsWith('/session/') ||
     location.pathname.startsWith('/notes/');
 
+  // Web Share API on mobile, clipboard fallback on desktop
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Build-a-Jam', url });
+        return;
+      } catch (error: unknown) {
+        // User cancelled the share sheet — not an error
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied!');
+    } catch {
+      toast.error('Could not copy link');
+    }
+  };
+
   return (
     <SessionProvider>
       {/* Skip link — visually hidden until focused, lets keyboard users jump to content */}
@@ -59,10 +83,10 @@ function App() {
         <header
           className={`flex-shrink-0 text-center ${isSessionView ? 'mb-4 border-b border-border pb-4' : 'mb-8 border-b-2 border-primary pb-6 sm:mb-12 sm:pb-8'}`}
         >
-          {/* Three-column flex: invisible spacer | title | toggle button.
-              The spacer matches the toggle width so the title stays centered. */}
-          <div className="flex items-start justify-between">
-            <div className="w-9" aria-hidden="true" />
+          {/* Three-column flex: flex-1 spacers auto-balance so the title
+              stays centered regardless of how many buttons are on the right. */}
+          <div className="flex items-start">
+            <div className="flex-1" />
             <Link to="/" className="transition-opacity hover:opacity-80">
               <h1
                 className={`font-bold text-primary ${isSessionView ? 'text-xl sm:text-2xl' : 'mb-2 text-3xl sm:text-5xl'}`}
@@ -70,16 +94,24 @@ function App() {
                 Build-a-Jam
               </h1>
             </Link>
-            {/* Theme toggle in header on desktop, in bottom nav on mobile */}
-            <button
-              onClick={toggleTheme}
-              className="hidden p-2 text-muted-foreground transition-colors hover:text-foreground sm:block"
-              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
-            {/* Spacer to keep title centered on mobile where toggle is hidden */}
-            <div className="w-9 sm:hidden" aria-hidden="true" />
+            <div className="flex flex-1 items-center justify-end gap-1">
+              {/* Share button — visible on all screen sizes */}
+              <button
+                onClick={() => void handleShare()}
+                className="p-2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Share this page"
+              >
+                <Share2 className="h-5 w-5" />
+              </button>
+              {/* Theme toggle in header on desktop, in bottom nav on mobile */}
+              <button
+                onClick={toggleTheme}
+                className="hidden p-2 text-muted-foreground transition-colors hover:text-foreground sm:block"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
           {!isSessionView && (
             <p className="text-sm text-muted-foreground sm:text-lg">

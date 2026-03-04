@@ -169,6 +169,11 @@ src/
 - Link concepts to learning objectives
 - Don't over-explain basic JavaScript/TypeScript
 
+### Branch protection
+
+`main` has branch protection — direct pushes are blocked. **Always create a
+feature branch before committing.** Never commit to `main` locally.
+
 ### Git commits should:
 
 - Be descriptive about what was learned

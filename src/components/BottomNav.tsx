@@ -24,8 +24,10 @@ import {
   CirclePlay,
   Sun,
   Moon,
+  MonitorDown,
 } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
+import { useInstallPrompt } from '../hooks/useInstallPrompt';
 
 const menuItems = [
   { to: '/favorites', icon: Star, label: 'Favorites' },
@@ -41,6 +43,7 @@ interface BottomNavProps {
 function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { state } = useSession();
+  const { isInstallable, installApp } = useInstallPrompt();
   const location = useLocation();
 
   // Close menu on any navigation — reacting to route changes is a legitimate
@@ -129,6 +132,16 @@ function BottomNav({ theme, onToggleTheme }: BottomNavProps) {
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
             </button>
+            {isInstallable && (
+              <button
+                onClick={() => void installApp()}
+                role="menuitem"
+                className="flex w-full items-center gap-3 px-6 py-3 text-secondary-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <MonitorDown className="h-5 w-5" />
+                <span>Install App</span>
+              </button>
+            )}
           </div>
         )}
 
