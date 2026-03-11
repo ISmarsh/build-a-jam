@@ -78,11 +78,19 @@ export function useWakeLock(enabled: boolean) {
   useEffect(() => {
     if (!enabled || !isSupported) return;
 
+    let cancelled = false;
+
     function handleVisibilityChange() {
       if (document.visibilityState === 'visible' && !wakeLockRef.current) {
         navigator.wakeLock
           .request('screen')
           .then((sentinel) => {
+            // Guard: if enabled flipped false (or unmounted) while the promise
+            // was in-flight, release immediately instead of storing the lock.
+            if (cancelled) {
+              sentinel.release().catch(() => {});
+              return;
+            }
             wakeLockRef.current = sentinel;
             setIsActive(true);
             sentinel.addEventListener('release', () => {
@@ -95,7 +103,10 @@ export function useWakeLock(enabled: boolean) {
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [enabled, isSupported]);
 
   return { isSupported, isActive } as const;

@@ -50,13 +50,19 @@ function HomePage() {
   });
 
   // Clear the ?exercise= param after reading it (replace history so
-  // Back button doesn't re-open the modal)
+  // Back button doesn't re-open the modal).
+  // Functional form avoids mutating the existing URLSearchParams instance.
   useEffect(() => {
-    if (searchParams.has('exercise')) {
-      searchParams.delete('exercise');
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount
+    setSearchParams(
+      (prev) => {
+        if (!prev.has('exercise')) return prev;
+        const next = new URLSearchParams(prev);
+        next.delete('exercise');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
 
   // STATE: custom exercise create/edit/delete
   const [showCreateForm, setShowCreateForm] = useState(false);

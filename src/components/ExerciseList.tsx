@@ -62,10 +62,14 @@ function ExerciseList({
   selectedExercise: controlledSelected,
   onSelectExercise: controlledSetSelected,
 }: ExerciseListProps) {
-  // Dual-mode: controlled (parent manages) or uncontrolled (internal state)
+  // Dual-mode: controlled (parent manages) or uncontrolled (internal state).
+  // `undefined` = prop not provided (uncontrolled); `null` = explicitly no selection.
+  // Using `??` here would break controlled mode: a parent setting `null` to close
+  // the modal would lose to a non-null `internalSelected`. Check `!== undefined` instead.
   const [internalSelected, setInternalSelected] = useState<Exercise | null>(null);
-  const selectedExercise = controlledSelected ?? internalSelected;
-  const setSelectedExercise = controlledSetSelected ?? setInternalSelected;
+  const isControlled = controlledSelected !== undefined && controlledSetSelected !== undefined;
+  const selectedExercise = isControlled ? controlledSelected : internalSelected;
+  const setSelectedExercise = isControlled ? controlledSetSelected : setInternalSelected;
 
   // Early return pattern - like *ngIf but at component level
   if (exercises.length === 0) {
