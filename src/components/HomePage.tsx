@@ -64,10 +64,11 @@ function HomePage() {
     );
   }, [setSearchParams]);
 
-  // STATE: custom exercise create/edit/delete
+  // STATE: custom exercise create/edit/delete/copy
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
+  const [copyingExercise, setCopyingExercise] = useState<Exercise | null>(null);
 
   return (
     <div className="flex flex-col gap-8">
@@ -81,6 +82,9 @@ function HomePage() {
         searchText={exerciseFilter.searchText}
         onSearchChange={exerciseFilter.setSearchText}
         idPrefix="home"
+        hiddenCount={exerciseFilter.hiddenCount}
+        showHidden={exerciseFilter.showHidden}
+        onToggleShowHidden={exerciseFilter.toggleShowHidden}
       >
         {/* Action buttons rendered in the header row */}
         <div className="flex items-center gap-2">
@@ -114,6 +118,7 @@ function HomePage() {
         <ExerciseList
           exercises={exerciseFilter.sorted}
           favoriteIds={favoriteIds}
+          hiddenIds={state.hiddenExerciseIds}
           selectedExercise={selectedExercise}
           onSelectExercise={setSelectedExercise}
           onToggleFavorite={(id) => {
@@ -121,6 +126,12 @@ function HomePage() {
             dispatch({ type: 'TOGGLE_FAVORITE_EXERCISE', exerciseId: id });
             toast(wasFavorite ? 'Removed from favorites' : 'Added to favorites');
           }}
+          onToggleHidden={(id) => {
+            const wasHidden = state.hiddenExerciseIds.includes(id);
+            dispatch({ type: 'TOGGLE_HIDDEN_EXERCISE', exerciseId: id });
+            toast(wasHidden ? 'Exercise unhidden' : 'Exercise hidden');
+          }}
+          onCopyAsCustom={(exercise) => setCopyingExercise(exercise)}
           onEditExercise={(exercise) => setEditingExercise(exercise)}
           onDeleteExercise={(exercise) => setDeletingExercise(exercise)}
         />
@@ -149,6 +160,23 @@ function HomePage() {
             dispatch({ type: 'UPDATE_CUSTOM_EXERCISE', exercise });
             setEditingExercise(null);
             toast(`Updated "${exercise.name}"`);
+          }}
+        />
+      )}
+
+      {/* Copy-as-custom dialog — pre-fills form from sourced exercise, saves as new custom */}
+      {copyingExercise && (
+        <ExerciseFormDialog
+          open={!!copyingExercise}
+          onClose={() => setCopyingExercise(null)}
+          prefillExercise={copyingExercise}
+          onSave={(exercise) => {
+            dispatch({ type: 'ADD_CUSTOM_EXERCISE', exercise });
+            setCopyingExercise(null);
+            toast(`Saved custom copy "${exercise.name}"`);
+          }}
+          onHideOriginal={() => {
+            dispatch({ type: 'TOGGLE_HIDDEN_EXERCISE', exerciseId: copyingExercise.id });
           }}
         />
       )}
