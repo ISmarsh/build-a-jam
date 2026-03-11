@@ -38,6 +38,19 @@ interface ExerciseListProps {
   onEditExercise?: (exercise: Exercise) => void;
   /** Called when user wants to delete a custom exercise from the detail modal */
   onDeleteExercise?: (exercise: Exercise) => void;
+  /**
+   * Controlled selection — when provided, the parent manages which exercise
+   * is shown in the detail modal. Used by HomePage for deep linking
+   * (opening a specific exercise from a shared URL).
+   *
+   * REACT LEARNING NOTE — CONTROLLED vs UNCONTROLLED:
+   * Same pattern as form inputs: when the parent passes value + onChange,
+   * the component is "controlled". When omitted, it manages its own state
+   * internally. This dual-mode approach keeps the component flexible —
+   * FavoritesPage uses it uncontrolled, HomePage uses it controlled.
+   */
+  selectedExercise?: Exercise | null;
+  onSelectExercise?: (exercise: Exercise | null) => void;
 }
 
 function ExerciseList({
@@ -46,9 +59,17 @@ function ExerciseList({
   onToggleFavorite,
   onEditExercise,
   onDeleteExercise,
+  selectedExercise: controlledSelected,
+  onSelectExercise: controlledSetSelected,
 }: ExerciseListProps) {
-  // STATE: Track which exercise is open in modal (null = no modal)
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  // Dual-mode: controlled (parent manages) or uncontrolled (internal state).
+  // `undefined` = prop not provided (uncontrolled); `null` = explicitly no selection.
+  // Using `??` here would break controlled mode: a parent setting `null` to close
+  // the modal would lose to a non-null `internalSelected`. Check `!== undefined` instead.
+  const [internalSelected, setInternalSelected] = useState<Exercise | null>(null);
+  const isControlled = controlledSelected !== undefined && controlledSetSelected !== undefined;
+  const selectedExercise = isControlled ? controlledSelected : internalSelected;
+  const setSelectedExercise = isControlled ? controlledSetSelected : setInternalSelected;
 
   // Early return pattern - like *ngIf but at component level
   if (exercises.length === 0) {

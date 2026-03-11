@@ -21,7 +21,8 @@
  *    This keeps the same interface — zero consumer changes needed.
  */
 
-import { ExternalLink, Pencil, Trash2, X } from 'lucide-react';
+import { ExternalLink, Pencil, Share2, Trash2, X } from 'lucide-react';
+import { shareExercise } from '../lib/share';
 import type { Exercise } from '../types';
 import { Badge } from './ui/badge';
 import {
@@ -128,6 +129,9 @@ function ExerciseDetailModal({ exercise, onClose, onEdit, onDelete }: ExerciseDe
             ) : (
               <span />
             )}
+            <Button variant="outline" size="sm" onClick={() => void shareExercise(exercise)}>
+              <Share2 className="mr-1 h-3.5 w-3.5" /> Share
+            </Button>
           </div>
           <DialogClose asChild>
             <Button variant="secondary">Close</Button>

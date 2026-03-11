@@ -21,7 +21,8 @@ import { writeFileSync } from 'fs';
 import { createServer } from 'vite';
 
 const PORT = 5174;
-const BASE = `http://localhost:${PORT}`;
+// BASE is set after server starts — mkcert may switch to HTTPS
+let BASE = `http://localhost:${PORT}`;
 // CI writes to working directory; local dev writes to C:/temp
 const OUTPUT = process.env.CI ? 'axe-audit.json' : 'C:/temp/axe-audit.json';
 
@@ -80,8 +81,14 @@ async function main() {
     logLevel: 'error',
   });
   await server.listen();
+  // Use the actual server URL — mkcert may switch the protocol to HTTPS
+  const localUrl = server.resolvedUrls?.local?.[0];
+  if (localUrl) BASE = localUrl.replace(/\/$/, '');
   console.log(`Dev server running at ${BASE}\n`);
 
+  // When mkcert is active, Vite serves HTTPS with a locally-trusted cert.
+  // Playwright needs ignoreHTTPSErrors to accept it.
+  const isHttps = BASE.startsWith('https');
   const browser = await chromium.launch();
   const allResults = [];
 
@@ -89,7 +96,10 @@ async function main() {
     for (const [vpName, vpSize] of Object.entries(VIEWPORTS)) {
       console.log(`--- ${theme.toUpperCase()} / ${vpName.toUpperCase()} ---`);
 
-      const context = await browser.newContext({ viewport: vpSize });
+      const context = await browser.newContext({
+        viewport: vpSize,
+        ...(isHttps && { ignoreHTTPSErrors: true }),
+      });
       const page = await context.newPage();
 
       // Pre-set theme in localStorage before any navigation

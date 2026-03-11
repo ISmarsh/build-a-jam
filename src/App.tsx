@@ -23,8 +23,8 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { SessionProvider } from './context/SessionContext';
 import { useTheme } from './hooks/useTheme';
 import { Sun, Moon, Share2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { Toaster } from './components/ui/sonner';
+import { shareUrl } from './lib/share';
 import HomePage from './components/HomePage';
 import PrepPage from './components/PrepPage';
 import SessionPage from './components/SessionPage';
@@ -46,29 +46,6 @@ function App() {
     location.pathname === '/prep' ||
     location.pathname.startsWith('/session/') ||
     location.pathname.startsWith('/notes/');
-
-  // Web Share API on mobile, clipboard fallback on desktop
-  const handleShare = async () => {
-    const url = window.location.href;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Build-a-Jam', url });
-        return;
-      } catch (error: unknown) {
-        // User cancelled the share sheet — not an error
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-      }
-    }
-
-    // Fallback: copy to clipboard
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied!');
-    } catch {
-      toast.error('Could not copy link');
-    }
-  };
 
   return (
     <SessionProvider>
@@ -97,7 +74,8 @@ function App() {
             <div className="flex flex-1 items-center justify-end gap-1">
               {/* Share button — visible on all screen sizes */}
               <button
-                onClick={() => void handleShare()}
+                type="button"
+                onClick={() => void shareUrl(window.location.href, 'Build-a-Jam')}
                 className="p-2 text-muted-foreground transition-colors hover:text-foreground"
                 aria-label="Share this page"
               >
@@ -105,6 +83,7 @@ function App() {
               </button>
               {/* Theme toggle in header on desktop, in bottom nav on mobile */}
               <button
+                type="button"
                 onClick={toggleTheme}
                 className="hidden p-2 text-muted-foreground transition-colors hover:text-foreground sm:block"
                 aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}

@@ -44,6 +44,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useWakeLock } from '../hooks/useWakeLock';
 import { ChevronDown, ChevronUp, Coffee } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
@@ -71,6 +72,12 @@ function SessionPage() {
   // to be pure — Date.now() is an impure function.
   const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Keep screen on while the session timer is running — performers hold their
+  // phone during exercises and can't keep tapping to prevent screen dimming.
+  // The hook acquires/releases the Wake Lock based on the boolean, and handles
+  // visibility re-acquire (required by spec when the tab regains focus).
+  useWakeLock(!state.timerPaused && state.currentExerciseIndex !== null);
 
   // Timer state lives in context so it survives navigation
   const elapsedSeconds = state.timerElapsed;

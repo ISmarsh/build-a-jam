@@ -16,12 +16,13 @@
  *   one-way data flow.
  */
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Star, Clock, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession } from '../context/SessionContext';
 import { useExerciseFilter } from '../hooks/useExerciseFilter';
+import { getExerciseById } from '../data/exercises';
 import ExerciseList from './ExerciseList';
 import ExerciseFilterBar from './ExerciseFilterBar';
 import ExerciseFormDialog from './ExerciseFormDialog';
@@ -33,6 +34,35 @@ function HomePage() {
   const { state, dispatch } = useSession();
   const favoriteIds = state.favoriteExerciseIds;
   const exerciseFilter = useExerciseFilter();
+
+  // Deep linking: ?exercise=learnimprov:zip-zap-zop opens the detail modal
+  // for that exercise on page load (shared URL). The query param is cleared
+  // immediately so refreshing doesn't re-open the modal.
+  //
+  // REACT LEARNING NOTE — LAZY STATE INITIALIZATION:
+  // useState(() => ...) runs the initializer only once, on mount. We read
+  // the query param here instead of in a useEffect so the modal opens on
+  // the first render — no flash of the page without the modal.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(() => {
+    const id = searchParams.get('exercise');
+    return id ? (getExerciseById(id) ?? null) : null;
+  });
+
+  // Clear the ?exercise= param after reading it (replace history so
+  // Back button doesn't re-open the modal).
+  // Functional form avoids mutating the existing URLSearchParams instance.
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        if (!prev.has('exercise')) return prev;
+        const next = new URLSearchParams(prev);
+        next.delete('exercise');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
 
   // STATE: custom exercise create/edit/delete
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -84,6 +114,8 @@ function HomePage() {
         <ExerciseList
           exercises={exerciseFilter.sorted}
           favoriteIds={favoriteIds}
+          selectedExercise={selectedExercise}
+          onSelectExercise={setSelectedExercise}
           onToggleFavorite={(id) => {
             const wasFavorite = favoriteIds.includes(id);
             dispatch({ type: 'TOGGLE_FAVORITE_EXERCISE', exerciseId: id });
