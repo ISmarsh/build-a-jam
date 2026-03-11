@@ -94,6 +94,7 @@ function SortablePrepItem({
         <div className="flex items-center justify-between gap-3">
           {/* Drag handle */}
           <button
+            type="button"
             {...attributes}
             {...listeners}
             className="shrink-0 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
@@ -123,6 +124,7 @@ function SortablePrepItem({
             />
             <span className="text-sm text-muted-foreground">min</span>
             <button
+              type="button"
               onClick={onRequestRemove}
               className="ml-1 shrink-0 text-destructive transition-colors hover:text-destructive/80"
               aria-label={`Remove ${name}`}
@@ -144,6 +146,7 @@ function SortablePrepItem({
           </div>
           {exercise && (
             <button
+              type="button"
               onClick={() => onShowDetail(exercise)}
               className="ml-2 inline-flex shrink-0 items-center gap-1 text-xs text-primary transition-colors hover:text-primary-hover"
             >
@@ -267,6 +270,7 @@ function PrepPage() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base text-primary">{exercise.name}</CardTitle>
                     <button
+                      type="button"
                       onClick={() => handleAddExercise(exercise.id)}
                       className="shrink-0 text-sm text-primary hover:text-primary-hover"
                     >
@@ -291,6 +295,7 @@ function PrepPage() {
                       ))}
                     </div>
                     <button
+                      type="button"
                       onClick={() => setDetailExercise(exercise)}
                       className="ml-2 inline-flex shrink-0 items-center gap-1 text-xs text-primary transition-colors hover:text-primary-hover"
                     >
@@ -319,6 +324,7 @@ function PrepPage() {
             {sessionExercises.length > 0 && (
               <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => template.start(state.currentSession?.name ?? '')}
                   className="inline-flex items-center gap-1 text-sm text-star transition-colors hover:text-star/80"
                   title="Save as favorite"
@@ -326,6 +332,7 @@ function PrepPage() {
                   <Star className="h-4 w-4 fill-current" /> Save
                 </button>
                 <button
+                  type="button"
                   onClick={() =>
                     setConfirm({
                       title: 'Clear queue?',

@@ -24,6 +24,13 @@
  *    Wake Lock API isn't supported on all browsers (notably Firefox desktop
  *    and older Safari). The hook checks `'wakeLock' in navigator` and
  *    returns `isSupported: false` — consumers can show/hide UI accordingly.
+ *
+ * 5. RACE CONDITION GUARD:
+ *    Both effects call the same `acquireWakeLock()` helper. The helper takes
+ *    an `isCancelled` callback so that if deps change (or the component
+ *    unmounts) while the async request is in-flight, the resolved sentinel is
+ *    released immediately rather than stored. It also guards against a second
+ *    in-flight request winning and overwriting an already-stored ref.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -34,35 +41,46 @@ export function useWakeLock(enabled: boolean) {
   const [isActive, setIsActive] = useState(false);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
+  // Shared helper used by both effects.
+  // `isCancelled` is a function so the helper reads the current value at
+  // the time the promise resolves, not at the time it was called.
+  async function acquireWakeLock(isCancelled: () => boolean) {
+    try {
+      const sentinel = await navigator.wakeLock.request('screen');
+
+      if (isCancelled()) {
+        // Deps changed or cleanup ran while awaiting — release immediately.
+        sentinel.release().catch(() => {});
+        return;
+      }
+
+      if (wakeLockRef.current) {
+        // A concurrent request already stored a sentinel (rapid visibility
+        // events). Release this duplicate to avoid a leak.
+        sentinel.release().catch(() => {});
+        return;
+      }
+
+      wakeLockRef.current = sentinel;
+      setIsActive(true);
+
+      // The browser may release the lock (e.g., low battery). Track that.
+      sentinel.addEventListener('release', () => {
+        wakeLockRef.current = null;
+        setIsActive(false);
+      });
+    } catch {
+      // request() throws if the page isn't visible or permission is denied.
+      // Not an error worth surfacing — the lock just won't be active.
+    }
+  }
+
   // Primary effect: acquire/release based on `enabled`
   useEffect(() => {
     if (!enabled || !isSupported) return;
 
     let cancelled = false;
-
-    async function acquire() {
-      try {
-        const sentinel = await navigator.wakeLock.request('screen');
-        if (cancelled) {
-          // Component unmounted or deps changed while awaiting — release immediately
-          await sentinel.release();
-          return;
-        }
-        wakeLockRef.current = sentinel;
-        setIsActive(true);
-
-        // The browser may release the lock (e.g., low battery). Track that.
-        sentinel.addEventListener('release', () => {
-          wakeLockRef.current = null;
-          setIsActive(false);
-        });
-      } catch {
-        // request() throws if the page isn't visible or permission is denied.
-        // Not an error worth surfacing — the lock just won't be active.
-      }
-    }
-
-    void acquire();
+    void acquireWakeLock(() => cancelled);
 
     // Cleanup: release on pause, unmount, or navigation
     return () => {
@@ -71,6 +89,7 @@ export function useWakeLock(enabled: boolean) {
       wakeLockRef.current = null;
       setIsActive(false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- acquireWakeLock is stable (no captured state)
   }, [enabled, isSupported]);
 
   // Visibility re-acquire: browser releases locks when tab goes to background.
@@ -82,23 +101,7 @@ export function useWakeLock(enabled: boolean) {
 
     function handleVisibilityChange() {
       if (document.visibilityState === 'visible' && !wakeLockRef.current) {
-        navigator.wakeLock
-          .request('screen')
-          .then((sentinel) => {
-            // Guard: if enabled flipped false (or unmounted) while the promise
-            // was in-flight, release immediately instead of storing the lock.
-            if (cancelled) {
-              sentinel.release().catch(() => {});
-              return;
-            }
-            wakeLockRef.current = sentinel;
-            setIsActive(true);
-            sentinel.addEventListener('release', () => {
-              wakeLockRef.current = null;
-              setIsActive(false);
-            });
-          })
-          .catch(() => {});
+        void acquireWakeLock(() => cancelled);
       }
     }
 
@@ -107,6 +110,7 @@ export function useWakeLock(enabled: boolean) {
       cancelled = true;
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- acquireWakeLock is stable (no captured state)
   }, [enabled, isSupported]);
 
   return { isSupported, isActive } as const;

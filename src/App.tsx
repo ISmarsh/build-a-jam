@@ -74,6 +74,7 @@ function App() {
             <div className="flex flex-1 items-center justify-end gap-1">
               {/* Share button — visible on all screen sizes */}
               <button
+                type="button"
                 onClick={() => void shareUrl(window.location.href, 'Build-a-Jam')}
                 className="p-2 text-muted-foreground transition-colors hover:text-foreground"
                 aria-label="Share this page"
@@ -82,6 +83,7 @@ function App() {
               </button>
               {/* Theme toggle in header on desktop, in bottom nav on mobile */}
               <button
+                type="button"
                 onClick={toggleTheme}
                 className="hidden p-2 text-muted-foreground transition-colors hover:text-foreground sm:block"
                 aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
