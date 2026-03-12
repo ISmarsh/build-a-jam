@@ -187,7 +187,9 @@ function HomePage() {
             toast(`Saved custom copy "${exercise.name}"`);
           }}
           onHideOriginal={() => {
-            dispatch({ type: 'TOGGLE_HIDDEN_EXERCISE', exerciseId: copyingExercise.id });
+            if (!state.hiddenExerciseIds.includes(copyingExercise.id)) {
+              dispatch({ type: 'TOGGLE_HIDDEN_EXERCISE', exerciseId: copyingExercise.id });
+            }
           }}
         />
       )}
